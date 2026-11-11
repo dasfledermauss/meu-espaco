@@ -1,0 +1,14 @@
+# Credenciais do Google: nunca versionar
+client_secret*.json
+*.credentials.json
+.env
+.env.*
+
+# Lixo do sistema
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+node_modules/
+.vercel/
+config.local.json

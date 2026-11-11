@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meu Espaço</title>
+  <meta name="theme-color" content="#eef1f7">
+  <link rel="stylesheet" href="assets/css/estilo.css">
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <header class="topo">
+    <div class="topo-interno">
+      <button type="button" class="ico-btn btn-menu" id="btn-menu" aria-expanded="false" aria-controls="nav-lateral" aria-label="Abrir navegação">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 5h18M3 12h18M3 19h18"/></svg>
+      </button>
+      <a class="marca" href="#/inicio"><span class="marca-selo"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v12a1 1 0 01-1 1H4a1 1 0 01-1-1V7zM3 7l2-3h14l2 3M10 12h4"/></svg></span>Meu Espaço</a>
+      <form class="busca-topo" role="search" id="form-busca">
+        <label class="sr-only" for="busca-topo">Buscar no meu espaço</label>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M17 17l4 4M3 11a8 8 0 1016 0 8 8 0 00-16 0z"/></svg>
+        <input type="search" id="busca-topo" placeholder="Buscar em tudo que guardei" autocomplete="off">
+      </form>
+      <div id="topo-perfil"></div>
+    </div>
+  </header>
+
+  <div class="layout" id="layout">
+    <nav class="nav-lateral" id="nav-lateral" aria-label="Navegação do sistema"></nav>
+    <main id="conteudo" tabindex="-1"></main>
+    <aside class="direita" id="direita" aria-label="Resumo"></aside>
+  </div>
+  <p class="rodape">Protótipo local · os dados ficam neste navegador · ícones <a href="https://iconoir.com/" target="_blank" rel="noopener">Iconoir</a></p>
+
+  <dialog id="modal" aria-label="Janela"></dialog>
+  <div id="janelas"></div>
+  <div id="menu-selecao" class="menu-selecao" hidden><button type="button" data-act="anot-selecao">Guardar como anotação</button></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <input type="file" id="arquivo-cv" accept=".json,application/json" hidden>
+  <input type="file" id="arquivo-backup" accept=".json,application/json" hidden>
+  <input type="file" id="arquivo-foto" accept="image/*" hidden>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/dados-iniciais.js"></script>
+  <script src="assets/js/icones.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
