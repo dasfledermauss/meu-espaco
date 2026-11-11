@@ -2008,9 +2008,9 @@
     }, espera);
   }
   function pintarNuvem() {
+    if ((rotaAtual()[0] || '') === 'config' && !UI.modal) { UI.pularColheita = true; return render(); }
     const el = document.getElementById('estado-nuvem');
     if (el) el.innerHTML = textoNuvem();
-    if ((rotaAtual()[0] || '') === 'config') { /* a tela cuida do resto ao renderizar */ }
   }
   function textoNuvem() {
     const e = UI.nuvem.estado;
