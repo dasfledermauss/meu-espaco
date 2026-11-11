@@ -1045,6 +1045,9 @@
   function renderConfig() {
     const n = S.itens.length, imgs = S.itens.filter((i) => i.capa).length;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('settings')}Configurações</h1></header>
+      ${UI.sessao.viaFirebase ? cartao(ic('priority-high') + 'Sessão do site', `
+        <p class="meta">Você está entrando pela conta do Google guardada no navegador. A sessão do site em si caiu, o que costuma significar que falta definir <code>SESSAO_SEGREDO</code> nas variáveis de ambiente do servidor.</p>
+        <p class="meta" style="margin-top:8px">Nada se perde por causa disso: seus registros continuam guardados e sincronizados.</p>`) : ''}
       ${cartao(ic('refresh') + 'Sincronização', `
         <p class="meta" id="estado-nuvem">${textoNuvem()}</p>
         ${UI.nuvem.estado === 'ligada' || UI.nuvem.estado === 'enviando'
@@ -2097,13 +2100,25 @@
     UI.sessao = await lerSessao();
     if (!location.hash) history.replaceState(null, '', '#/inicio');
     UI.pularColheita = true;
+
+    // A sessão do Firebase vale por si: se o cookie do site se perdeu, ela mantém você dentro.
+    let doFirebase = null;
+    const temNuvem = window.Nuvem && Nuvem.configurado() && UI.sessao.modo !== 'local';
+    if (temNuvem) {
+      try {
+        doFirebase = await Nuvem.iniciar((novo) => { if (!novo) { UI.nuvem.estado = 'desligada'; pintarNuvem(); } });
+      } catch (e) { UI.nuvem.estado = 'erro'; UI.nuvem.erro = String(e.message || e); }
+    }
+    if (UI.sessao.modo === 'deslogado' && doFirebase) {
+      UI.sessao = { modo: 'logado', restrito: UI.sessao.restrito, viaFirebase: true,
+        usuario: { nome: doFirebase.nome || doFirebase.email, email: doFirebase.email, foto: doFirebase.foto || '' } };
+    }
     if (UI.sessao.modo === 'deslogado') { renderEntrada(); return; }
     render();
-    if (window.Nuvem && Nuvem.configurado() && UI.sessao.modo === 'logado') {
-      try {
-        const u = await Nuvem.iniciar((novo) => { if (!novo) { UI.nuvem.estado = 'desligada'; pintarNuvem(); } });
-        if (u) await ligarNuvem(); else { UI.nuvem.estado = 'desligada'; pintarNuvem(); }
-      } catch (e) { UI.nuvem.estado = 'erro'; UI.nuvem.erro = String(e.message || e); pintarNuvem(); }
+    if (temNuvem) {
+      if (doFirebase) await ligarNuvem();
+      else if (UI.nuvem.estado !== 'erro') { UI.nuvem.estado = 'desligada'; pintarNuvem(); }
+      else pintarNuvem();
     }
     window.__meuEspaco = { get estado() { return S; }, get ui() { return UI; } };
   })();
