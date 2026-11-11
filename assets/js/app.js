@@ -93,11 +93,11 @@
   const UI = { busca: '', feedModo: 'todos', dia: hoje(), colSel: 'todas', colFiltro: 'todos', colTipo: 'todos', colBusca: '',
     editando: null, comentando: null, cvEdit: null, cvAdd: null, plano: null, previa: false, adiando: null, lembEdit: null,
     gastoMes: hoje().slice(0, 7), bibFormato: 'todos', bibAgrupar: 'status', bibBusca: '', bibVer: null,
-    wlFiltro: 'desejos', wlOrdem: 'recentes', muralCol: 'todas', pastaAberta: null, extras: {}, imagens: {}, servidor: false, janelas: [], sessao: { modo: 'local' } };
+    wlFiltro: 'desejos', wlOrdem: 'recentes', muralCol: 'todas', pastaAberta: null, extras: {}, imagens: {}, servidor: false, janelas: [], sessao: { modo: 'local' }, nuvem: { estado: 'local', em: '', erro: '' } };
   let RASC = {};
 
   function salvar() {
-    try { localStorage.setItem(CHAVE, JSON.stringify(S)); return true; }
+    try { localStorage.setItem(CHAVE, JSON.stringify(S)); if (typeof agendarSync === 'function') agendarSync(); return true; }
     catch (e) { toast('Não consegui salvar: o armazenamento do navegador está cheio. Exporte um backup e limpe o que não usa.'); return false; }
   }
   const salvarRasc = () => { try { localStorage.setItem(CHAVE_RASC, JSON.stringify(RASC)); } catch (e) { /* ignora */ } };
@@ -1045,6 +1045,17 @@
   function renderConfig() {
     const n = S.itens.length, imgs = S.itens.filter((i) => i.capa).length;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('settings')}Configurações</h1></header>
+      ${cartao(ic('refresh') + 'Sincronização', `
+        <p class="meta" id="estado-nuvem">${textoNuvem()}</p>
+        ${UI.nuvem.estado === 'ligada' || UI.nuvem.estado === 'enviando'
+          ? `<p class="meta" style="margin-top:8px">Seus registros ficam na sua conta e aparecem em qualquer aparelho onde você entrar. Alterações de outro aparelho chegam sozinhas.</p>
+             <div class="acoes-form" style="margin-top:14px">${btn('sync-agora', ic('refresh') + 'Sincronizar agora', '', 'btn-2')}</div>`
+          : UI.nuvem.estado === 'desligada'
+            ? `<p class="meta" style="margin-top:8px">Entre de novo com o Google para ligar a sincronização neste navegador.</p>
+               <div class="acoes-form" style="margin-top:14px">${btn('ligar-sync', ic('refresh') + 'Ligar sincronização', '', 'btn-1')}</div><div id="botao-google-config" style="margin-top:10px"></div>`
+            : UI.nuvem.estado === 'erro'
+              ? `<div class="acoes-form" style="margin-top:14px">${btn('sync-agora', 'Tentar de novo', '', 'btn-2')}</div>`
+              : '<p class="meta" style="margin-top:8px">Os registros ficam só neste navegador. A sincronização liga ao entrar com a conta Google pelo servidor ou pelo site publicado.</p>'}`)}
       ${cartao(ic('database-backup') + 'Backup dos dados', `
         <p class="meta">Tudo fica guardado neste navegador e neste endereço. Para levar para outro navegador, outro computador ou para o endereço publicado, exporte aqui e importe lá.</p>
         <p class="meta" style="margin-top:8px">${n} registros · ${S.colecoes.length} coleções · ${S.pastas.length} pastas de estudo · ${imgs} capas guardadas</p>
@@ -1526,6 +1537,18 @@
       case 'tema': UI.temaPrevia = b.dataset.v; UI.corPrevia = ''; return render();
       case 'cor-limpar': UI.corPrevia = ''; S.perfil.corCustom = ''; return passa();
       case 'perfil-cancelar': UI.temaPrevia = null; UI.corPrevia = null; return (location.hash = '#/inicio');
+      case 'sync-agora': UI.nuvem.erro = ''; if (!nuvemLigada()) UI.nuvem.estado = 'ligada'; agendarSync(0); toast('Enviando…', 'refresh'); return;
+      case 'ligar-sync': {
+        const alvo = document.getElementById('botao-google-config');
+        if (!alvo) return;
+        alvo.innerHTML = '<p class="meta">Carregando o botão do Google…</p>';
+        carregarScript('https://accounts.google.com/gsi/client').then(() => {
+          google.accounts.id.initialize({ client_id: CLIENTE_GOOGLE, callback: aoEntrar, cancel_on_tap_outside: false });
+          alvo.innerHTML = '';
+          google.accounts.id.renderButton(alvo, { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: 'pt-BR' });
+        }).catch(() => { alvo.innerHTML = `<p class="erro">Não consegui carregar o login do Google.</p>`; });
+        return;
+      }
       case 'backup-exportar': baixar('meu-espaco-backup-' + hoje() + '.json', Object.assign({ tipoArquivo: 'meu-espaco-backup' }, S)); return toast('Backup exportado.', 'download');
       case 'backup-importar': return document.getElementById('arquivo-backup').click();
       case 'resetar':
@@ -1918,6 +1941,10 @@
       document.body.classList.remove('entrando');
       UI.pularColheita = true; render();
       toast('Bem-vindo, ' + d.usuario.nome.split(' ')[0] + '.', 'check-circle-solid');
+      if (window.Nuvem && Nuvem.configurado()) {
+        try { await Nuvem.entrarComGoogle(resposta.credential); await ligarNuvem(true); }
+        catch (er) { UI.nuvem.estado = 'erro'; UI.nuvem.erro = String(er.message || er); pintarNuvem(); }
+      }
     } catch (e) {
       UI.erroEntrada = String(e.message || e); renderEntrada();
     }
@@ -1926,8 +1953,136 @@
     if (!confirm('Sair da conta? Os registros continuam guardados neste navegador.')) return;
     try { await fetch('api/sessao', { method: 'DELETE' }); } catch (e) { /* ignora */ }
     try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) { /* ignora */ }
+    try { if (window.Nuvem) await Nuvem.sair(); } catch (e) { /* ignora */ }
+    UI.nuvem = { estado: 'local', em: '', erro: '' };
     UI.sessao = { modo: 'deslogado', restrito: UI.sessao.restrito };
     renderEntrada();
+  }
+
+  /* ---------------- sincronização com a nuvem ---------------- */
+  let ULTIMO = { base: '', itens: {}, lembretes: {} };
+  let timerSync = null;
+  const limpo = (o) => JSON.parse(JSON.stringify(o));
+  const quando = (x) => x.atualizadoEm || x.editadoEm || x.criadoEm || '';
+  const nuvemLigada = () => UI.nuvem.estado === 'ligada' || UI.nuvem.estado === 'enviando';
+  const baseNuvem = () => limpo({ perfil: S.perfil, colecoes: S.colecoes, pastas: S.pastas,
+    destinoPadrao: S.destinoPadrao, curriculo: S.curriculo, versao: S.versao, atualizadoEm: S.baseEm || '' });
+
+  function diferencas() {
+    const b = baseNuvem();
+    const mud = { itens: [], lembretes: [], apagar: { itens: [], lembretes: [] } };
+    if (canon(b) !== ULTIMO.base) { S.baseEm = agora(); b.atualizadoEm = S.baseEm; mud.base = b; }
+    [['itens', S.itens], ['lembretes', S.lembretes]].forEach(([nome, lista]) => {
+      const vistos = new Set();
+      lista.forEach((x) => {
+        vistos.add(x.id);
+        if (ULTIMO[nome][x.id] !== canon(x)) { x.atualizadoEm = agora(); mud[nome].push(limpo(x)); }
+      });
+      Object.keys(ULTIMO[nome]).forEach((id) => { if (!vistos.has(id)) mud.apagar[nome].push(id); });
+    });
+    return mud;
+  }
+  function registrarEnviado(mud) {
+    if (mud.base) ULTIMO.base = canon(baseNuvem());
+    ['itens', 'lembretes'].forEach((n) => {
+      S[n].forEach((x) => (ULTIMO[n][x.id] = canon(x)));
+      mud.apagar[n].forEach((id) => delete ULTIMO[n][id]);
+    });
+  }
+  function agendarSync(espera = 1200) {
+    if (!nuvemLigada()) return;
+    clearTimeout(timerSync);
+    timerSync = setTimeout(async () => {
+      const mud = diferencas();
+      if (!mud.base && !mud.itens.length && !mud.lembretes.length && !mud.apagar.itens.length && !mud.apagar.lembretes.length) return;
+      UI.nuvem.estado = 'enviando'; pintarNuvem();
+      try {
+        await Nuvem.enviar(mud);
+        registrarEnviado(mud);
+        UI.nuvem.estado = 'ligada'; UI.nuvem.em = agora(); UI.nuvem.erro = '';
+        salvar();
+      } catch (e) {
+        UI.nuvem.estado = 'erro'; UI.nuvem.erro = String(e.message || e);
+      }
+      pintarNuvem();
+    }, espera);
+  }
+  function pintarNuvem() {
+    const el = document.getElementById('estado-nuvem');
+    if (el) el.innerHTML = textoNuvem();
+    if ((rotaAtual()[0] || '') === 'config') { /* a tela cuida do resto ao renderizar */ }
+  }
+  function textoNuvem() {
+    const e = UI.nuvem.estado;
+    if (e === 'enviando') return ic('refresh') + ' Salvando na nuvem…';
+    if (e === 'ligada') return ic('check-circle-solid') + ' Sincronizado' + (UI.nuvem.em ? ' · ' + fmtHora(UI.nuvem.em) : '');
+    if (e === 'erro') return ic('priority-high') + ' Não consegui sincronizar agora. O que você salvou continua guardado neste navegador.<br><span class="suave">' + esc(corta(UI.nuvem.erro, 140)) + '</span>';
+    if (e === 'ligando') return ic('refresh') + ' Ligando…';
+    if (e === 'desligada') return ic('priority-high') + ' Sincronização desligada neste navegador';
+    return ic('database-backup') + ' Só neste navegador';
+  }
+
+  async function puxarEMesclar() {
+    const r = await Nuvem.baixarTudo();
+    if (!r) return false;
+    let mudou = false;
+    if (r.base && (r.base.atualizadoEm || '') > (S.baseEm || '')) {
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo'].forEach((k) => { if (r.base[k] !== undefined) S[k] = r.base[k]; });
+      S.baseEm = r.base.atualizadoEm; mudou = true;
+    }
+    [['itens', r.itens], ['lembretes', r.lembretes]].forEach(([nome, remotos]) => {
+      remotos.forEach((rem) => {
+        const k = S[nome].findIndex((x) => x.id === rem.id);
+        if (k < 0) { S[nome].push(rem); mudou = true; }
+        else if (quando(rem) > quando(S[nome][k])) { S[nome][k] = rem; mudou = true; }
+      });
+    });
+    migrar(S);
+    ULTIMO = { base: canon(baseNuvem()), itens: {}, lembretes: {} };
+    [['itens', r.itens], ['lembretes', r.lembretes]].forEach(([nome, remotos]) => {
+      remotos.forEach((rem) => {
+        const local = S[nome].find((x) => x.id === rem.id);
+        if (local && canon(local) === canon(rem)) ULTIMO[nome][rem.id] = canon(rem);
+      });
+    });
+    if (r.base && canon(baseNuvem()) !== canon(r.base)) ULTIMO.base = '';
+    if (mudou) salvar();
+    return mudou;
+  }
+  function aplicarRemoto(d) {
+    let mudou = false;
+    if (d.base && (d.base.atualizadoEm || '') > (S.baseEm || '')) {
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo'].forEach((k) => { if (d.base[k] !== undefined) S[k] = d.base[k]; });
+      S.baseEm = d.base.atualizadoEm; ULTIMO.base = canon(baseNuvem()); mudou = true;
+    }
+    [['itens', d.itens, d.apagarItens], ['lembretes', d.lembretes, d.apagarLembretes]].forEach(([nome, novos, fora]) => {
+      (novos || []).forEach((rem) => {
+        const k = S[nome].findIndex((x) => x.id === rem.id);
+        if (k < 0) { S[nome].push(rem); mudou = true; }
+        else if (quando(rem) > quando(S[nome][k])) { S[nome][k] = rem; mudou = true; }
+        ULTIMO[nome][rem.id] = canon(S[nome].find((x) => x.id === rem.id));
+      });
+      (fora || []).forEach((id) => {
+        if (S[nome].some((x) => x.id === id)) { S[nome] = S[nome].filter((x) => x.id !== id); mudou = true; }
+        delete ULTIMO[nome][id];
+      });
+    });
+    if (mudou) { migrar(S); salvar(); UI.pularColheita = true; render(); toast('Atualizado de outro aparelho.', 'refresh'); }
+  }
+
+  async function ligarNuvem(primeira) {
+    UI.nuvem.estado = 'ligando'; pintarNuvem();
+    try {
+      await puxarEMesclar();
+      Nuvem.ouvir(aplicarRemoto);
+      UI.nuvem.estado = 'ligada'; UI.nuvem.em = agora(); UI.nuvem.erro = '';
+      UI.pularColheita = true; render();
+      agendarSync(300);
+      if (primeira) toast('Sincronização ligada.', 'check-circle-solid');
+    } catch (e) {
+      UI.nuvem.estado = 'erro'; UI.nuvem.erro = String(e.message || e);
+      pintarNuvem();
+    }
   }
 
   /* ---------------- início ---------------- */
@@ -1942,7 +2097,14 @@
     UI.sessao = await lerSessao();
     if (!location.hash) history.replaceState(null, '', '#/inicio');
     UI.pularColheita = true;
-    if (UI.sessao.modo === 'deslogado') renderEntrada(); else render();
+    if (UI.sessao.modo === 'deslogado') { renderEntrada(); return; }
+    render();
+    if (window.Nuvem && Nuvem.configurado() && UI.sessao.modo === 'logado') {
+      try {
+        const u = await Nuvem.iniciar((novo) => { if (!novo) { UI.nuvem.estado = 'desligada'; pintarNuvem(); } });
+        if (u) await ligarNuvem(); else { UI.nuvem.estado = 'desligada'; pintarNuvem(); }
+      } catch (e) { UI.nuvem.estado = 'erro'; UI.nuvem.erro = String(e.message || e); pintarNuvem(); }
+    }
     window.__meuEspaco = { get estado() { return S; }, get ui() { return UI; } };
   })();
 })();

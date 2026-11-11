@@ -1,0 +1,12 @@
+rules_version = '2';
+// Cada pessoa só enxerga e escreve no próprio espaço.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /espacos/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      match /{documento=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+  }
+}

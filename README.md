@@ -26,10 +26,12 @@ meu-espaco/
 │   ├── sessao.js           login com conta Google (ver docs/LOGIN.md)
 │   └── status.js           diz ao site que a captura está disponível
 ├── config.local.exemplo.json  copie para config.local.json e preencha (fica fora do Git)
+├── firestore.rules         regras de acesso do banco (publicar no Firebase)
 ├── assets/
 │   ├── css/estilo.css      visual (v3)
 │   ├── js/app.js           lógica e telas
-│   ├── js/config.js        ID do cliente Google (público)
+│   ├── js/config.js        ID do cliente Google e projeto Firebase (públicos)
+│   ├── js/nuvem.js         sincronização com o Firestore
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)
 │   ├── js/dados-iniciais.js  cópia de data/*.json para abrir sem servidor
 │   ├── fonts/              Lexend
@@ -38,7 +40,8 @@ meu-espaco/
 ├── data/                   currículo e links de exemplo
 └── docs/
     ├── ESCOPO.md  OUTRAS_FEATURES.md  DIRECAO_VISUAL_MVP.md
-    ├── BIBLIOTECA_E_WISHLIST.md  ESTUDOS.md  LOGIN.md  README-PROMPT.md
+    ├── BIBLIOTECA_E_WISHLIST.md  ESTUDOS.md  LOGIN.md
+    ├── SINCRONIZACAO.md  README-PROMPT.md
     └── historico/          capturas de cada versão, feitas antes de mudar
 ```
 
@@ -54,6 +57,7 @@ meu-espaco/
 - **Lembretes:** faixa no topo do Início e quadro em quatro colunas.
 - **Gastos, Currículo, Perfil e Configurações.**
 - **Login com conta Google** no servidor local e no site publicado, com lista de e-mails liberados. Abrindo o `index.html` direto, entra sem login. Detalhes e configuração em `docs/LOGIN.md`.
+- **Sincronização entre aparelhos** pelo Firestore: o que você guarda no computador aparece no celular. O navegador continua salvando na hora, mesmo sem internet. Ver `docs/SINCRONIZACAO.md`.
 
 ## Regras do projeto
 

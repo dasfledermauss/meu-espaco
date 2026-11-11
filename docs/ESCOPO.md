@@ -153,6 +153,6 @@ A consulta “O que aprendi nos últimos seis meses e apliquei em projetos?” �
 | 1 · Currículo | Importação com prévia, inclusão, edição, exclusão e exportação | Importar o exemplo duas vezes, editar um cargo, excluir um curso e exportar. Reabrir a aplicação e conferir a prévia. O JSON exportado deve refletir as duas mudanças. |
 | 2 · Biblioteca, wishlist, mural e gastos *(feito no protótipo)* | Prateleiras de livros e filmes, vitrine capturada por link, mural de post-its, quadro de lembretes, gastos | Adicionar um livro com capa e estrelas e vê-lo na prateleira. Colar o link de um produto e ver foto, nome e preço. Marcar como comprado e conferir o gasto. Corrigir um gasto e ver o total mudar. |
 | 3 · Aprendizados e carreira | Tipos Aprendizado e Conquista, envio manual para currículo e brag document | Registrar um curso como Aprendizado, marcar apenas “Registrar no brag document” e abrir a evidência por ele. O currículo não recebe nada sem a marcação correspondente. |
-| 4 · Acesso entre dispositivos | Conta privada, sincronização e registro offline | Salvar um item no celular sem conexão, reconectar e reencontrar no PC uma única vez. |
+| 4 · Acesso entre dispositivos *(feito no protótipo)* | Conta Google e sincronização pelo Firestore, com uso offline | Salvar um item no celular sem conexão, reconectar e reencontrar no PC uma única vez. Ver `SINCRONIZACAO.md`. |
 
 As duas primeiras linhas compõem a mesma versão inicial. As demais registram a visão completa do produto e uma ordem proposta para implementá-la.
