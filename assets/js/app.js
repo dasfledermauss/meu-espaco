@@ -112,6 +112,9 @@
       let tem = false;
       f.querySelectorAll('input, textarea, select').forEach((el) => {
         if (el.type === 'file' || el.disabled || !el.name) return;
+        // Campos ocultos de escolha (modo da nota, formato da mídia): guardar quando saem do padrão.
+        // Sem isso, abrir um campo opcional fazia a escolha voltar atrás.
+        if (el.type === 'hidden') { if (el.dataset.padrao === undefined) return; d[el.name] = el.value; if (el.value !== el.dataset.padrao) tem = true; return; }
         if (el.type === 'checkbox' || el.type === 'radio') { if (el.checked !== el.defaultChecked) { d[el.name + '\u0000' + el.value] = el.checked; tem = true; } }
         else if (el.value !== (el.defaultValue ?? '')) { d[el.name] = el.value; tem = true; }
       });
@@ -452,12 +455,21 @@
     const v = it || {};
     const c = construtor(k, v);
     if (t === 'nota') {
-      c.fixo(campo('f-texto', 'Texto', area('f-texto', 'texto', v.texto, 'class="alto" required placeholder="Escreva o que aprendeu, pensou ou quer lembrar…"')));
+      const md = (RASC[k] && RASC[k].modo) || v.modo || 'texto';
+      c.fixo(`<div class="segmento" role="group" aria-label="Formato da nota">
+          <button type="button" data-act="form-modo" data-v="texto" aria-pressed="${md === 'texto'}">${ic('journal-page')} Texto</button>
+          <button type="button" data-act="form-modo" data-v="lista" aria-pressed="${md === 'lista'}">${ic('check-circle')} Lista</button></div>
+        <input type="hidden" name="modo" value="${md}" data-padrao="texto">`);
+      if (md === 'lista') {
+        c.fixo(campo('f-texto', 'Itens', area('f-texto', 'texto', textoDaLista(v), 'class="alto" required placeholder="Um item por linha — cole uma lista pronta se quiser"'))
+          + `<p class="dica">${ic('priority-high')}<span>Cada linha vira um item para marcar. Marcadores como “-”, “•” e “1.” são removidos.</span></p>`);
+      } else c.fixo(campo('f-texto', 'Texto', area('f-texto', 'texto', v.texto, 'class="alto" required placeholder="Escreva o que aprendeu, pensou ou quer lembrar…"')));
       c.opc('titulo', 'Título', campo('f-titulo', 'Título', txt('f-titulo', 'titulo', v.titulo)));
       c.opc('destino', 'Coleção', campo('f-destino', 'Coleção', `<select id="f-destino" name="destino" data-act="destino">${opcoesDestino(it ? (v.colecoes[0] || {}).id : S.destinoPadrao.nota)}</select>`));
       c.opc('cor', 'Cor do papel', campo('f-cor', 'Cor do papel', selectHTML('f-cor', 'cor', CORES_NOTA.map((x) => [x, x[0].toUpperCase() + x.slice(1)]), v.cor || corNota(v.id ? v : { id: 'x' }))));
     } else if (t === 'tarefa') {
-      c.fixo(campo('f-titulo', 'O que precisa ser feito', txt('f-titulo', 'titulo', v.titulo, 'required placeholder="ex.: mandar a proposta da paróquia"')));
+      c.fixo(campo('f-titulo', 'O que precisa ser feito', area('f-titulo', 'titulo', v.titulo, 'class="uma-linha" rows="1" required placeholder="ex.: mandar a proposta da paróquia"'))
+        + (it ? '' : `<p class="dica" id="dica-colar">${ic('priority-high')}<span>Colou uma lista? Cada linha vira uma tarefa.</span></p>`));
       c.opc('prazo', 'Prazo', campo('f-prazo', 'Prazo <span class="opcional">(opcional)</span>', `<input type="date" id="f-prazo" name="prazo" value="${esc(v.prazo || '')}">`, 'medio')
         + `<label class="check"><input type="checkbox" name="avisar" ${v.lembreteId || !it ? 'checked' : ''}> Criar lembrete no prazo</label>`);
       c.opc('etapa', 'Situação', campo('f-etapa', 'Situação', selectHTML('f-etapa', 'etapa', Object.entries(ETAPAS), etapa(v)), 'medio'));
@@ -475,7 +487,7 @@
       c.fixo(`<div class="segmento" role="group" aria-label="Formato">
           <button type="button" data-act="form-formato" data-v="livro" aria-pressed="${f === 'livro'}">${ic('book')} Livro</button>
           <button type="button" data-act="form-formato" data-v="filme" aria-pressed="${f === 'filme'}">${ic('movie')} Filme ou série</button></div>
-        <input type="hidden" name="formato" value="${f}">`);
+        <input type="hidden" name="formato" value="${f}" data-padrao="livro">`);
       c.fixo(`<div class="linha">${campo('f-titulo', 'Nome', txt('f-titulo', 'titulo', v.titulo, 'required'))}
         ${campo('f-autor', f === 'filme' ? 'Direção' : 'Autor(a)', txt('f-autor', 'autor', v.autor), 'medio')}</div>`);
       c.fixo(campo('f-status', 'Situação', selectHTML('f-status', 'status', Object.entries(STATUS[f]), v.status || 'quero'), 'medio'));
@@ -599,6 +611,31 @@
     if (campo1 && !modal.contains(document.activeElement)) campo1.focus();
   }
 
+  /* ---------------- listas (nota em modo lista e colagem de tarefas) ----------------
+     Uma linha = um item. Marcadores comuns de lista saem na leitura. */
+  const SEM_MARCA = /^\s*(?:[-*•·–—]|\[[ xX]?\]|\d{1,3}[.)])\s*/;
+  const linhasDe = (txt) => String(txt || '').split('\n').map((l) => l.replace(SEM_MARCA, '').trim()).filter(Boolean);
+  const textoDaLista = (i) => (i.lista || []).map((x) => x.texto).join('\n') || i.texto || '';
+  const feitosDaLista = (i) => (i.lista || []).filter((x) => x.feito).length;
+  /** Reescreve a lista a partir do texto, preservando o que já estava marcado. */
+  function listaDoTexto(texto, antes = []) {
+    const marcados = new Map(antes.map((x) => [x.texto, x.feito]));
+    return linhasDe(texto).map((t, n) => ({ id: 'li' + n + '-' + hashNum(t), texto: t, feito: !!marcados.get(t) }));
+  }
+  function listaCheckHTML(i) {
+    const l = i.lista || [];
+    return `<ul class="lista-check">${l.map((x) => `<li class="${x.feito ? 'feito' : ''}">
+        <button type="button" data-act="nota-item" data-id="${i.id}" data-item="${x.id}"
+          aria-pressed="${!!x.feito}" aria-label="${x.feito ? 'Desmarcar' : 'Marcar'} ${esc(x.texto)}">${ic(x.feito ? 'check-circle-solid' : 'check-circle')}</button>
+        <span>${esc(x.texto)}</span></li>`).join('')}</ul>
+      ${l.length ? `<p class="lista-conta">${feitosDaLista(i)} de ${l.length}</p>` : ''}`;
+  }
+  function alternarItemLista(id, item_id) {
+    const n = item(id); if (!n || !n.lista) return;
+    const x = n.lista.find((y) => y.id === item_id); if (!x) return;
+    x.feito = !x.feito; n.editadoEm = agora(); salvar(); render();
+  }
+
   /* ---------------- tarefas ---------------- */
   /** Uma tarefa é sempre uma linha: círculo para riscar, título e, se houver, prazo e situação. */
   function linhaTarefa(i, opts = {}) {
@@ -715,8 +752,12 @@
   }
 
   function corpoPost(i) {
-    if (i.tipo === 'nota') return `<div class="postit ${corNota(i)}">${i.titulo ? `<h3><a href="#/item/${i.id}">${esc(i.titulo)}</a></h3>` : ''}
-      <p>${esc(corta(i.texto, 420))}</p>${(i.texto || '').length > 420 ? `<a class="meta" href="#/item/${i.id}">Ler tudo</a>` : ''}</div>`;
+    if (i.tipo === 'nota') {
+      const cab = i.titulo ? `<h3><a href="#/item/${i.id}">${esc(i.titulo)}</a></h3>` : '';
+      if (i.modo === 'lista') return `<div class="postit ${corNota(i)}">${cab}${listaCheckHTML(i)}</div>`;
+      return `<div class="postit ${corNota(i)}">${cab}
+        <p>${esc(corta(i.texto, 420))}</p>${(i.texto || '').length > 420 ? `<a class="meta" href="#/item/${i.id}">Ler tudo</a>` : ''}</div>`;
+    }
     if (i.tipo === 'tarefa') return linhaTarefa(i);
     if (i.tipo === 'link') return `<div class="link-rico">
         ${i.imagem ? `<span class="arte"><img src="${esc(i.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>` : ''}
@@ -884,7 +925,7 @@
     else if (UI.muralCol !== 'todas') ns = ns.filter((i) => i.colecoes.some((c) => c.id === UI.muralCol));
     const nota = (i) => `<article class="postit ${corNota(i)} arrastavel" draggable="true" data-id="${i.id}" data-arrasta>
       ${i.titulo ? `<h3><a href="#/item/${i.id}">${esc(i.titulo)}</a></h3>` : ''}
-      <p>${esc(corta(i.texto, 240))}</p>
+      ${i.modo === 'lista' ? listaCheckHTML(i) : `<p>${esc(corta(i.texto, 240))}</p>`}
       <footer><time>${i.fixado ? ic('pin-solid') + ' ' : ''}${fmtDiaCurto(dataLocal(i.criadoEm))}</time>
         ${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorito', 'Favoritar', 'estrela')}
         ${btnAlterna('fixar', i.id, i.fixado, 'pin', 'Fixada', 'Fixar')}
@@ -1572,6 +1613,13 @@
         limparRascunho(b.dataset.k); UI.pularColheita = true; UI.modal = null; return render();
       }
       case 'add-campo': { const k = b.dataset.k; (UI.extras[k] = UI.extras[k] || []).push(b.dataset.campo); return render(); }
+      case 'nota-item': e.preventDefault(); return alternarItemLista(b.dataset.id, b.dataset.item);
+      case 'form-modo': {
+        colherRascunhos();
+        const k = UI.modal.tipo === 'editar' ? 'editar:' + UI.modal.id : 'criar:nota';
+        RASC[k] = Object.assign(RASC[k] || {}, { modo: b.dataset.v }); salvarRasc();
+        UI.pularColheita = true; return render();
+      }
       case 'form-formato': {
         colherRascunhos();
         const k = UI.modal.tipo === 'editar' ? 'editar:' + UI.modal.id : 'criar:midia';
@@ -1788,6 +1836,19 @@
     }
   });
   document.getElementById('form-busca').addEventListener('submit', (e) => e.preventDefault());
+  /* Campo de nova tarefa: cresce com o texto colado e avisa quantas tarefas vão sair dele. */
+  modal.addEventListener('input', (e) => {
+    const a = e.target;
+    if (!a.classList || !a.classList.contains('uma-linha')) return;
+    a.style.height = 'auto';
+    a.style.height = Math.min(a.scrollHeight, 220) + 'px';
+    const dica = modal.querySelector('#dica-colar span');
+    if (!dica) return;
+    const n = linhasDe(a.value).length;
+    dica.textContent = n > 1 ? `São ${n} linhas: vira ${n} tarefas, com o mesmo prazo e a mesma coleção.`
+      : 'Colou uma lista? Cada linha vira uma tarefa.';
+  });
+
   // Esc fecha; clicar fora, não — para não perder o que está sendo escrito.
   modal.addEventListener('cancel', (e) => { e.preventDefault(); fecharModal(); });
 
@@ -1817,6 +1878,11 @@
         if (!d.texto || !d.texto.trim()) return toast('Escreva o texto da nota.');
         if (novo && ehURL(d.texto) && !d.titulo) return toast('Isso parece um endereço. Guarde como Link para ter a prévia.');
         Object.assign(i, { titulo: (d.titulo || '').trim(), texto: d.texto.trim(), cor: d.cor || i.cor });
+        i.modo = d.modo === 'lista' ? 'lista' : 'texto';
+        if (i.modo === 'lista') {
+          i.lista = listaDoTexto(d.texto, i.lista || []);
+          if (!i.lista.length) return toast('Escreva pelo menos um item.');
+        } else delete i.lista;
         if (d.destino !== undefined) { i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : []; i.organizar = !d.destino; if (novo) S.destinoPadrao.nota = d.destino; }
         if (novo) i.ordem = Math.min(0, ...doTipo('nota').map((x) => x.ordem ?? 0)) - 1;
       } else if (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo') {
@@ -1859,10 +1925,25 @@
         i.anotacoes = i.anotacoes || [];
         if (img !== undefined) { if (img) i.capa = img; else delete i.capa; }
       } else if (alvo === 'tarefa') {
-        if (!d.titulo || !d.titulo.trim()) return toast('Escreva o que precisa ser feito.');
+        const linhas = linhasDe(d.titulo);
+        if (!linhas.length) return toast('Escreva o que precisa ser feito.');
         const et = d.etapa && ETAPAS[d.etapa] ? d.etapa : etapa(i);
-        Object.assign(i, { titulo: d.titulo.trim(), prazo: d.prazo || '', etapa: et, concluida: et === 'feito' });
-        if (d.destino !== undefined) { i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : []; if (novo) S.destinoPadrao.tarefa = d.destino; }
+        const cols = d.destino !== undefined ? (d.destino ? [{ id: d.destino, grupo: '' }] : []) : (i.colecoes || []);
+        if (d.destino !== undefined && novo) S.destinoPadrao.tarefa = d.destino;
+        // Lista colada: cada linha vira uma tarefa, com o mesmo prazo e a mesma coleção.
+        if (novo && linhas.length > 1) {
+          const feitas = linhas.map((titulo) => {
+            const nova = { id: uid('tar'), tipo: 'tarefa', colecoes: cols.slice(), comentarios: [], favorito: false, criadoEm: t,
+              titulo, prazo: d.prazo || '', etapa: et, concluida: et === 'feito' };
+            S.itens.push(nova);
+            sincronizarPrazo(nova, d.prazo ? !!d.avisar : false);
+            return nova;
+          });
+          salvar(); limparRascunho(k); UI.modal = null; UI.pularColheita = true; render();
+          return toast(feitas.length + ' tarefas guardadas.', 'list');
+        }
+        Object.assign(i, { titulo: linhas[0], prazo: d.prazo || '', etapa: et, concluida: et === 'feito' });
+        if (d.destino !== undefined) i.colecoes = cols;
         sincronizarPrazo(i, d.prazo ? !!d.avisar : false);
       } else if (alvo === 'gasto') {
         const v = parseFloat(String(d.valor).replace(',', '.'));

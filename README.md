@@ -49,8 +49,8 @@ meu-espaco/
 
 - **Criar:** barra com a pergunta e os tipos (Nota, Link, Livro ou filme, Artigo, Desejo, Gasto, Lembrete). Cada tipo abre só o essencial; o resto entra por “+”. **Nada digitado se perde:** vira rascunho automático.
 - **Feed:** por dia, cada tipo com seu formato. Comentar e editar no próprio post. Busca global (Ctrl+K).
-- **Tarefas:** uma linha por tarefa, com prazo opcional. Três visões (por prazo, quadro e por coleção), risca no clique e resumo com progresso na lateral do Início. Ver `docs/TAREFAS.md`.
-- **Mural:** post-its quase quadrados, arrastáveis para reordenar, com cor e alfinete.
+- **Tarefas:** uma linha por tarefa, com prazo opcional. Colar várias linhas cria várias tarefas de uma vez. Três visões (por prazo, quadro e por coleção), risca no clique e resumo com progresso na lateral do Início. Ver `docs/TAREFAS.md`.
+- **Mural:** post-its quase quadrados, arrastáveis para reordenar, com cor e alfinete. A nota também pode ser **lista**: cada linha vira um item para marcar.
 - **Biblioteca:** livros e filmes com capa, situação, estrelas, **página atual com progresso** e **anotações** separadas da opinião, em prateleiras.
 - **Estudos:** pastas com capa e artigos; PDF abre em **janela dentro do site**, e o trecho selecionado vira anotação pelo botão direito.
 - **Links:** grade de três colunas, com favoritos e fila de leitura.
