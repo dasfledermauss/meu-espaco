@@ -39,6 +39,16 @@ No menu lateral, **Tarefas** mostra o número de tarefas abertas. A tela tem um 
 
 Em qualquer visão, o **círculo à esquerda risca a tarefa na hora**, sem abrir janela. As feitas saem da lista e ficam num bloco recolhido “Feitas (n)” no fim da página (no Quadro, elas são a coluna Feito).
 
+## Modo trabalho
+
+**Shift + Espaço** abre um quadro de tarefas por cima de tudo, e fecha de novo (Esc também). O botão de lista na barra do topo faz o mesmo e fica aceso enquanto o modo está ligado.
+
+Dentro dele só existem as três colunas — A fazer, Fazendo, Feito —, o botão de nova tarefa e o disco das músicas, à direita. O player continua por cima e tocando. Fora de um campo de texto, o atalho não atrapalha a digitação: dentro de um input ou textarea o Shift + Espaço é só um espaço.
+
+## O atalho de guardar
+
+No canto de baixo à esquerda há um botão redondo. **Passar o mouse** abre a lista de tipos (Nota, Tarefa, Link, Livro, Artigo, Música, Desejo, Gasto, Lembrete) e um clique abre a janela daquele tipo. Tipo com rascunho guardado mostra um pontinho. No celular ele responde ao toque.
+
 ## O resumo na lateral
 
 No Início, o cartão **Tarefas** da coluna direita traz a barra de progresso com a conta curta (“1/4”) e as próximas quatro abertas, as com prazo mais perto primeiro, com a data em 12/11. O texto da tarefa é o que manda: a data encolhe antes dele. Tocar numa delas abre a janela da tarefa, com descrição, situação, prazo e coleção, de onde dá para riscar ou editar. Tarefa atrasada aparece com o ponto de alerta. O cartão só existe quando há tarefa aberta ou feita hoje.

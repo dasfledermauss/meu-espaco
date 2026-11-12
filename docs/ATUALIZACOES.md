@@ -8,6 +8,12 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.0 — 12/11/2026 · Modo trabalho
+
+- Shift + Espaço abre um quadro de tarefas por cima de tudo, para quando o assunto é só executar. Esc fecha.
+- A música fica à mão dentro dele, no canto direito, e continua tocando.
+- Novo atalho redondo no canto de baixo à esquerda: passe o mouse e escolha o que guardar.
+
 ## 3.9 — 12/11/2026 · Perfil, conta e acertos de leitura
 
 - O humor do dia fica direto no menu da foto: escolha o emoji, escreva a palavra e pronto. O Perfil segue para foto, bio e cores.
