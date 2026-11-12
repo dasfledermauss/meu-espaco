@@ -8,6 +8,14 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 3.9 — 12/11/2026 · Perfil, conta e acertos de leitura
+
+- O humor do dia fica direto no menu da foto: escolha o emoji, escreva a palavra e pronto. O Perfil segue para foto, bio e cores.
+- O e-mail da conta e o Sair da conta passaram para Configurações, e o atalho do currículo saiu do menu.
+- As novidades viram uma página por dia, com Mais novo e Mais antigo.
+- No lembrete, a data desceu para a linha dos botões.
+- Hover com contraste decente no perfil, nos menus e nas janelas do modo escuro.
+
 ## 3.8 — 12/11/2026 · Música como mini app
 
 - O disco ao lado do perfil abre um mini app no canto: lista das músicas, tocar, anterior e próxima, guardar música e criar grupos.

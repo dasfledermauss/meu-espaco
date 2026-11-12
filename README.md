@@ -60,7 +60,7 @@ meu-espaco/
 - **Menus do seu jeito:** as áreas do menu da esquerda e os blocos da coluna da direita se reordenam arrastando.
 - **Wishlist:** só o link; foto, nome, preço, estrelas e loja são capturados. Ao abrir a vitrine, produtos lidos há mais de 12 horas são conferidos de novo, e **se o preço cair entra um lembrete avisando**.
 - **Lembretes:** faixa no topo do Início e quadro em quatro colunas.
-- **Gastos, Currículo, Perfil e Configurações.**
+- **Gastos, Currículo, Perfil e Configurações.** O humor do dia se registra no próprio menu da foto; a conta e o Sair ficam em Configurações.
 - **Modo claro, escuro ou automático**, no menu da foto de perfil.
 - **Começa vazio:** espaço novo abre com "Meu Nome", ícone de perfil padrão e nenhum registro.
 - **O que há de novo:** popup com as últimas mudanças, aberto sozinho quando o sistema muda e disponível a qualquer hora no menu da foto de perfil.

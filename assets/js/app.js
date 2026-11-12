@@ -978,16 +978,31 @@
   const temNovidade = () => !!versaoNova() && versaoVista() !== versaoNova();
   function marcarNovidadesVistas() { try { localStorage.setItem(CHAVE_NOVID, versaoNova()); } catch (e) { /* ignora */ } }
   function novidadesHTML() {
-    const vista = versaoVista();
     const lista = listaNovidades();
-    const novas = lista.filter((a) => !vista || a.versao > vista);
-    const mostrar = novas.length ? novas : lista.slice(0, 1);
-    const antigas = lista.filter((a) => !mostrar.includes(a));
-    const bloco = (a, aberto) => `<section class="novid${aberto ? '' : ' novid-velha'}">
-      <h3>${esc(a.titulo)}<small>versão ${esc(a.versao)} · ${esc(fmtDiaCurto(a.data))}</small></h3>
+    if (!lista.length) return '<p class="meta">Nada por aqui ainda.</p>';
+    // uma página por dia, da mais nova para a mais antiga
+    const dias = [];
+    lista.forEach((a) => {
+      const d = dias.find((x) => x.data === a.data);
+      (d ? d.itens : (dias.push({ data: a.data, itens: [] }), dias[dias.length - 1].itens)).push(a);
+    });
+    const vista = versaoVista();
+    let n = UI.novidPagina;
+    if (n === undefined || n < 0 || n >= dias.length) {
+      n = dias.findIndex((d) => d.itens.some((a) => !vista || a.versao > vista));
+      if (n < 0) n = 0;
+    }
+    const pag = dias[n];
+    const bloco = (a) => `<section class="novid">
+      <h3>${esc(a.titulo)}<small>versão ${esc(a.versao)}</small></h3>
       <ul>${(a.itens || []).map((t) => `<li>${esc(t)}</li>`).join('')}</ul></section>`;
-    return mostrar.map((a) => bloco(a, true)).join('')
-      + (antigas.length ? `<details class="novid-antes"><summary>O que mudou antes</summary>${antigas.map((a) => bloco(a, false)).join('')}</details>` : '');
+    return `<div class="novid-dia"><span>${ic('calendar')}${esc(fmtDia(pag.data))}</span>
+        <span class="meta">${n + 1} de ${dias.length}</span></div>
+      ${pag.itens.map(bloco).join('')}
+      ${dias.length > 1 ? `<div class="novid-pag">
+        ${btn('novid-ir', ic('nav-arrow-left') + 'Mais novo', `data-n="${n - 1}" ${n === 0 ? 'disabled' : ''}`, 'btn-f btn-p')}
+        <span class="espaco"></span>
+        ${btn('novid-ir', 'Mais antigo' + ic('nav-arrow-right'), `data-n="${n + 1}" ${n === dias.length - 1 ? 'disabled' : ''}`, 'btn-f btn-p')}</div>` : ''}`;
   }
 
   /* ---------------- posts ---------------- */
@@ -1113,20 +1128,27 @@
     topoMusica.innerHTML = `<button type="button" class="disco ${i ? 'girando' : ''}" data-act="abrir-musica" title="${esc(rotulo)}" aria-label="${esc(rotulo)}"><span></span></button>`;
   }
   function renderTopo() {
-    const p = S.perfil, h = p.humores[hoje()];
+    const p = S.perfil, h = p.humores[hoje()] || {};
+    const curtos = EMOJIS.slice(0, 8);
     topoPerfil.innerHTML = `<details class="menu menu-perfil"><summary aria-label="Perfil e configurações">
-        ${avatarHTML()}<span class="mp-texto"><strong>${esc(p.nome === 'Meu Nome' ? p.nome : p.nome.split(' ')[0])}</strong><span>${h ? esc(h.emoji || '') + ' ' + esc(h.texto || '') : 'como estou hoje?'}</span></span>${ic('nav-arrow-down')}</summary>
+        ${avatarHTML()}<span class="mp-texto"><strong>${esc(p.nome === 'Meu Nome' ? p.nome : p.nome.split(' ')[0])}</strong><span>${h.emoji || h.texto ? esc(h.emoji || '') + ' ' + esc(h.texto || '') : 'como estou hoje?'}</span></span>${ic('nav-arrow-down')}</summary>
       <div class="menu-corpo">
-        <a href="#/perfil">${ic('user')}<span>Editar perfil e humor</span></a>
-        <a href="#/curriculo">${ic('suitcase')}<span>Meu currículo</span></a>
+        <form class="humor-rapido" data-form="humor-rapido">
+          <span class="rotulo">Como estou hoje</span>
+          <div class="emojis">${curtos.map((e) => `<button type="button" class="emoji-op" data-act="humor-emoji" data-v="${e}" aria-pressed="${h.emoji === e}" aria-label="Humor ${e}">${e}</button>`).join('')}</div>
+          <input type="hidden" name="humorEmoji" value="${esc(h.emoji || '')}">
+          <div class="humor-linha">
+            <input type="text" name="humorTexto" value="${esc(h.texto || '')}" placeholder="em uma palavra: focado, tranquilo…" aria-label="Como estou hoje">
+            <button class="btn-1 btn-p" type="submit" aria-label="Salvar humor">${ic('check')}</button></div>
+        </form>
+        <hr>
+        <a href="#/perfil">${ic('user')}<span>Editar perfil</span></a>
         <a href="#/config">${ic('settings')}<span>Configurações e backup</span></a>
         <button type="button" data-act="novidades">${ic('page-star')}<span>O que há de novo</span>${temNovidade() ? '<em class="novid-selo">novo</em>' : ''}</button>
         <div class="menu-modo"><span>${ic(modoAtual() === 'escuro' ? 'half-moon' : 'sun-light')}Aparência</span>
           <span class="segmento pequeno" role="group" aria-label="Aparência">
             ${[['claro', 'Claro'], ['escuro', 'Escuro'], ['sistema', 'Sistema']].map(([v, n]) =>
               `<button type="button" data-act="modo" data-v="${v}" aria-pressed="${(p.modo || 'sistema') === v}">${n}</button>`).join('')}</span></div>
-        ${logado() ? `<hr><p class="menu-conta">${conta().foto ? `<img src="${esc(conta().foto)}" alt="" referrerpolicy="no-referrer">` : ic('user')}<span><strong>${esc(conta().nome)}</strong><small>${esc(conta().email)}</small></span></p>
-          <button type="button" data-act="sair">${ic('log-out' in (window.ICONES || {}) ? 'log-out' : 'xmark')}<span>Sair da conta</span></button>` : ''}
       </div></details>`;
   }
   /* A ordem das áreas fica no perfil: arrastar muda, e áreas novas entram no fim. */
@@ -1440,11 +1462,13 @@
       ['Próximos 7 dias', pend.filter((l) => l.data > h && l.data <= sem)], ['Depois', pend.filter((l) => l.data > sem)]];
     const card = (l) => {
       const alvo = l.itemId && item(l.itemId);
+      const motivo = l.motivo === 'preco' ? ic('shopping-bag') + ' queda de preço' : l.motivo === 'tarefa' ? ic('list') + ' prazo de tarefa' : '';
       return `<article class="lembrete ${!l.concluido && venc(l) <= Date.now() ? 'vence' : ''} ${l.concluido ? 'feito' : ''}">
         <p>${alvo ? `<a href="#/item/${alvo.id}">${esc(l.texto)}</a>` : esc(l.texto)}</p>
-        <p class="meta">${l.motivo === 'preco' ? ic('shopping-bag') + ' queda de preço · ' : l.motivo === 'tarefa' ? ic('list') + ' prazo de tarefa · ' : ic('calendar') + ' '}${fmtDiaCurto(l.data)}${l.hora ? ' · ' + l.hora : ''}${alvo ? '<br>' + ic(icoTipo(alvo)) + ' ' + esc(corta(tituloItem(alvo), 40)) : ''}</p>
-        <div class="pe">${l.concluido ? btnIco('lemb-reabrir', 'undo', 'Reabrir', `data-id="${l.id}"`) : btnIco('lemb-concluir', 'check-circle', 'Concluir', `data-id="${l.id}"`)}
-          ${l.concluido ? '' : btnIco('lemb-adiar', 'clock', 'Adiar', `data-id="${l.id}"`)}<span class="espaco"></span>
+        ${motivo || alvo ? `<p class="meta">${motivo}${motivo && alvo ? '<br>' : ''}${alvo ? ic(icoTipo(alvo)) + ' ' + esc(corta(tituloItem(alvo), 40)) : ''}</p>` : ''}
+        <div class="pe"><span class="lemb-data">${ic('calendar')}${fmtDiaCurto(l.data)}${l.hora ? ' · ' + l.hora : ''}</span><span class="espaco"></span>
+          ${l.concluido ? btnIco('lemb-reabrir', 'undo', 'Reabrir', `data-id="${l.id}"`) : btnIco('lemb-concluir', 'check-circle', 'Concluir', `data-id="${l.id}"`)}
+          ${l.concluido ? '' : btnIco('lemb-adiar', 'clock', 'Adiar', `data-id="${l.id}"`)}
           ${menuMais([{ act: 'editar-item', id: l.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'excluir-lembrete', id: l.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></article>`;
     };
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('alarm')}Lembretes</h1>
@@ -1618,6 +1642,10 @@
   function renderConfig() {
     const n = S.itens.length, imgs = S.itens.filter((i) => i.capa).length;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('settings')}Configurações</h1></header>
+      ${logado() ? cartao(ic('user') + 'Conta', `
+        <p class="menu-conta">${conta().foto ? `<img src="${esc(conta().foto)}" alt="" referrerpolicy="no-referrer">` : ic('user')}
+          <span><strong>${esc(conta().nome)}</strong><small>${esc(conta().email)}</small></span></p>
+        <div class="acoes-form" style="margin-top:14px">${btn('sair', ic('log-out' in (window.ICONES || {}) ? 'log-out' : 'xmark') + 'Sair da conta', '', 'btn-f')}</div>`) : ''}
       ${UI.sessao.viaFirebase ? cartao(ic('priority-high') + 'Sessão do site', `
         <p class="meta">Você está entrando pela conta do Google guardada no navegador. A sessão do site em si caiu, o que costuma significar que falta definir <code>SESSAO_SEGREDO</code> nas variáveis de ambiente do servidor.</p>
         <p class="meta" style="margin-top:8px">Nada se perde por causa disso: seus registros continuam guardados e sincronizados.</p>`) : ''}
@@ -1993,7 +2021,8 @@
       case 'criar': return abrirModal({ tipo: 'criar', t: b.dataset.t });
       case 'trocar-tipo': return abrirModal({ tipo: 'tipo' });
       case 'modal-fechar': e.preventDefault(); return fecharModal();
-      case 'novidades': e.preventDefault(); return abrirModal({ tipo: 'novidades' });
+      case 'novidades': e.preventDefault(); UI.novidPagina = undefined; return abrirModal({ tipo: 'novidades' });
+      case 'novid-ir': e.preventDefault(); UI.novidPagina = +b.dataset.n; UI.pularColheita = true; return render();
       case 'tarefa-ver': e.preventDefault(); return abrirModal({ tipo: 'tarefa-ver', id: b.dataset.id });
       case 'criar-em': e.preventDefault(); UI.colPadrao = b.dataset.col === 'soltos' ? '' : b.dataset.col; return abrirModal({ tipo: 'tipo' });
       case 'tocar': e.preventDefault(); return tocar(b.dataset.id);
@@ -2279,6 +2308,13 @@
     const t = agora();
     const ok = (msg, icone) => { salvar(); UI.pularColheita = true; if (msg) toast(msg, icone); };
 
+    if (tipo === 'humor-rapido') {
+      const emoji = (d.humorEmoji || '').trim(), texto = (d.humorTexto || '').trim();
+      if (!emoji && !texto) delete S.perfil.humores[hoje()];
+      else S.perfil.humores[hoje()] = { emoji, texto };
+      document.querySelectorAll('details.menu[open]').forEach((x) => x.removeAttribute('open'));
+      ok('Anotado.', 'check-circle-solid'); return render();
+    }
     if (tipo === 'grupo-musica') {
       const nome = (d.nome || '').trim();
       if (!nome) return toast('Dê um nome ao grupo.');

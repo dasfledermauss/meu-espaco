@@ -10,6 +10,18 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '3.9',
+    data: '2026-11-12',
+    titulo: 'Perfil, conta e acertos de leitura',
+    itens: [
+      'O humor do dia fica direto no menu da foto: escolha o emoji, escreva a palavra e pronto. O Perfil segue para foto, bio e cores.',
+      'O e-mail da conta e o Sair da conta passaram para Configurações, e o atalho do currículo saiu do menu.',
+      'As novidades viram uma página por dia, com Mais novo e Mais antigo.',
+      'No lembrete, a data desceu para a linha dos botões.',
+      'Hover com contraste decente no perfil, nos menus e nas janelas do modo escuro.'
+    ]
+  },
+  {
     versao: '3.8',
     data: '2026-11-12',
     titulo: 'Música como mini app',
