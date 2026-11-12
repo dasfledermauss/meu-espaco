@@ -63,13 +63,16 @@ Corrigir à mão (nome, preço, foto, loja) é opcional, em Editar. Um nome corr
 
 **Tela em vitrine.** Grade de cartões de produto: foto, loja, nome, estrelas, preço grande e botão **Ver na loja**. Ações por ícone: favoritar, comprei, atualizar preço, excluir. Controles: **Quero / Comprados**, ordenação (mais recentes, menor preço, maior preço), **Atualizar todos os preços** e a soma dos preços da lista.
 
-**Preço ao longo do tempo.** A captura **não roda sozinha**: o preço é lido quando você cola o link e quando pede **Atualizar preço** (ou **Atualizar todos os preços**). Cada captura com preço diferente entra no histórico da ficha. O cartão mostra “↓ caiu R$ X” ou “↑ subiu R$ X” em relação à captura anterior.
+**Preço ao longo do tempo.** O preço é lido quando você cola o link, quando pede **Atualizar preço** (ou **Atualizar todos os preços**) e, sozinho, quando você abre a Wishlist: até 5 produtos ainda não comprados cuja última leitura passou de **12 horas** são relidos em segundo plano, com “Conferindo os preços…” no topo da vitrine. Cada captura com preço diferente entra no histórico da ficha, e o cartão mostra “↓ caiu R$ X” ou “↑ subiu R$ X” em relação à anterior.
+
+**Aviso de queda.** Quando a releitura encontra um preço **menor** que o anterior, o app cria um lembrete `Baixou de preço: <produto> — de R$ X para R$ Y`, ligado ao produto e marcado como queda de preço (o cartão do lembrete mostra o ícone de sacola e “queda de preço”). O lembrete aparece na faixa do Início e na lista de lembretes; enquanto não for concluído, uma nova queda do mesmo produto não cria um segundo lembrete.
 
 **Comprei.** Marca o produto como comprado e oferece registrar um gasto com o preço atual, na categoria Compras, com data de hoje.
 
 **Limitações conhecidas**
 
-- Algumas lojas bloqueiam leitura automática (acontece com frequência na Amazon) ou só mostram o preço depois de carregar scripts. Nesses casos a captura vem parcial.
+- **Amazon.** A Amazon não publica dados estruturados de produto, então o leitor tem um caminho próprio para ela (título em `productTitle`, foto em `data-old-hires` / `landingImage`, preço no bloco `corePrice`, estrelas em “x,y de 5 estrelas”). Ela também bloqueia leitura automática com frequência — e quase sempre quando o pedido vem de um servidor na nuvem. Resultado prático: na Amazon a captura funciona bem pelo `iniciar.bat`, no seu computador, e costuma falhar no site publicado; quando a página devolvida é a de verificação, o app avisa “a loja bloqueou a leitura automática desta página” e o link fica salvo para tentar de novo.
+- Outras lojas também bloqueiam ou só mostram o preço depois de carregar scripts. Nesses casos a captura vem parcial e dá para completar em **Corrigir dados**.
 - A foto depende do site da loja continuar servindo a imagem.
 - Os dados do protótipo ficam no navegador, separados por endereço. Quem usava abrindo o `index.html` direto precisa **Exportar backup** lá e **Importar backup** em `http://localhost:8000` (menu do perfil).
 

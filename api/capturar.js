@@ -59,6 +59,40 @@ function primeiro(v) {
   return v;
 }
 
+const ROBO = ['validateCaptcha', 'Digite os caracteres', 'Enter the characters you see',
+  'To discuss automated access', 'Sorry, we just need to make sure you'];
+const bloqueado = (pagina) => pagina.length < 200000 && ROBO.some((m) => pagina.includes(m));
+
+/* A Amazon não publica dados estruturados de produto; é preciso ler a própria página. */
+function amazon(pagina, r) {
+  if (!r.nome) { const m = pagina.match(/id="productTitle"[^>]*>([\s\S]*?)</); if (m) r.nome = m[1]; }
+  if (!r.imagem) {
+    let m = pagina.match(/id="landingImage"[^>]*data-old-hires="([^"]+)"/);
+    if (m) r.imagem = m[1];
+    if (!r.imagem) {
+      const d = pagina.match(/data-a-dynamic-image="({[^"]+})"/);
+      if (d) { try { r.imagem = Object.keys(JSON.parse(desescapar(d[1])))[0]; } catch (e) { /* ignora */ } }
+    }
+    if (!r.imagem) { m = pagina.match(/id="landingImage"[^>]*\ssrc="([^"]+)"/); if (m) r.imagem = m[1]; }
+  }
+  if (r.preco === null) {
+    for (const p of [/id="corePrice[^"]*"[\s\S]{0,800}?class="a-offscreen">\s*([^<]+)</,
+      /class="a-price[^"]*"[^>]*>\s*<span class="a-offscreen">\s*([^<]+)</,
+      /id="priceblock_[^"]*"[^>]*>\s*([^<]+)</]) {
+      const m = pagina.match(p);
+      if (m) { r.preco = numero(m[1]); break; }
+    }
+  }
+  if (r.estrelas === null) {
+    const m = pagina.match(/([\d.,]+)\s*(?:de|out of)\s*5\s*(?:estrelas|stars)/);
+    if (m) { const v = numero(m[1]); r.estrelas = v !== null && v <= 5 ? Math.round(v * 10) / 10 : null; }
+  }
+  if (r.avaliacoes === null) {
+    const m = pagina.match(/id="acrCustomerReviewText"[^>]*>\s*([\d.,]+)/);
+    if (m) { const q = numero(m[1]); r.avaliacoes = q ? Math.round(q) : null; }
+  }
+}
+
 function extrair(pagina, url) {
   const m = metas(pagina);
   const r = { nome: null, descricao: null, imagem: null, favicon: null, preco: null, moeda: null, estrelas: null, avaliacoes: null, loja: null };
@@ -84,6 +118,7 @@ function extrair(pagina, url) {
       r.avaliacoes = q ? Math.round(q) : null;
     }
   }
+  if (new URL(url).hostname.includes('amazon.') || pagina.includes('id="productTitle"')) amazon(pagina, r);
   r.nome = r.nome || m['og:title'] || m['twitter:title'] || (pagina.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || null;
   r.descricao = r.descricao || m['og:description'] || m.description || m['twitter:description'] || null;
   r.imagem = r.imagem || m['og:image'] || m['og:image:secure_url'] || m['twitter:image'] || null;
@@ -122,6 +157,7 @@ export default async function handler(req, res) {
     const r = await fetch(alvo.href, { headers: CABECALHOS, redirect: 'follow', signal: corta.signal });
     if (!r.ok) throw new Error(r.status + '');
     const pagina = (await r.text()).slice(0, 4 * 1024 * 1024);
+    if (bloqueado(pagina)) return res.status(502).json({ erro: 'a loja bloqueou a leitura automática desta página' });
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json(extrair(pagina, r.url || alvo.href));
   } catch (e) {

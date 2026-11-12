@@ -52,7 +52,7 @@ meu-espaco/
 - **Biblioteca:** livros e filmes com capa, situação, estrelas, **página atual com progresso** e **anotações** separadas da opinião, em prateleiras.
 - **Estudos:** pastas com capa e artigos; PDF abre em **janela dentro do site**, e o trecho selecionado vira anotação pelo botão direito.
 - **Links:** grade de três colunas, com favoritos e fila de leitura.
-- **Wishlist:** só o link; foto, nome, preço, estrelas e loja são capturados. Mostra se o preço subiu ou caiu.
+- **Wishlist:** só o link; foto, nome, preço, estrelas e loja são capturados. Ao abrir a vitrine, produtos lidos há mais de 12 horas são conferidos de novo, e **se o preço cair entra um lembrete avisando**.
 - **Lembretes:** faixa no topo do Início e quadro em quatro colunas.
 - **Gastos, Currículo, Perfil e Configurações.**
 - **Modo claro, escuro ou automático**, no menu da foto de perfil.

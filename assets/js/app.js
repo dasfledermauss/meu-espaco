@@ -921,6 +921,31 @@
   }
 
   /* ---------------- Wishlist ---------------- */
+  const HORAS_CONFERIR = 12;
+  async function conferirPrecos() {
+    if (!UI.servidor || UI.conferindo) return;
+    const limite = Date.now() - HORAS_CONFERIR * 3600e3;
+    const alvos = doTipo('desejo').filter((i) => !i.comprado && i.url
+      && (!i.capturaEm || new Date(i.capturaEm).getTime() < limite)).slice(0, 5);
+    if (!alvos.length) return;
+    UI.conferindo = true;
+    for (const d of alvos) {
+      const antes = d.preco;
+      await capturar(d, true);
+      if (antes != null && d.preco != null && d.preco < antes) avisarQueda(d, antes);
+    }
+    UI.conferindo = false;
+    salvar(); render();
+  }
+  function avisarQueda(d, antes) {
+    const caiu = antes - d.preco;
+    const texto = `Baixou de preço: ${tituloItem(d)} — de ${brl(antes, d.moeda)} para ${brl(d.preco, d.moeda)}`;
+    if (!S.lembretes.some((l) => l.itemId === d.id && !l.concluido && l.motivo === 'preco')) {
+      S.lembretes.push({ id: uid('lemb'), texto, data: hoje(), hora: '', itemId: d.id, concluido: false, criadoEm: agora(), motivo: 'preco' });
+    }
+    toast(corta(tituloItem(d), 40) + ' baixou ' + brl(caiu, d.moeda) + '.', 'shopping-bag');
+  }
+
   function renderWishlist() {
     let ds = doTipo('desejo').filter((i) => UI.wlFiltro === 'comprados' ? i.comprado : !i.comprado);
     const sem = (i) => i.preco === null || i.preco === undefined;
@@ -950,6 +975,7 @@
       <div class="ferramentas"><span class="segmento" role="group">${[['desejos', 'Quero'], ['comprados', 'Comprados']].map(([v, n]) => `<button type="button" data-act="wl-filtro" data-v="${v}" aria-pressed="${UI.wlFiltro === v}">${n}</button>`).join('')}</span>
         ${selectHTML('wl-ord', '', [['recentes', 'Mais recentes'], ['menor', 'Menor preço'], ['maior', 'Maior preço']], UI.wlOrdem).replace('<select', '<select data-act="wl-ordem" style="width:auto"')}
         ${doTipo('desejo').some((i) => !i.comprado) ? btnTxt('recapturar-todos', 'refresh', 'Atualizar todos os preços') : ''}</div>
+      ${UI.conferindo ? `<p class="meta">${ic('refresh')} Conferindo os preços…</p>` : ''}
       ${ds.length ? `<div class="vitrine">${ds.map(prod).join('')}</div>` : vazio('shopping-bag', UI.wlFiltro === 'comprados' ? 'Nada marcado como comprado.' : 'Cole o link de um produto para começar.', btn('criar', 'Colar link', 'data-t="desejo"', 'btn-1'))}`;
   }
 
@@ -980,7 +1006,7 @@
       const alvo = l.itemId && item(l.itemId);
       return `<article class="lembrete ${!l.concluido && venc(l) <= Date.now() ? 'vence' : ''} ${l.concluido ? 'feito' : ''}">
         <p>${alvo ? `<a href="#/item/${alvo.id}">${esc(l.texto)}</a>` : esc(l.texto)}</p>
-        <p class="meta">${ic('calendar')} ${fmtDiaCurto(l.data)}${l.hora ? ' · ' + l.hora : ''}${alvo ? '<br>' + ic(icoTipo(alvo)) + ' ' + esc(corta(tituloItem(alvo), 40)) : ''}</p>
+        <p class="meta">${l.motivo === 'preco' ? ic('shopping-bag') + ' queda de preço · ' : ic('calendar') + ' '}${fmtDiaCurto(l.data)}${l.hora ? ' · ' + l.hora : ''}${alvo ? '<br>' + ic(icoTipo(alvo)) + ' ' + esc(corta(tituloItem(alvo), 40)) : ''}</p>
         <div class="pe">${l.concluido ? btnIco('lemb-reabrir', 'undo', 'Reabrir', `data-id="${l.id}"`) : btnIco('lemb-concluir', 'check-circle', 'Concluir', `data-id="${l.id}"`)}
           ${l.concluido ? '' : btnIco('lemb-adiar', 'clock', 'Adiar', `data-id="${l.id}"`)}<span class="espaco"></span>
           ${menuMais([{ act: 'editar-item', id: l.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'excluir-lembrete', id: l.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></article>`;
@@ -1352,6 +1378,7 @@
     aplicarTema();
     renderTopo(); renderNav(rota); renderDireita(rota);
     if (rota === 'item') renderFicha(id); else ROTAS[rota]();
+    if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
     renderModal(); renderJanelas();
     { const ms = document.getElementById('menu-selecao'); if (ms && !String(getSelection() || '').trim()) ms.hidden = true; }
