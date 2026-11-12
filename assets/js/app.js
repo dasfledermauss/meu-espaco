@@ -137,47 +137,26 @@
   function limparRascunho(k) { delete RASC[k]; delete UI.extras[k]; delete UI.imagens[k]; salvarRasc(); }
   const temRascunho = (k) => !!RASC[k];
 
-  async function lerFonte(caminho, chave) {
-    if (location.protocol === 'file:') return clone(window.DADOS_INICIAIS[chave]);
-    try { const r = await fetch(caminho, { cache: 'no-store' }); if (!r.ok) throw new Error(); return await r.json(); }
-    catch (e) { return clone(window.DADOS_INICIAIS[chave]); }
-  }
   async function criarInicial() {
-    const [cvRaw, pes, tra] = await Promise.all([
-      lerFonte('data/curriculo.json', 'curriculo'),
-      lerFonte('data/links-pessoal.json', 'linksPessoal'),
-      lerFonte('data/links-trabalho.json', 'linksTrabalho')
-    ]);
-    const t = agora();
-    const st = {
+    return {
       versao: 3,
-      perfil: { nome: cvRaw.nome || 'Meu perfil', bio: '', foto: null, semFoto: false, tema: 'azul', corCustom: '', humores: {} },
+      perfil: { nome: 'Meu Nome', bio: '', foto: null, tema: 'azul', corCustom: '', modo: 'sistema', humores: {} },
       colecoes: [{ id: 'col-pessoal', nome: 'Pessoal', descricao: '' }, { id: 'col-trabalho', nome: 'Trabalho', descricao: '' }],
-      pastas: [], itens: [], lembretes: [], curriculo: null, destinoPadrao: { nota: '', link: 'col-pessoal' }
+      pastas: [], itens: [], lembretes: [],
+      curriculo: cvComIds({ perfil: {}, extras: {} }),
+      destinoPadrao: { nota: '', link: '' }
     };
-    const porURL = {};
-    let n = 0;
-    [[pes, 'col-pessoal', 'Pessoal'], [tra, 'col-trabalho', 'Trabalho']].forEach(([arq, colId, colNome]) => {
-      (arq.lists || []).forEach((lista) => (lista.cards || []).forEach((card) => {
-        let it = porURL[card.url];
-        if (!it) {
-          it = porURL[card.url] = { id: 'lnk-' + pad(++n), tipo: 'link', url: card.url, titulo: card.customTitle || card.title || card.url,
-            descricao: '', comentario: '', favicon: card.favIconURL || '', imagem: '', colecoes: [], notasFonte: [], comentarios: [],
-            favorito: false, lerDepois: false, lido: false, organizar: false, criadoEm: t, importadoEm: t };
-          st.itens.push(it);
-        }
-        if (!it.colecoes.some((c) => c.id === colId)) it.colecoes.push({ id: colId, grupo: lista.title || '' });
-        it.notasFonte.push({ fonte: colNome, grupo: lista.title || '', original: card });
-        if (!it.comentario && card.customDescription) it.comentario = card.customDescription;
-      }));
-    });
-    st.curriculo = cvComIds(adaptarCV(cvRaw).cv);
-    return st;
   }
+
   function migrar(st) {
     st.destinoPadrao = st.destinoPadrao || { nota: '', link: 'col-pessoal' };
     st.lembretes = st.lembretes || []; st.pastas = st.pastas || []; st.colecoes = st.colecoes || [];
     st.perfil.corCustom = st.perfil.corCustom || '';
+    st.perfil.modo = st.perfil.modo || 'sistema';
+    if (!st.perfil.fotoConferida) {
+      if (!st.perfil.foto && !st.perfil.semFoto && (st.itens || []).length) st.perfil.foto = FOTO_PADRAO;
+      st.perfil.fotoConferida = true;
+    }
     (st.itens || []).forEach((i, k) => {
       i.colecoes = i.colecoes || []; i.comentarios = i.comentarios || [];
       if (i.tipo === 'nota' && i.ordem === undefined) i.ordem = k;
@@ -393,8 +372,8 @@
   const vazio = (icone, txt, acao = '') => `<div class="cartao" style="text-align:center;padding:38px 22px">${ic(icone, 'g')}<p class="meta" style="margin:10px 0 14px">${txt}</p>${acao}</div>`;
   const avatarHTML = (cls = '') => {
     const p = S.perfil;
-    if (p.semFoto) return `<span class="avatar ${cls}">${esc((p.nome || '?').split(/\s+/).map((x) => x[0]).slice(0, 2).join('').toUpperCase())}</span>`;
-    return `<img class="avatar ${cls}" src="${esc(p.foto || FOTO_PADRAO)}" alt="">`;
+    if (p.foto) return `<img class="avatar ${cls}" src="${esc(p.foto)}" alt="">`;
+    return `<span class="avatar vazio ${cls}" aria-hidden="true">${ic('user')}</span>`;
   };
   function capaHTML(i, cls = '') {
     if (i.capa) return `<img class="capa ${cls}" src="${i.capa}" alt="">`;
@@ -737,11 +716,15 @@
   function renderTopo() {
     const p = S.perfil, h = p.humores[hoje()];
     topoPerfil.innerHTML = `<details class="menu menu-perfil"><summary aria-label="Perfil e configurações">
-        ${avatarHTML()}<span class="mp-texto"><strong>${esc(p.nome.split(' ')[0])}</strong><span>${h ? esc(h.emoji || '') + ' ' + esc(h.texto || '') : 'como estou hoje?'}</span></span>${ic('nav-arrow-down')}</summary>
+        ${avatarHTML()}<span class="mp-texto"><strong>${esc(p.nome === 'Meu Nome' ? p.nome : p.nome.split(' ')[0])}</strong><span>${h ? esc(h.emoji || '') + ' ' + esc(h.texto || '') : 'como estou hoje?'}</span></span>${ic('nav-arrow-down')}</summary>
       <div class="menu-corpo">
         <a href="#/perfil">${ic('user')}<span>Editar perfil e humor</span></a>
         <a href="#/curriculo">${ic('suitcase')}<span>Meu currículo</span></a>
         <a href="#/config">${ic('settings')}<span>Configurações e backup</span></a>
+        <div class="menu-modo"><span>${ic(modoAtual() === 'escuro' ? 'half-moon' : 'sun-light')}Aparência</span>
+          <span class="segmento pequeno" role="group" aria-label="Aparência">
+            ${[['claro', 'Claro'], ['escuro', 'Escuro'], ['sistema', 'Sistema']].map(([v, n]) =>
+              `<button type="button" data-act="modo" data-v="${v}" aria-pressed="${(p.modo || 'sistema') === v}">${n}</button>`).join('')}</span></div>
         ${logado() ? `<hr><p class="menu-conta">${conta().foto ? `<img src="${esc(conta().foto)}" alt="" referrerpolicy="no-referrer">` : ic('user')}<span><strong>${esc(conta().nome)}</strong><small>${esc(conta().email)}</small></span></p>
           <button type="button" data-act="sair">${ic('log-out' in (window.ICONES || {}) ? 'log-out' : 'xmark')}<span>Sair da conta</span></button>` : ''}
       </div></details>`;
@@ -1021,9 +1004,8 @@
         <div class="linha" style="align-items:center;gap:20px">
           <details class="menu"><summary class="foto-editavel" aria-label="Trocar ou remover a foto">${avatarHTML('g')}
               <span class="cobre">${ic('media-image')}Trocar</span></summary>
-            <div class="menu-corpo esq"><button type="button" data-act="foto-trocar">${ic('upload')}<span>Enviar outra foto</span></button>
-              ${p.semFoto ? '' : `<button type="button" data-act="foto-remover" class="perigo">${ic('trash')}<span>Remover foto</span></button>`}
-              ${(p.foto || p.semFoto) ? `<button type="button" data-act="foto-padrao">${ic('undo')}<span>Voltar à foto original</span></button>` : ''}
+            <div class="menu-corpo esq"><button type="button" data-act="foto-trocar">${ic('upload')}<span>${p.foto ? 'Trocar a foto' : 'Enviar uma foto'}</span></button>
+              ${p.foto ? `<button type="button" data-act="foto-remover" class="perigo">${ic('trash')}<span>Remover a foto</span></button>` : ''}
               ${logado() && conta().foto ? `<button type="button" data-act="foto-google">${ic('user')}<span>Usar a foto do Google</span></button>` : ''}
               ${logado() ? `<hr><button type="button" data-act="sair">${ic('log-out' in (window.ICONES || {}) ? 'log-out' : 'xmark')}<span>Sair da conta</span></button>` : ''}</div></details>
           <div class="campo" style="flex:1 1 220px"><label for="pf-nome">Nome</label><input type="text" id="pf-nome" name="nome" required value="${esc(p.nome)}"></div>
@@ -1335,15 +1317,27 @@
     const m = (c, a) => Math.round(c + (a - c) * p);
     return `rgb(${m(r, alvo)} ${m(g, alvo)} ${m(b, alvo)})`;
   }
+  const preferenciaEscura = () => window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+  const modoAtual = () => {
+    const m = UI.modoPrevia || (S.perfil.modo || 'sistema');
+    return m === 'sistema' ? (preferenciaEscura() ? 'escuro' : 'claro') : m;
+  };
+  const claroDemais = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    return (0.2126 * ((n >> 16) / 255) + 0.7152 * (((n >> 8) & 255) / 255) + 0.0722 * ((n & 255) / 255)) > 0.55;
+  };
   function aplicarTema() {
     const p = S.perfil, cor = UI.corPrevia || p.corCustom;
     const raiz = document.documentElement;
+    const escuro = modoAtual() === 'escuro';
     raiz.dataset.tema = UI.temaPrevia || p.tema;
+    raiz.dataset.modo = escuro ? 'escuro' : 'claro';
     if (/^#[0-9a-f]{6}$/i.test(cor || '')) {
       raiz.style.setProperty('--marca', cor);
-      raiz.style.setProperty('--marca-escura', mistura(cor, 0, .22));
-      raiz.style.setProperty('--marca-leve', mistura(cor, 255, .88));
-    } else { raiz.style.removeProperty('--marca'); raiz.style.removeProperty('--marca-escura'); raiz.style.removeProperty('--marca-leve'); }
+      raiz.style.setProperty('--marca-escura', mistura(cor, escuro ? 255 : 0, .18));
+      raiz.style.setProperty('--marca-leve', mistura(cor, escuro ? 0 : 255, escuro ? .78 : .88));
+      raiz.style.setProperty('--marca-texto', claroDemais(cor) ? '#101319' : '#fff');
+    } else { ['--marca', '--marca-escura', '--marca-leve', '--marca-texto'].forEach((k) => raiz.style.removeProperty(k)); }
   }
 
   /* ---------------- roteamento ---------------- */
@@ -1524,11 +1518,16 @@
       case 'lemb-reabrir': { const l = lembrete(id); l.concluido = false; return passa(); }
       case 'lemb-adiar': { const l = lembrete(id); return abrirModal({ tipo: 'editar', id: l.id }); }
       case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!confirm(`Excluir o lembrete “${l.texto}”?`)) return; S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
+      case 'modo': {
+        S.perfil.modo = b.dataset.v; UI.modoPrevia = null;
+        salvar(); aplicarTema(); renderTopo();
+        const d = document.querySelector('.menu-perfil'); if (d) d.setAttribute('open', '');
+        return;
+      }
       case 'sair': fecharMenu(); return sair();
-      case 'foto-google': fecharMenu(); S.perfil.foto = conta().foto; S.perfil.semFoto = false; return passa();
+      case 'foto-google': fecharMenu(); S.perfil.foto = conta().foto; return passa();
       case 'foto-trocar': fecharMenu(); return document.getElementById('arquivo-foto').click();
-      case 'foto-remover': fecharMenu(); S.perfil.semFoto = true; S.perfil.foto = null; return passa();
-      case 'foto-padrao': fecharMenu(); S.perfil.semFoto = false; S.perfil.foto = null; return passa();
+      case 'foto-remover': fecharMenu(); S.perfil.foto = null; return passa();
       case 'humor-emoji': {
         const f = b.closest('form');
         const atual = f.querySelector('[name=humorEmoji]');
@@ -1791,7 +1790,7 @@
   function escolherFoto(t) {
     const f = t.files[0]; t.value = '';
     if (!f) return;
-    redimensionar(f, 320, 320).then((u) => { S.perfil.foto = u; S.perfil.semFoto = false; salvar(); toast('Foto atualizada.'); render(); })
+    redimensionar(f, 320, 320).then((u) => { S.perfil.foto = u; salvar(); toast('Foto atualizada.'); render(); })
       .catch(() => toast('Não consegui abrir essa imagem.'));
   }
   function escolherBackup(t) {
@@ -1891,6 +1890,11 @@
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); buscaTopo.focus(); buscaTopo.select(); }
   });
   addEventListener('beforeunload', colherRascunhos);
+  if (window.matchMedia) {
+    const consulta = matchMedia('(prefers-color-scheme: dark)');
+    const aoTrocar = () => { if ((S.perfil.modo || 'sistema') === 'sistema') { aplicarTema(); renderTopo(); } };
+    consulta.addEventListener ? consulta.addEventListener('change', aoTrocar) : consulta.addListener(aoTrocar);
+  }
   setInterval(() => { if ((rotaAtual()[0] || 'inicio') === 'inicio' && !UI.modal) { const f = document.querySelector('.faixa-lembrete'); const novo = faixaLembrete(); if (!f && novo) render(); } }, 60000);
 
   /* ---------------- conta Google ---------------- */

@@ -63,7 +63,7 @@ Corrigir à mão (nome, preço, foto, loja) é opcional, em Editar. Um nome corr
 
 **Tela em vitrine.** Grade de cartões de produto: foto, loja, nome, estrelas, preço grande e botão **Ver na loja**. Ações por ícone: favoritar, comprei, atualizar preço, excluir. Controles: **Quero / Comprados**, ordenação (mais recentes, menor preço, maior preço), **Atualizar todos os preços** e a soma dos preços da lista.
 
-**Preço ao longo do tempo.** Cada captura com preço diferente entra no histórico da ficha. O cartão mostra “↓ caiu R$ X” ou “↑ subiu R$ X” em relação à captura anterior.
+**Preço ao longo do tempo.** A captura **não roda sozinha**: o preço é lido quando você cola o link e quando pede **Atualizar preço** (ou **Atualizar todos os preços**). Cada captura com preço diferente entra no histórico da ficha. O cartão mostra “↓ caiu R$ X” ou “↑ subiu R$ X” em relação à captura anterior.
 
 **Comprei.** Marca o produto como comprado e oferece registrar um gasto com o preço atual, na categoria Compras, com data de hoje.
 

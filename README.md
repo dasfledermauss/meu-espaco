@@ -33,7 +33,6 @@ meu-espaco/
 │   ├── js/config.js        ID do cliente Google e projeto Firebase (públicos)
 │   ├── js/nuvem.js         sincronização com o Firestore
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)
-│   ├── js/dados-iniciais.js  cópia de data/*.json para abrir sem servidor
 │   ├── fonts/              Lexend
 │   ├── vendor/             pdf.js (leitor de PDF)
 │   └── img/foto-perfil.jpg
@@ -56,6 +55,8 @@ meu-espaco/
 - **Wishlist:** só o link; foto, nome, preço, estrelas e loja são capturados. Mostra se o preço subiu ou caiu.
 - **Lembretes:** faixa no topo do Início e quadro em quatro colunas.
 - **Gastos, Currículo, Perfil e Configurações.**
+- **Modo claro, escuro ou automático**, no menu da foto de perfil.
+- **Começa vazio:** espaço novo abre com "Meu Nome", ícone de perfil padrão e nenhum registro.
 - **Login com conta Google** no servidor local e no site publicado, com lista de e-mails liberados. Abrindo o `index.html` direto, entra sem login. Detalhes e configuração em `docs/LOGIN.md`.
 - **Sincronização entre aparelhos** pelo Firestore: o que você guarda no computador aparece no celular. O navegador continua salvando na hora, mesmo sem internet. Ver `docs/SINCRONIZACAO.md`.
 

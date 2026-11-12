@@ -43,6 +43,10 @@ A v3 mantém a estrutura de colunas da v2 e troca a pele retrô por uma estétic
 
 **Temas.** Azul, Lilás, Verde e Grafite, mais **cor personalizada** por seletor; o tom escuro e o tom claro da marca são calculados a partir dela.
 
+**Modo claro e escuro.** A escolha fica no menu da foto de perfil, no topo: **Claro**, **Escuro** e **Sistema** (padrão, acompanha o aparelho e muda junto quando o sistema troca). O escuro não é uma inversão: usa fundo quase preto (`#10131a`), superfícies um pouco mais claras que o fundo e texto cinza-claro, nunca preto nem branco puros. A cor da marca clareia o suficiente para manter contraste de leitura, e os post-its ganham versões escuras dos cinco papéis. Com cor personalizada, o texto do botão principal é calculado pela luminosidade da cor escolhida.
+
+**Começo vazio.** Um espaço novo abre sem nenhum registro: nome **Meu Nome**, um ícone genérico no lugar da foto, as coleções Pessoal e Trabalho prontas e o currículo em branco. Os arquivos em `data/` continuam no projeto apenas como exemplo para importar.
+
 ## Atualização v2: hierarquia, colunas, temas por módulo e ícones (histórico)
 
 A v1 (registrada em `historico/2026-11-10_v1-retro-lista/`) era retrô, mas sem hierarquia: todo registro era uma linha igual e o feed parecia lista de notificações. A v2 mantém o portal dos anos 2000 e muda o seguinte. Onde este trecho divergir das seções abaixo, vale este.
