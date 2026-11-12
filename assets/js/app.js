@@ -26,6 +26,7 @@
   const somaDias = (s, n) => { const d = deDia(s); d.setDate(d.getDate() + n); return dataLocal(d); };
   const fmtDia = (s) => deDia(s).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
   const fmtDiaCurto = (s) => deDia(s).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  const fmtNum = (s) => deDia(s).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });  // 12/11
   const rotuloDia = (s) => s === hoje() ? 'Hoje' : s === somaDias(hoje(), -1) ? 'Ontem' : fmtDia(s);
   const fmtDataHora = (iso) => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   const fmtHora = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -346,7 +347,7 @@
   const pasta = (id) => S.pastas.find((c) => c.id === id);
   const item = (id) => S.itens.find((i) => i.id === id);
   const lembrete = (id) => S.lembretes.find((l) => l.id === id);
-  const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
+  const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], musica: ['Música', 'music-note'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
   /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
   const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
   const etapa = (i) => i.concluida ? 'feito' : (i.etapa === 'fazendo' ? 'fazendo' : 'afazer');
@@ -447,9 +448,15 @@
 
   /* ---------------- formulários de criação e edição ---------------- */
   const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['tarefa', 'Tarefa', 'list'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
-    ['artigo', 'Artigo de estudo', 'page'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
-  const tituloCriar = { nota: 'Nova nota', tarefa: 'Nova tarefa', link: 'Guardar link', midia: 'Novo na biblioteca', artigo: 'Novo artigo', desejo: 'Novo desejo', gasto: 'Novo gasto', lembrete: 'Novo lembrete' };
+    ['artigo', 'Artigo de estudo', 'page'], ['musica', 'Música', 'music-note'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
+  const tituloCriar = { nota: 'Nova nota', tarefa: 'Nova tarefa', link: 'Guardar link', midia: 'Novo na biblioteca', artigo: 'Novo artigo', musica: 'Guardar música', desejo: 'Novo desejo', gasto: 'Novo gasto', lembrete: 'Novo lembrete' };
 
+  /** Coleção do post: vira campo fixo quando a pessoa clicou em "Guardar aqui" dentro de uma coleção. */
+  function campoDestino(c, tipo, it, v) {
+    const sel = (UI.colPadrao != null && !it) ? UI.colPadrao : (it ? ((v.colecoes || [])[0] || {}).id : (S.destinoPadrao[tipo] || ''));
+    const html = campo('f-destino', 'Coleção', `<select id="f-destino" name="destino" data-act="destino">${opcoesDestino(sel)}</select>`);
+    if (UI.colPadrao != null && !it) c.fixo(html); else c.opc('destino', 'Coleção', html);
+  }
   function formulario(t, it) {
     const k = it ? 'editar:' + it.id : 'criar:' + t;
     const v = it || {};
@@ -465,20 +472,27 @@
           + `<p class="dica">${ic('priority-high')}<span>Cada linha vira um item para marcar. Marcadores como “-”, “•” e “1.” são removidos.</span></p>`);
       } else c.fixo(campo('f-texto', 'Texto', area('f-texto', 'texto', v.texto, 'class="alto" required placeholder="Escreva o que aprendeu, pensou ou quer lembrar…"')));
       c.opc('titulo', 'Título', campo('f-titulo', 'Título', txt('f-titulo', 'titulo', v.titulo)));
-      c.opc('destino', 'Coleção', campo('f-destino', 'Coleção', `<select id="f-destino" name="destino" data-act="destino">${opcoesDestino(it ? (v.colecoes[0] || {}).id : S.destinoPadrao.nota)}</select>`));
+      campoDestino(c, 'nota', it, v);
       c.opc('cor', 'Cor do papel', campo('f-cor', 'Cor do papel', selectHTML('f-cor', 'cor', CORES_NOTA.map((x) => [x, x[0].toUpperCase() + x.slice(1)]), v.cor || corNota(v.id ? v : { id: 'x' }))));
     } else if (t === 'tarefa') {
       c.fixo(campo('f-titulo', 'O que precisa ser feito', area('f-titulo', 'titulo', v.titulo, 'class="uma-linha" rows="1" required placeholder="ex.: mandar a proposta da paróquia"'))
         + (it ? '' : `<p class="dica" id="dica-colar">${ic('priority-high')}<span>Colou uma lista? Cada linha vira uma tarefa.</span></p>`));
+      c.opc('descricao', 'Descrição', campo('f-desc', 'Descrição', area('f-desc', 'descricao', v.descricao, 'placeholder="Detalhes, contexto, o que precisa estar pronto…"')));
       c.opc('prazo', 'Prazo', campo('f-prazo', 'Prazo <span class="opcional">(opcional)</span>', `<input type="date" id="f-prazo" name="prazo" value="${esc(v.prazo || '')}">`, 'medio')
         + `<label class="check"><input type="checkbox" name="avisar" ${v.lembreteId || !it ? 'checked' : ''}> Criar lembrete no prazo</label>`);
       c.opc('etapa', 'Situação', campo('f-etapa', 'Situação', selectHTML('f-etapa', 'etapa', Object.entries(ETAPAS), etapa(v)), 'medio'));
-      c.opc('destino', 'Coleção', campo('f-destino', 'Coleção', `<select id="f-destino" name="destino" data-act="destino">${opcoesDestino(it ? (v.colecoes[0] || {}).id : S.destinoPadrao.tarefa)}</select>`));
+      campoDestino(c, 'tarefa', it, v);
+    } else if (t === 'musica') {
+      c.fixo(campo('f-url', 'Link do YouTube', `<input type="url" id="f-url" name="url" value="${esc(v.url || '')}" required placeholder="Cole o link do vídeo ou da playlist" inputmode="url">`));
+      if (!it) c.fixo(`<p class="dica">${ic('priority-high')}<span>Vale vídeo, playlist ou mix. A capa e o nome vêm do próprio YouTube.</span></p>`);
+      c.opc('titulo', 'Nome', campo('f-titulo', 'Nome', txt('f-titulo', 'titulo', v.titulo)));
+      c.opc('artista', 'Artista', campo('f-artista', 'Artista', txt('f-artista', 'artista', v.artista)));
+      campoDestino(c, 'musica', it, v);
     } else if (t === 'link') {
       c.fixo(campo('f-url', 'Endereço', `<input type="url" id="f-url" name="url" value="${esc(v.url || '')}" required placeholder="https://…" inputmode="url">`));
       if (!it) c.fixo(`<p class="dica">${ic('priority-high')}<span>Título, descrição e imagem são capturados da página.${UI.servidor ? '' : ' Sem o servidor ligado, dá para preencher à mão.'}</span></p>`);
       c.opc('comentario', 'Por que guardei', campo('f-com', 'Por que estou guardando', txt('f-com', 'comentario', v.comentario, 'placeholder="ex.: quero testar essa navegação no próximo projeto"')));
-      c.opc('destino', 'Coleção', campo('f-destino', 'Coleção', `<select id="f-destino" name="destino" data-act="destino">${opcoesDestino(it ? (v.colecoes[0] || {}).id : S.destinoPadrao.link)}</select>`));
+      campoDestino(c, 'link', it, v);
       c.opc('titulo', 'Título', campo('f-titulo', 'Título', txt('f-titulo', 'titulo', v.titulo)));
       c.opc('descricao', 'Descrição', campo('f-desc', 'Descrição', area('f-desc', 'descricao', v.descricao)));
       c.opc('lerDepois', 'Ler mais tarde', `<label class="check"><input type="checkbox" name="lerDepois" ${v.lerDepois ? 'checked' : ''}> Ler mais tarde</label>`);
@@ -547,6 +561,27 @@
           ${temRascunho(k) ? btn('descartar-rascunho', 'Descartar', `data-k="${esc(k)}"`, 'btn-f btn-perigo') : btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}${m.tipo === 'editar' ? 'Salvar' : 'Guardar'}</button></footer></form>`;
     }
+    if (m.tipo === 'tarefa-ver') {
+      const i = item(m.id);
+      if (!i) return '';
+      const e = etapa(i), atras = atrasada(i);
+      return `<div class="modal modal-tarefa"><header class="modal-cab">${ic('list')}
+          <h2>Tarefa</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo">
+          <div class="tarefa-linha grande ${i.concluida ? 'feita' : ''}">
+            <button type="button" class="tar-marca" data-act="tar-ok" data-id="${i.id}" aria-pressed="${!!i.concluida}"
+              aria-label="${i.concluida ? 'Reabrir tarefa' : 'Marcar como feita'}">${ic(i.concluida ? 'check-circle-solid' : 'check-circle')}</button>
+            <span class="tar-corpo"><strong class="tar-tit">${esc(i.titulo || 'Tarefa sem nome')}</strong></span></div>
+          ${i.descricao ? `<p class="tar-desc-cheia">${esc(i.descricao)}</p>` : ''}
+          <dl class="ficha-dados">
+            <div><dt>Situação</dt><dd>${ETAPAS[e]}</dd></div>
+            <div><dt>Prazo</dt><dd>${i.prazo ? (atras ? 'venceu ' : '') + fmtDiaCurto(i.prazo) : '—'}</dd></div>
+            <div><dt>Coleção</dt><dd>${(i.colecoes || []).map((c) => esc((colecao(c.id) || {}).nome || '')).filter(Boolean).join(', ') || '—'}</dd></div>
+          </dl></div>
+        <footer class="modal-pe">${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-f')}
+          <span class="espaco"></span>${btn('modal-fechar', 'Fechar', '', 'btn-f')}
+          <a class="btn btn-1" href="#/tarefas" data-act="modal-fechar">${ic('list')}Ver em Tarefas</a></footer></div>`;
+    }
     if (m.tipo === 'novidades') {
       return `<div class="modal modal-novidades"><header class="modal-cab">${ic('page-star')}
           <h2>O que há de novo</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
@@ -600,6 +635,7 @@
   function abrirModal(m) { colherRascunhos(); UI.modal = m; render(); }
   function fecharModal() {
     if (UI.modal && UI.modal.tipo === 'novidades') marcarNovidadesVistas();
+    UI.colPadrao = null;
     colherRascunhos(); UI.modal = null; render();
   }
   function renderModal() {
@@ -636,6 +672,73 @@
     x.feito = !x.feito; n.editadoEm = agora(); salvar(); render();
   }
 
+  /* ---------------- músicas ----------------
+     Guarda o link do YouTube e toca num quadro pequeno, dentro do site. */
+  function doYouTube(url) {
+    let u; try { u = new URL(url); } catch (e) { return {}; }
+    const h = u.hostname.replace(/^www\.|^m\./, '');
+    const lista = u.searchParams.get('list') || '';
+    let video = '';
+    if (h === 'youtu.be') video = u.pathname.slice(1);
+    else if (h.endsWith('youtube.com') || h.endsWith('youtube-nocookie.com')) {
+      if (u.pathname === '/watch') video = u.searchParams.get('v') || '';
+      else { const m = u.pathname.match(/^\/(embed|shorts|live|v)\/([^/?#]+)/); if (m) video = m[2]; }
+    }
+    if (!/^[\w-]{6,20}$/.test(video)) video = '';
+    return { video, lista: /^[\w-]{8,60}$/.test(lista) ? lista : '' };
+  }
+  const musicas = () => doTipo('musica');
+  const capaYT = (i) => i.video ? `https://img.youtube.com/vi/${encodeURIComponent(i.video)}/mqdefault.jpg` : '';
+  function urlPlayer(i) {
+    const base = 'https://www.youtube-nocookie.com/embed/';
+    const comum = 'autoplay=1&rel=0&modestbranding=1';
+    if (i.video) return base + encodeURIComponent(i.video) + '?' + comum + (i.listaYT ? '&list=' + encodeURIComponent(i.listaYT) : '');
+    return base + 'videoseries?' + comum + '&list=' + encodeURIComponent(i.listaYT);
+  }
+  function tocar(id) {
+    const i = item(id); if (!i) return;
+    UI.tocando = id; i.tocadoEm = agora(); salvar(); UI.pularColheita = true; render();
+  }
+  function pararMusica() { UI.tocando = null; UI.pularColheita = true; render(); }
+  /** O player fica fora do main para não recomeçar a cada tela. */
+  function renderPlayer() {
+    const caixa = document.getElementById('player');
+    if (!caixa) return;
+    const i = UI.tocando && item(UI.tocando);
+    if (!i || i.tipo !== 'musica') { caixa.innerHTML = ''; caixa.hidden = true; return; }
+    caixa.hidden = false;
+    if (caixa.dataset.id === i.id && caixa.dataset.min === String(!!UI.playerMin)) return; // já está tocando
+    caixa.dataset.id = i.id; caixa.dataset.min = String(!!UI.playerMin);
+    caixa.innerHTML = `<div class="player ${UI.playerMin ? 'min' : ''}">
+      <header><span class="player-tit">${ic('music-note')}<span>${esc(corta(tituloItem(i), 42))}</span></span>
+        ${btnIco('player-min', UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down', UI.playerMin ? 'Mostrar' : 'Esconder o vídeo')}
+        ${btnIco('player-fechar', 'xmark', 'Fechar o player')}</header>
+      <div class="player-video"><iframe src="${esc(urlPlayer(i))}" title="${esc(tituloItem(i))}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>`;
+  }
+  function renderMusicas() {
+    const lista = musicas().slice().sort((a, b2) => b2.criadoEm.localeCompare(a.criadoEm));
+    const cartaoM = (i) => {
+      const capa = capaYT(i);
+      return `<article class="musica ${UI.tocando === i.id ? 'tocando' : ''}">
+        <button type="button" class="musica-capa" data-act="tocar" data-id="${i.id}" aria-label="Tocar ${esc(tituloItem(i))}">
+          ${capa ? `<img src="${esc(capa)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : `<span class="capa-ph">${ic('playlist')}</span>`}
+          <span class="play">${ic(UI.tocando === i.id ? 'pause' : 'play-solid')}</span></button>
+        <div class="musica-dados"><h3><a href="#/item/${i.id}">${esc(tituloItem(i))}</a></h3>
+          <p class="meta">${[i.artista, i.listaYT && !i.video ? 'playlist' : (i.listaYT ? 'na playlist' : '')].filter(Boolean).map(esc).join(' · ') || 'YouTube'}</p>
+          <div class="musica-acoes">${btnIco('tocar', UI.tocando === i.id ? 'pause' : 'play', UI.tocando === i.id ? 'Parar' : 'Tocar', `data-id="${i.id}"`)}
+            ${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorita', 'Favoritar', 'estrela')}
+            ${btnIco('abrir-fora', 'open-new-window', 'Abrir no YouTube', `data-id="${i.id}"`)}
+            ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
+              { act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' },
+              '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></div></article>`;
+    };
+    main.innerHTML = `<header class="pagina-cab"><h1>${ic('music-note')}Músicas</h1>
+        <div class="ferramentas">${btn('criar', ic('plus') + 'Guardar música', 'data-t="musica"', 'btn-1')}</div></header>
+      ${lista.length ? `<div class="grade-musicas">${lista.map(cartaoM).join('')}</div>`
+        : vazio('music-note', 'Nenhuma música ainda. Cole o link de um vídeo ou de uma playlist do YouTube.',
+          btn('criar', ic('plus') + 'Guardar música', 'data-t="musica"', 'btn-1'))}`;
+  }
+
   /* ---------------- tarefas ---------------- */
   /** Uma tarefa é sempre uma linha: círculo para riscar, título e, se houver, prazo e situação. */
   function linhaTarefa(i, opts = {}) {
@@ -649,6 +752,7 @@
         aria-pressed="${!!i.concluida}" aria-label="${i.concluida ? 'Reabrir tarefa' : 'Marcar como feita'}" title="${i.concluida ? 'Reabrir' : 'Marcar como feita'}">
         ${ic(i.concluida ? 'check-circle-solid' : 'check-circle')}</button>
       <span class="tar-corpo"><a class="tar-tit" href="#/item/${i.id}">${esc(i.titulo || 'Tarefa sem nome')}</a>
+        ${i.descricao && !opts.semDescricao ? `<span class="tar-desc">${esc(corta(i.descricao, 120))}</span>` : ''}
         <span class="tar-meta">${prazo}${e === 'fazendo' ? `<span class="tar-etapa">${ic('clock')}Fazendo</span>` : ''}${cols}</span></span></div>`;
   }
   function alternarTarefa(id) {
@@ -753,10 +857,10 @@
 
   function corpoPost(i) {
     if (i.tipo === 'nota') {
-      const cab = i.titulo ? `<h3><a href="#/item/${i.id}">${esc(i.titulo)}</a></h3>` : '';
-      if (i.modo === 'lista') return `<div class="postit ${corNota(i)}">${cab}${listaCheckHTML(i)}</div>`;
-      return `<div class="postit ${corNota(i)}">${cab}
-        <p>${esc(corta(i.texto, 420))}</p>${(i.texto || '').length > 420 ? `<a class="meta" href="#/item/${i.id}">Ler tudo</a>` : ''}</div>`;
+      const cab = i.titulo ? `<h3>${esc(i.titulo)}</h3>` : '';
+      if (i.modo === 'lista') return `<div class="postit ${corNota(i)} abre" data-act="editar-item" data-id="${i.id}" role="button" tabindex="0">${cab}${listaCheckHTML(i)}</div>`;
+      return `<div class="postit ${corNota(i)} abre" data-act="editar-item" data-id="${i.id}" role="button" tabindex="0">${cab}
+        <p>${esc(corta(i.texto, 420))}</p></div>`;
     }
     if (i.tipo === 'tarefa') return linhaTarefa(i);
     if (i.tipo === 'link') return `<div class="link-rico">
@@ -791,6 +895,16 @@
           <p>${precoHTML(i)}</p>${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ')' : '')}
           ${i.comprado ? '<p class="tag">Comprado</p>' : ''}
           ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}</div></div>`;
+    if (i.tipo === 'musica') {
+      const capa = capaYT(i);
+      return `<div class="musica-linha">
+        <button type="button" class="musica-capa p" data-act="tocar" data-id="${i.id}" aria-label="Tocar ${esc(tituloItem(i))}">
+          ${capa ? `<img src="${esc(capa)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : `<span class="capa-ph">${ic('playlist')}</span>`}
+          <span class="play">${ic(UI.tocando === i.id ? 'pause' : 'play-solid')}</span></button>
+        <div class="midia-dados"><h3><a href="#/item/${i.id}">${esc(tituloItem(i))}</a></h3>
+          <p class="meta">${[i.artista, i.listaYT && !i.video ? 'playlist' : ''].filter(Boolean).map(esc).join(' · ') || 'YouTube'}</p></div></div>`;
+    }
+    if (i.tipo !== 'gasto') return `<p class="meta">${esc(tituloItem(i))}</p>`;
     return `<div class="gasto-linha"><span class="circulo ok">${ic('wallet')}</span>
       <span><strong class="post-tit" style="font-size:15.5px">${esc(i.descricao || 'Gasto')}</strong>
         <span class="meta" style="display:block">${[i.categoria, 'despesa de ' + fmtDiaCurto(i.dataGasto)].filter(Boolean).map(esc).join(' · ')}</span></span>
@@ -825,48 +939,67 @@
           <button type="button" data-act="sair">${ic('log-out' in (window.ICONES || {}) ? 'log-out' : 'xmark')}<span>Sair da conta</span></button>` : ''}
       </div></details>`;
   }
+  /* A ordem das áreas fica no perfil: arrastar muda, e áreas novas entram no fim. */
+  const AREAS = () => [['inicio', 'Início', 'home-simple', ''], ['tarefas', 'Tarefas', 'list', tarefasAbertas().length],
+    ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length],
+    ['estudos', 'Estudos', 'folder', doTipo('artigo').length], ['links', 'Links', 'link', doTipo('link').length],
+    ['musicas', 'Músicas', 'music-note', musicas().length], ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
+    ['gastos', 'Gastos', 'wallet', ''], ['lembretes', 'Lembretes', 'alarm', pendentes().length], ['curriculo', 'Currículo', 'suitcase', '']];
+  function areasOrdenadas() {
+    const todas = AREAS();
+    const guardada = (S.perfil.ordemNav || []).filter((r) => todas.some((a) => a[0] === r));
+    const ordem = guardada.concat(todas.map((a) => a[0]).filter((r) => !guardada.includes(r)));
+    return ordem.map((r) => todas.find((a) => a[0] === r));
+  }
   function renderNav(rota) {
-    const itens = [['inicio', 'Início', 'home-simple', ''], ['tarefas', 'Tarefas', 'list', tarefasAbertas().length], ['mural', 'Mural', 'journal-page', doTipo('nota').length],
-      ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length], ['estudos', 'Estudos', 'folder', doTipo('artigo').length],
-      ['links', 'Links', 'link', doTipo('link').length], ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
-      ['gastos', 'Gastos', 'wallet', ''], ['lembretes', 'Lembretes', 'alarm', pendentes().length], ['curriculo', 'Currículo', 'suitcase', '']];
     const nv = vencidos().length;
     navLateral.innerHTML = `<h2 class="sr-only">Navegação</h2>
-      ${itens.map(([r, n, icone, q]) => `<a href="#/${r}" ${rota === r ? 'aria-current="page"' : ''}>${icAtivo(icone, rota === r)}<span>${n}</span>${q ? `<em class="pino ${r === 'lembretes' && nv ? 'alerta' : ''}">${q}</em>` : ''}</a>`).join('')}
+      <div class="nav-areas">${areasOrdenadas().map(([r, n, icone, q]) => `<a href="#/${r}" draggable="true" data-area="${r}" ${rota === r ? 'aria-current="page"' : ''}>${icAtivo(icone, rota === r)}<span>${n}</span>${q ? `<em class="pino ${r === 'lembretes' && nv ? 'alerta' : ''}">${q}</em>` : ''}</a>`).join('')}</div>
       <p class="nav-sep">Coleções</p>
-      ${S.colecoes.map((c) => `<a class="sub" href="#/links" data-act="col-ir" data-col="${c.id}" ${rota === 'links' && UI.colSel === c.id ? 'aria-current="true"' : ''}><span>${esc(c.nome)}</span><em class="pino">${S.itens.filter((i) => i.colecoes.some((x) => x.id === c.id)).length}</em></a>`).join('')}
-      <a class="sub" href="#/links" data-act="col-ir" data-col="soltos" ${rota === 'links' && UI.colSel === 'soltos' ? 'aria-current="true"' : ''}><span>A organizar</span><em class="pino">${S.itens.filter((i) => !i.colecoes.length && (i.tipo === 'nota' || i.tipo === 'link')).length}</em></a>
+      ${S.colecoes.map((c) => `<a class="sub" href="#/colecao/${c.id}" ${rota === 'colecao' && rotaAtual()[1] === c.id ? 'aria-current="true"' : ''}><span>${esc(c.nome)}</span><em class="pino">${S.itens.filter((i) => i.colecoes.some((x) => x.id === c.id)).length}</em></a>`).join('')}
+      <a class="sub" href="#/colecao/soltos" ${rota === 'colecao' && rotaAtual()[1] === 'soltos' ? 'aria-current="true"' : ''}><span>A organizar</span><em class="pino">${S.itens.filter((i) => !i.colecoes.length).length}</em></a>
       <a class="sub" href="#" data-act="nova-colecao"><span>${ic('plus')} Nova coleção</span></a>`;
   }
+  /* ---------------- coluna da direita ----------------
+     Cada bloco tem um id; a ordem fica no perfil e pode ser mudada arrastando. */
+  const BLOCOS_DIR = ['tarefas', 'lembretes', 'lendo', 'vitrine', 'fila', 'favoritos'];
+  const ordemDireita = () => {
+    const g = (S.perfil.ordemDireita || []).filter((x) => BLOCOS_DIR.includes(x));
+    return g.concat(BLOCOS_DIR.filter((x) => !g.includes(x)));
+  };
   function renderDireita(rota) {
     if (rota !== 'inicio') { direita.innerHTML = ''; direita.hidden = true; layout.classList.add('sem-direita'); return; }
     direita.hidden = false; layout.classList.remove('sem-direita');
-    const b = [];
+    const blocos = {};
+
     const abertas = tarefasAbertas();
     const feitasHoje = tarefas().filter((i) => i.concluida && (i.editadoEm || i.criadoEm).slice(0, 10) === hoje());
     if (abertas.length || feitasHoje.length) {
       const total = abertas.length + feitasHoje.length;
       const pct = Math.round((feitasHoje.length / total) * 100);
-      const proximas = abertas.slice().sort((x, y) => (x.prazo || '9999').localeCompare(y.prazo || '9999')).slice(0, 3);
-      b.push(cartao(ic('list') + 'Tarefas', `<p class="progresso" style="margin-bottom:12px">
-          <span class="barra"><i style="width:${pct}%"></i></span> ${feitasHoje.length} de ${total} feitas hoje</p>
-        <div class="mini-lista">${proximas.map((i) => `<p class="mini-item"><em class="ponto ${atrasada(i) ? 'vence' : ''}"></em>
-          <span><a href="#/tarefas">${esc(corta(i.titulo, 40))}</a></span>
-          <span class="meta">${i.prazo ? fmtDiaCurto(i.prazo) : ''}</span></p>`).join('')}</div>`,
-        '<a href="#/tarefas">ver todas</a>', 'fino'));
+      const proximas = abertas.slice().sort((x, y) => (x.prazo || '9999').localeCompare(y.prazo || '9999')).slice(0, 4);
+      blocos.tarefas = cartao(ic('list') + 'Tarefas', `<p class="progresso compacto">
+          <span class="barra"><i style="width:${pct}%"></i></span><b>${feitasHoje.length}/${total}</b></p>
+        <div class="mini-lista">${proximas.map((i) => `<button type="button" class="mini-item" data-act="tarefa-ver" data-id="${i.id}">
+          <em class="ponto ${atrasada(i) ? 'vence' : ''}"></em><span class="mini-txt">${esc(i.titulo)}</span>
+          ${i.prazo ? `<span class="meta num">${fmtNum(i.prazo)}</span>` : ''}</button>`).join('')}</div>`,
+        '<a href="#/tarefas">ver todas</a>', 'fino');
     }
     const pend = pendentes().slice(0, 3);
-    if (pend.length) b.push(cartao(ic('alarm') + 'Lembretes', `<div class="mini-lista">${pend.map((l) => `<p class="mini-item"><em class="ponto ${venc(l) <= Date.now() ? 'vence' : ''}"></em><span>${esc(l.texto)}</span><span class="meta">${fmtDiaCurto(l.data)}</span></p>`).join('')}</div>`, '<a href="#/lembretes">quadro</a>', 'fino'));
+    if (pend.length) blocos.lembretes = cartao(ic('alarm') + 'Lembretes', `<div class="mini-lista">${pend.map((l) => `<p class="mini-item"><em class="ponto ${venc(l) <= Date.now() ? 'vence' : ''}"></em><span class="mini-txt">${esc(l.texto)}</span><span class="meta num">${fmtNum(l.data)}</span></p>`).join('')}</div>`, '<a href="#/lembretes">quadro</a>', 'fino');
     const and = doTipo('midia').filter((i) => i.status === 'andamento').slice(0, 4);
-    if (and.length) b.push(cartao(ic('book') + 'Lendo agora', `<div class="mini-capas">${and.map((i) => `<a href="#/item/${i.id}" title="${esc(i.titulo)}">${capaHTML(i, 'p')}</a>`).join('')}</div>`, '<a href="#/biblioteca">biblioteca</a>', 'fino'));
+    if (and.length) blocos.lendo = cartao(ic('book') + 'Lendo agora', `<div class="mini-capas">${and.map((i) => `<a href="#/item/${i.id}" title="${esc(i.titulo)}">${capaHTML(i, 'p')}</a>`).join('')}</div>`, '<a href="#/biblioteca">biblioteca</a>', 'fino');
     const d = doTipo('desejo').filter((i) => !i.comprado).sort((a, x) => x.criadoEm.localeCompare(a.criadoEm))[0];
-    if (d) b.push(cartao(ic('shopping-bag') + 'Na vitrine', `<a class="vitrine-mini" href="#/item/${d.id}">${fotoProduto(d)}<span><strong>${esc(corta(tituloItem(d), 46))}</strong>${precoHTML(d)}</span></a>`, '<a href="#/wishlist">wishlist</a>', 'fino'));
+    if (d) blocos.vitrine = cartao(ic('shopping-bag') + 'Na vitrine', `<a class="vitrine-mini" href="#/item/${d.id}">${fotoProduto(d)}<span><strong>${esc(corta(tituloItem(d), 46))}</strong>${precoHTML(d)}</span></a>`, '<a href="#/wishlist">wishlist</a>', 'fino');
     const fila = S.itens.filter((i) => i.lerDepois && !i.lido).slice(0, 4);
-    if (fila.length) b.push(cartao(ic('bookmark-solid') + 'Fila de leitura', `<div class="lista-links">${fila.map((i) => `<a href="${esc(i.url)}" target="_blank" rel="noopener">${ic(icoTipo(i))}<span>${esc(tituloItem(i))}</span></a>`).join('')}</div>`, '', 'fino'));
+    if (fila.length) blocos.fila = cartao(ic('bookmark-solid') + 'Fila de leitura', `<div class="lista-links">${fila.map((i) => `<a href="${esc(i.url)}" target="_blank" rel="noopener">${ic(icoTipo(i))}<span>${esc(tituloItem(i))}</span></a>`).join('')}</div>`, '', 'fino');
     const favs = ordenados().filter((i) => i.favorito).slice(0, 5);
-    if (favs.length) b.push(cartao(ic('star-solid') + 'Favoritos', `<div class="lista-links">${favs.map((i) => `<a href="#/item/${i.id}">${ic(icoTipo(i))}<span>${esc(tituloItem(i))}</span></a>`).join('')}</div>`, '', 'fino'));
-    if (!b.length) b.push(cartao('Seu espaço', '<p class="meta">Lembretes, leituras, favoritos e a vitrine aparecem aqui conforme você guarda coisas.</p>', '', 'fino'));
-    direita.innerHTML = b.join('');
+    if (favs.length) blocos.favoritos = cartao(ic('star-solid') + 'Favoritos', `<div class="lista-links">${favs.map((i) => `<a href="#/item/${i.id}">${ic(icoTipo(i))}<span>${esc(tituloItem(i))}</span></a>`).join('')}</div>`, '', 'fino');
+
+    const vivos = ordemDireita().filter((n) => blocos[n]);
+    if (!vivos.length) { direita.innerHTML = cartao('Seu espaço', '<p class="meta">Tarefas, lembretes, leituras, favoritos e a vitrine aparecem aqui conforme você guarda coisas.</p>', '', 'fino'); return; }
+    direita.innerHTML = vivos.map((n) => `<div class="bloco-dir" draggable="true" data-bloco="${n}">
+      <span class="pegar" title="Arraste para reordenar" aria-hidden="true">${ic('drag')}</span>${blocos[n]}</div>`).join('');
   }
 
   /* ---------------- Início ---------------- */
@@ -909,11 +1042,14 @@
         ${doDia.length ? blocosFeed(doDia, { hora: true }) : vazio('calendar', 'Nenhum registro neste dia.')}`;
     }
     const lista = ordenados();
-    let h = `<div class="secao-tit">Atividade recente ${btnTxt('feed-dia', 'calendar', 'Por dia')}</div>`;
-    if (!lista.length) return h + vazio('journal-page', 'Nada guardado ainda. Comece pelos botões acima.');
+    const cab = (extra) => `<div class="secao-tit">Atividade recente${extra ? ` <em>·</em> ${extra}` : ''} ${btnTxt('feed-dia', 'calendar', 'Por dia')}</div>`;
+    if (!lista.length) return cab('') + vazio('journal-page', 'Nada guardado ainda. Comece pelos botões acima.');
     const dias = {};
     lista.forEach((i) => { const d = dataLocal(i.criadoEm); (dias[d] = dias[d] || []).push(i); });
-    Object.keys(dias).sort().reverse().forEach((d) => { h += `<p class="secao-tit">${rotuloDia(d)}</p>` + blocosFeed(dias[d], { hora: true }); });
+    const ordem = Object.keys(dias).sort().reverse();
+    // O primeiro dia entra na mesma linha do título, para não gastar duas linhas com um rótulo só.
+    let h = cab(rotuloDia(ordem[0]));
+    ordem.forEach((d, n) => { if (n) h += `<p class="secao-tit">${rotuloDia(d)}</p>`; h += blocosFeed(dias[d], { hora: true }); });
     return h;
   }
   const renderInicio = () => { main.innerHTML = faixaLembrete() + compositor() + `<div class="feed">${conteudoFeed()}</div>`; };
@@ -923,8 +1059,9 @@
     let ns = doTipo('nota').slice().sort((a, b) => (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0) || (a.ordem ?? 0) - (b.ordem ?? 0) || b.criadoEm.localeCompare(a.criadoEm));
     if (UI.muralCol === 'soltos') ns = ns.filter((i) => !i.colecoes.length);
     else if (UI.muralCol !== 'todas') ns = ns.filter((i) => i.colecoes.some((c) => c.id === UI.muralCol));
-    const nota = (i) => `<article class="postit ${corNota(i)} arrastavel" draggable="true" data-id="${i.id}" data-arrasta>
-      ${i.titulo ? `<h3><a href="#/item/${i.id}">${esc(i.titulo)}</a></h3>` : ''}
+    const nota = (i) => `<article class="postit ${corNota(i)} arrastavel abre" draggable="true" data-id="${i.id}" data-arrasta
+        data-act="editar-item" tabindex="0" role="button" aria-label="Editar ${esc(corta(i.titulo || i.texto || 'nota', 50))}">
+      ${i.titulo ? `<h3>${esc(i.titulo)}</h3>` : ''}
       ${i.modo === 'lista' ? listaCheckHTML(i) : `<p>${esc(corta(i.texto, 240))}</p>`}
       <footer><time>${i.fixado ? ic('pin-solid') + ' ' : ''}${fmtDiaCurto(dataLocal(i.criadoEm))}</time>
         ${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorito', 'Favoritar', 'estrela')}
@@ -1128,6 +1265,70 @@
         <div class="quadro-col" style="margin-top:14px">${feitos.map(card).join('')}</div></details>` : ''}`;
   }
 
+  /* ---------------- Coleção (bento) ----------------
+     Mostra tudo que está na coleção, por tipo, em blocos de tamanhos diferentes. */
+  function renderColecao() {
+    const id = rotaAtual()[1] || 'soltos';
+    const col = colecao(id);
+    const nome = col ? col.nome : 'A organizar';
+    const dentro = id === 'soltos' ? S.itens.filter((i) => !i.colecoes.length)
+      : S.itens.filter((i) => (i.colecoes || []).some((c) => c.id === id));
+    const de = (t) => dentro.filter((i) => i.tipo === t);
+    const blocos = [];
+
+    const tar = de('tarefa'), tarAb = tar.filter((i) => !i.concluida);
+    if (tar.length) blocos.push({ cls: tarAb.length > 2 ? 'alto' : '', html: cartao(ic('list') + 'Tarefas',
+      `<div class="bento-lista">${tarAb.slice(0, 6).map((i) => linhaTarefa(i, { semColecao: true })).join('') || `<p class="meta">Tudo feito.</p>`}</div>`,
+      `<a href="#/tarefas">${tarAb.length}/${tar.length}</a>`) });
+
+    const notas = de('nota');
+    if (notas.length) blocos.push({ cls: notas.length > 1 ? 'largo' : '', html: cartao(ic('journal-page') + 'Notas',
+      `<div class="bento-notas">${notas.slice(0, 4).map((i) => `<a class="postit ${corNota(i)} mini" href="#/item/${i.id}">
+        ${i.titulo ? `<h3>${esc(i.titulo)}</h3>` : ''}<p>${esc(corta(i.modo === 'lista' ? (i.lista || []).map((x) => x.texto).join(' · ') : i.texto, 120))}</p></a>`).join('')}</div>`,
+      `<a href="#/mural">${notas.length}</a>`) });
+
+    const links = de('link');
+    if (links.length) blocos.push({ cls: '', html: cartao(ic('link') + 'Links',
+      `<div class="lista-links">${links.slice(0, 5).map((i) => `<a href="${esc(i.url)}" target="_blank" rel="noopener">${ic('link')}<span>${esc(tituloItem(i))}</span></a>`).join('')}</div>`,
+      `<a href="#/links">${links.length}</a>`) });
+
+    const mid = de('midia');
+    if (mid.length) blocos.push({ cls: '', html: cartao(ic('book-stack') + 'Biblioteca',
+      `<div class="mini-capas">${mid.slice(0, 6).map((i) => `<a href="#/item/${i.id}" title="${esc(i.titulo)}">${capaHTML(i, 'p')}</a>`).join('')}</div>`,
+      `<a href="#/biblioteca">${mid.length}</a>`) });
+
+    const mus = de('musica');
+    if (mus.length) blocos.push({ cls: '', html: cartao(ic('music-note') + 'Músicas',
+      `<div class="mini-lista">${mus.slice(0, 4).map((i) => `<button type="button" class="mini-item" data-act="tocar" data-id="${i.id}">
+        ${ic('play')}<span class="mini-txt">${esc(tituloItem(i))}</span></button>`).join('')}</div>`,
+      `<a href="#/musicas">${mus.length}</a>`) });
+
+    const des = de('desejo').filter((i) => !i.comprado);
+    if (des.length) blocos.push({ cls: '', html: cartao(ic('shopping-bag') + 'Wishlist',
+      `<div class="mini-lista">${des.slice(0, 4).map((i) => `<p class="mini-item"><span class="mini-txt"><a href="#/item/${i.id}">${esc(tituloItem(i))}</a></span><span class="meta num">${i.preco != null ? brl(i.preco, i.moeda) : ''}</span></p>`).join('')}</div>`,
+      `<a href="#/wishlist">${des.length}</a>`) });
+
+    const art = de('artigo');
+    if (art.length) blocos.push({ cls: '', html: cartao(ic('page') + 'Estudos',
+      `<div class="lista-links">${art.slice(0, 5).map((i) => `<a href="#" data-act="abrir-artigo" data-id="${i.id}">${ic(i.ehPdf ? 'page' : 'link')}<span>${esc(tituloItem(i))}</span></a>`).join('')}</div>`,
+      `<a href="#/estudos">${art.length}</a>`) });
+
+    const gas = de('gasto');
+    if (gas.length) {
+      const soma = gas.reduce((t, g) => t + (+g.valor || 0), 0);
+      blocos.push({ cls: '', html: cartao(ic('wallet') + 'Gastos',
+        `<p class="bento-numero">${brl(soma)}</p><p class="meta">${gas.length} lançamento${gas.length > 1 ? 's' : ''}</p>`,
+        `<a href="#/gastos">ver</a>`) });
+    }
+
+    main.innerHTML = `<header class="pagina-cab"><h1>${ic('folder')}${esc(nome)}</h1>
+        <div class="ferramentas">${col ? btn('editar-colecao', ic('edit-pencil') + 'Renomear', `data-id="${col.id}"`, 'btn-f btn-p') : ''}
+          ${btn('criar-em', ic('plus') + 'Guardar aqui', `data-col="${esc(id)}"`, 'btn-1')}</div></header>
+      ${dentro.length ? `<p class="meta" style="margin:-10px 0 20px">${dentro.length} ${dentro.length > 1 ? 'itens guardados' : 'item guardado'}</p>
+        <div class="bento">${blocos.map((x) => `<div class="bento-bloco ${x.cls}">${x.html}</div>`).join('')}</div>`
+        : vazio('folder', 'Nada nesta coleção ainda.', btn('criar-em', ic('plus') + 'Guardar aqui', `data-col="${esc(id)}"`, 'btn-1'))}`;
+  }
+
   /* ---------------- Tarefas ---------------- */
   const VISOES = [['prazo', 'Por prazo', 'calendar'], ['quadro', 'Quadro', 'view-grid'], ['colecao', 'Por coleção', 'folder']];
   function renderTarefas() {
@@ -1321,9 +1522,9 @@
       : `<p><strong style="font-size:17px;font-weight:600">${esc(p.nome || '—')}</strong>${p.titulo ? ' · ' + esc(p.titulo) : ''}</p>
          ${Object.keys(c).length ? `<p class="meta">${Object.entries(c).map(([k, v]) => /^https?:/.test(v) ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a>` : esc(v)).join(' · ')}</p>` : ''}
          ${p.sobre ? `<p style="margin-top:10px">${esc(p.sobre)}</p>` : ''}`;
-    const secoes = SECOES.filter((s) => cv[s].length || (UI.cvAdd === s)).map((s) => {
+    const secoes = SECOES.filter((s) => (cv[s] || []).length || (UI.cvAdd === s)).map((s) => {
       const cfg = SEC[s];
-      const linhas = cv[s].map((it) => (ed && ed.sec === s && ed.id === it.id) ? `<div class="cv-item">${formCV(s, it)}</div>` : `<div class="cv-item">${ic(s === 'experiencias' ? 'suitcase' : s === 'formacao' ? 'graduation-cap' : s === 'cursos' ? 'page-star' : s === 'idiomas' ? 'text' : 'hashtag')}
+      const linhas = (cv[s] || []).map((it) => (ed && ed.sec === s && ed.id === it.id) ? `<div class="cv-item">${formCV(s, it)}</div>` : `<div class="cv-item">${ic(s === 'experiencias' ? 'suitcase' : s === 'formacao' ? 'graduation-cap' : s === 'cursos' ? 'page-star' : s === 'idiomas' ? 'text' : 'hashtag')}
         <div><strong>${esc(cfg.titulo(it))}</strong>${cfg.sub(it) ? `<p class="meta">${esc(cfg.sub(it))}</p>` : ''}</div>
         ${menuMais([{ act: 'cv-editar', id: it.id, ico: 'edit-pencil', txt: 'Editar', extra: `data-sec="${s}"` }, '-', { act: 'cv-excluir', id: it.id, ico: 'trash', txt: 'Excluir', perigo: true, extra: `data-sec="${s}"` }])}</div>`).join('');
       return cartao(cfg.nome + ` <span class="pino">${cv[s].length}</span>`, linhas + (UI.cvAdd === s ? `<div class="cv-item">${formCV(s, null)}</div>` : ''),
@@ -1541,7 +1742,7 @@
   }
 
   /* ---------------- roteamento ---------------- */
-  const ROTAS = { inicio: renderInicio, mural: renderMural, tarefas: renderTarefas, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
+  const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
     wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
   function rotaAtual() { return location.hash.replace(/^#\/?/, '').split('/'); }
   function render(focar) {
@@ -1554,7 +1755,7 @@
     if (rota === 'item') renderFicha(id); else ROTAS[rota]();
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
-    renderModal(); renderJanelas();
+    renderModal(); renderJanelas(); renderPlayer();
     { const ms = document.getElementById('menu-selecao'); if (ms && !String(getSelection() || '').trim()) ms.hidden = true; }
     if (buscaTopo.value !== UI.busca && document.activeElement !== buscaTopo) buscaTopo.value = UI.busca;
     if (focar) main.focus({ preventScroll: true });
@@ -1603,6 +1804,11 @@
       case 'trocar-tipo': return abrirModal({ tipo: 'tipo' });
       case 'modal-fechar': e.preventDefault(); return fecharModal();
       case 'novidades': e.preventDefault(); return abrirModal({ tipo: 'novidades' });
+      case 'tarefa-ver': e.preventDefault(); return abrirModal({ tipo: 'tarefa-ver', id: b.dataset.id });
+      case 'criar-em': e.preventDefault(); UI.colPadrao = b.dataset.col === 'soltos' ? '' : b.dataset.col; return abrirModal({ tipo: 'tipo' });
+      case 'tocar': e.preventDefault(); return UI.tocando === b.dataset.id ? pararMusica() : tocar(b.dataset.id);
+      case 'player-fechar': e.preventDefault(); return pararMusica();
+      case 'player-min': e.preventDefault(); UI.playerMin = !UI.playerMin; UI.pularColheita = true; return render();
       case 'tar-ok': e.preventDefault(); return alternarTarefa(b.dataset.id);
       case 'tar-fazendo': { e.preventDefault(); const i = item(b.dataset.id); return mudarEtapa(i.id, etapa(i) === 'fazendo' ? 'afazer' : 'fazendo'); }
       case 'tar-visao': e.preventDefault(); UI.tarefaVisao = b.dataset.v; UI.pularColheita = true; return render();
@@ -1869,7 +2075,7 @@
         if (!d.texto.trim() || !d.data) return toast('Informe o texto e a data.');
         if (tipo === 'editar') { const l = lembrete(id); Object.assign(l, { texto: d.texto.trim(), data: d.data, hora: d.hora || '' }); }
         else S.lembretes.push({ id: uid('lemb'), texto: d.texto.trim(), data: d.data, hora: d.hora || '', itemId: (UI.modal && UI.modal.itemId) || null, concluido: false, criadoEm: t });
-        limparRascunho(k); UI.modal = null; ok('Lembrete guardado.', 'alarm'); return render();
+        limparRascunho(k); UI.modal = null; UI.colPadrao = null; ok('Lembrete guardado.', 'alarm'); return render();
       }
       let i = tipo === 'editar' ? item(id) : null;
       const novo = !i;
@@ -1885,14 +2091,14 @@
         } else delete i.lista;
         if (d.destino !== undefined) { i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : []; i.organizar = !d.destino; if (novo) S.destinoPadrao.nota = d.destino; }
         if (novo) i.ordem = Math.min(0, ...doTipo('nota').map((x) => x.ordem ?? 0)) - 1;
-      } else if (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo') {
+      } else if (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo' || alvo === 'musica') {
         let url = (d.url || '').trim();
         if (!url) return toast('Cole o endereço.');
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
         try { new URL(url); } catch (er) { return toast('Esse endereço não parece válido.'); }
         if (novo) {
           const ja = S.itens.find((x) => x.tipo === alvo && x.url === url);
-          if (ja) { limparRascunho(k); UI.modal = null; UI.pularColheita = true; render(); toast('Isso já está guardado.'); location.hash = '#/item/' + ja.id; return; }
+          if (ja) { limparRascunho(k); UI.modal = null; UI.colPadrao = null; UI.pularColheita = true; render(); toast('Isso já está guardado.'); location.hash = '#/item/' + ja.id; return; }
         }
         i.url = url;
         if (d.titulo !== undefined && d.titulo.trim()) { i.titulo = d.titulo.trim(); i.tituloManual = true; }
@@ -1906,6 +2112,14 @@
         if (alvo === 'artigo') {
           i.pastaId = d.pastaId === '__nova' ? '' : d.pastaId; i.ehPdf = ehPdf(url); i.anotacoes = i.anotacoes || [];
           if (novo) i.titulo = i.titulo || url.split('/').pop().replace(/\.pdf.*$/i, '').replace(/[-_]+/g, ' ').slice(0, 80) || dominio(url);
+        }
+        if (alvo === 'musica') {
+          const y = doYouTube(url);
+          if (!y.video && !y.lista) return toast('Esse link não parece ser do YouTube.');
+          i.video = y.video; i.listaYT = y.lista;
+          if (d.artista !== undefined) i.artista = d.artista.trim();
+          if (d.destino !== undefined) i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : [];
+          if (novo) i.titulo = i.titulo || (y.lista && !y.video ? 'Playlist do YouTube' : 'Música do YouTube');
         }
         if (alvo === 'desejo') {
           i.moeda = i.moeda || 'BRL'; i.historicoPreco = i.historicoPreco || []; i.comprado = i.comprado || false;
@@ -1934,15 +2148,16 @@
         if (novo && linhas.length > 1) {
           const feitas = linhas.map((titulo) => {
             const nova = { id: uid('tar'), tipo: 'tarefa', colecoes: cols.slice(), comentarios: [], favorito: false, criadoEm: t,
-              titulo, prazo: d.prazo || '', etapa: et, concluida: et === 'feito' };
+              titulo, descricao: (d.descricao || '').trim(), prazo: d.prazo || '', etapa: et, concluida: et === 'feito' };
             S.itens.push(nova);
             sincronizarPrazo(nova, d.prazo ? !!d.avisar : false);
             return nova;
           });
-          salvar(); limparRascunho(k); UI.modal = null; UI.pularColheita = true; render();
+          salvar(); limparRascunho(k); UI.modal = null; UI.colPadrao = null; UI.pularColheita = true; render();
           return toast(feitas.length + ' tarefas guardadas.', 'list');
         }
         Object.assign(i, { titulo: linhas[0], prazo: d.prazo || '', etapa: et, concluida: et === 'feito' });
+        if (d.descricao !== undefined) i.descricao = d.descricao.trim();
         if (d.destino !== undefined) i.colecoes = cols;
         sincronizarPrazo(i, d.prazo ? !!d.avisar : false);
       } else if (alvo === 'gasto') {
@@ -1954,8 +2169,8 @@
       if (!novo) i.editadoEm = t;
       if (novo) S.itens.push(i);
       if (!salvar() && i.capa) { delete i.capa; salvar(); toast('Salvei sem a capa: o armazenamento está cheio.'); }
-      limparRascunho(k); UI.modal = null; UI.pularColheita = true;
-      if (novo && (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo')) { render(); return capturar(i); }
+      limparRascunho(k); UI.modal = null; UI.colPadrao = null; UI.pularColheita = true;
+      if (novo && (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo' || alvo === 'musica')) { render(); return capturar(i); }
       render();
       return toast(novo ? 'Guardado.' : 'Alterações salvas.', 'check-circle-solid');
     }
@@ -2078,6 +2293,70 @@
     };
     r.readAsText(f);
   }
+
+  // Enter e espaço valem como clique no que é botão por papel (o post-it, por exemplo).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const n = e.target.closest && e.target.closest('[role="button"][data-act]');
+    if (!n || n.tagName === 'BUTTON' || n.tagName === 'A') return;
+    e.preventDefault(); n.click();
+  });
+
+  /* ---------------- arrastar: áreas do menu da esquerda ---------------- */
+  let areaArrastada = null;
+  navLateral.addEventListener('dragstart', (e) => {
+    const n = e.target.closest('[data-area]');
+    if (!n) return;
+    areaArrastada = n.dataset.area; n.classList.add('arrastando');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', areaArrastada); } catch (er) { /* ignora */ }
+  });
+  navLateral.addEventListener('dragover', (e) => {
+    const n = e.target.closest && e.target.closest('[data-area]');
+    if (!areaArrastada || !n) return;
+    e.preventDefault();
+    navLateral.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
+    if (n.dataset.area !== areaArrastada) n.classList.add('alvo-solta');
+  });
+  navLateral.addEventListener('drop', (e) => {
+    const n = e.target.closest && e.target.closest('[data-area]');
+    if (!areaArrastada || !n) return;
+    e.preventDefault();
+    const de = areaArrastada; areaArrastada = null;
+    if (n.dataset.area === de) return;
+    const ordem = areasOrdenadas().map((a) => a[0]).filter((r) => r !== de);
+    ordem.splice(ordem.indexOf(n.dataset.area), 0, de);
+    S.perfil.ordemNav = ordem; salvar(); UI.pularColheita = true; render();
+  });
+  navLateral.addEventListener('dragend', () => navLateral.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')));
+
+  /* ---------------- arrastar: blocos da coluna da direita ---------------- */
+  let blocoArrastado = null;
+  direita.addEventListener('dragstart', (e) => {
+    const n = e.target.closest('[data-bloco]');
+    if (!n) return;
+    blocoArrastado = n.dataset.bloco; n.classList.add('arrastando');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', blocoArrastado); } catch (er) { /* ignora */ }
+  });
+  direita.addEventListener('dragover', (e) => {
+    const n = e.target.closest && e.target.closest('[data-bloco]');
+    if (!blocoArrastado || !n) return;
+    e.preventDefault();
+    direita.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
+    if (n.dataset.bloco !== blocoArrastado) n.classList.add('alvo-solta');
+  });
+  direita.addEventListener('drop', (e) => {
+    const n = e.target.closest && e.target.closest('[data-bloco]');
+    if (!blocoArrastado || !n) return;
+    e.preventDefault();
+    const de = blocoArrastado; blocoArrastado = null;
+    if (n.dataset.bloco === de) return;
+    const ordem = ordemDireita().filter((x) => x !== de);
+    ordem.splice(ordem.indexOf(n.dataset.bloco), 0, de);
+    S.perfil.ordemDireita = ordem; salvar(); UI.pularColheita = true; render();
+  });
+  direita.addEventListener('dragend', () => direita.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')));
 
   /* ---------------- arrastar: notas e janelas ---------------- */
   let arrastando = null;

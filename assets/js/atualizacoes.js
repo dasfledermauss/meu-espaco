@@ -10,6 +10,21 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '3.7',
+    data: '2026-11-12',
+    titulo: 'Músicas, coleções em bento e menus que você arruma',
+    itens: [
+      'Nova área Músicas: cole um link do YouTube e ouça num quadro no canto, que continua tocando enquanto você navega.',
+      'Clicar numa coleção abre uma tela com tudo que está nela, em blocos de tamanhos diferentes.',
+      'As áreas do menu da esquerda e os blocos da coluna da direita podem ser arrastados para a ordem que você quiser.',
+      'Tarefa ganhou campo de descrição, e tocar numa tarefa da lateral abre a janela dela.',
+      'Na lateral o texto manda: datas viraram 12/11 e o progresso virou 1/4.',
+      'Post-its com cores mais cheias no modo claro e nota limpa no escuro; hover do modo escuro corrigido.',
+      'No Início, "Atividade recente" e o dia agora dividem a mesma linha, e o bloco de guardar está na cor do tema.',
+      'Clicar num post-it já abre a nota para editar.'
+    ]
+  },
+  {
     versao: '3.6',
     data: '2026-11-12',
     titulo: 'Listas',
