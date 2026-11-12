@@ -110,6 +110,9 @@
   function colherRascunhos() {
     document.querySelectorAll('[data-form]').forEach((f) => {
       const k = chaveForm(f), d = {};
+      // Rascunho só vale para post novo. Numa edição, o que vale é o que está salvo:
+      // guardar aqui fazia a janela reabrir com um texto abandonado no lugar do verdadeiro.
+      if (f.dataset.form === 'editar') { if (RASC[k]) { delete RASC[k]; salvarRasc(); } return; }
       let tem = false;
       f.querySelectorAll('input, textarea, select').forEach((el) => {
         if (el.type === 'file' || el.disabled || !el.name) return;
@@ -169,6 +172,7 @@
       if (i.tipo === 'midia') i.anotacoes = i.anotacoes || [];
       if (i.tipo === 'artigo') i.anotacoes = i.anotacoes || [];
     });
+    { let mexeu = false; Object.keys(RASC || {}).forEach((k) => { if (k.startsWith('editar:')) { delete RASC[k]; mexeu = true; } }); if (mexeu) salvarRasc(); }
     st.versao = 3;
     return st;
   }
