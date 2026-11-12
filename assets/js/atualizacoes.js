@@ -19,7 +19,8 @@ window.ATUALIZACOES = [
       'Arraste para reordenar as músicas e use grupos para separar o que é de quê.',
       'Playlist do YouTube: continua tocando com um toque, e a setinha abre os vídeos da lista para escolher um.',
       'Fechar guarda o player como um disco flutuando na direita, sem parar a música.',
-      'Post-its de volta com cor no modo escuro, e o bloco de guardar com contraste decente no escuro.'
+      'Post-its de volta com cor no modo escuro, e o bloco de guardar com contraste decente no escuro.',
+      'Correção no celular: a tela de Links aparecia em três colunas espremidas e o conteúdo escorregava para o lado.'
     ]
   },
   {

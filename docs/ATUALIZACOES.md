@@ -16,6 +16,7 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 - Playlist do YouTube: continua tocando com um toque, e a setinha abre os vídeos da lista para escolher um.
 - Fechar guarda o player como um disco flutuando na direita, sem parar a música.
 - Post-its de volta com cor no modo escuro, e o bloco de guardar com contraste decente no escuro.
+- Correção no celular: a tela de Links aparecia em três colunas espremidas e o conteúdo escorregava para o lado.
 
 ## 3.7 — 12/11/2026 · Músicas, coleções em bento e menus que você arruma
 
