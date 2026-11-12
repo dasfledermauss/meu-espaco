@@ -9,6 +9,7 @@ Uma tarefa é **uma linha só**: o que precisa ser feito. Sem subtarefas, sem de
 | Campo | Obrigatório | Observação |
 |---|---|---|
 | Título | sim | o que precisa ser feito |
+| Descrição | não | detalhes e contexto; aparece cortada na lista e inteira na janela da tarefa |
 | Prazo | não | data; entra pelo “+ Prazo” |
 | Situação | não | A fazer, Fazendo ou Feito |
 | Coleção | não | a mesma lista de coleções do resto do sistema |
@@ -40,7 +41,7 @@ Em qualquer visão, o **círculo à esquerda risca a tarefa na hora**, sem abrir
 
 ## O resumo na lateral
 
-No Início, o primeiro cartão da coluna direita é **Tarefas**: barra de progresso com “X de Y feitas hoje” e as próximas três abertas, as com prazo mais perto primeiro. Tarefa atrasada aparece com o ponto de alerta. O cartão só existe quando há tarefa aberta ou feita hoje.
+No Início, o cartão **Tarefas** da coluna direita traz a barra de progresso com a conta curta (“1/4”) e as próximas quatro abertas, as com prazo mais perto primeiro, com a data em 12/11. O texto da tarefa é o que manda: a data encolhe antes dele. Tocar numa delas abre a janela da tarefa, com descrição, situação, prazo e coleção, de onde dá para riscar ou editar. Tarefa atrasada aparece com o ponto de alerta. O cartão só existe quando há tarefa aberta ou feita hoje.
 
 ## Critérios de aceite
 

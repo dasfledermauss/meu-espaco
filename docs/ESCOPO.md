@@ -117,7 +117,7 @@ Exemplo ilustrativo de um arquivo aceito pela primeira versão. Os identificador
 
 O produto não depende de IA para organizar o que é salvo. Quem decide para onde cada registro vai é a própria pessoa, em dois passos rápidos dentro de **O que você quer guardar?**:
 
-1. **Escolher o tipo de post.** A barra de criar tem só a pergunta e os tipos: **Nota**, **Tarefa**, **Link**, **Livro ou filme**, **Artigo de estudo**, **Desejo**, **Gasto** e **Lembrete**. Escolher um abre a janela com os campos essenciais daquele tipo; os demais entram por “+”. O que for digitado vira rascunho automático e não se perde ao sair. O tipo define os campos e o destino padrão. Um gasto pede valor e data e vai para **Gastos**. Um lembrete pede data e vai para **Lembretes**. Se o texto colado numa nota for um endereço, a interface sugere trocar para **Link**.
+1. **Escolher o tipo de post.** A barra de criar tem só a pergunta e os tipos: **Nota**, **Tarefa**, **Link**, **Livro ou filme**, **Artigo de estudo**, **Música**, **Desejo**, **Gasto** e **Lembrete**. Escolher um abre a janela com os campos essenciais daquele tipo; os demais entram por “+”. O que for digitado vira rascunho automático e não se perde ao sair. O tipo define os campos e o destino padrão. Um gasto pede valor e data e vai para **Gastos**. Um lembrete pede data e vai para **Lembretes**. Se o texto colado numa nota for um endereço, a interface sugere trocar para **Link**.
 2. **Escolher o destino no dropdown “Salvar em”.** Lista as coleções (grupos/hubs) existentes, como **Pessoal** e **Trabalho**, mais **Sem coleção (a organizar depois)** e **+ Nova coleção…**, que cria o grupo ali mesmo sem sair da captura. O último destino usado para cada tipo vira o padrão da próxima vez.
 
 | Tipo escolhido | Campos | Destino padrão | Pode mudar no dropdown? |
@@ -127,6 +127,7 @@ O produto não depende de IA para organizar o que é salvo. Quem decide para ond
 | Link | Endereço, título, por que estou guardando, Ler mais tarde | Último usado para links | Sim |
 | Livro ou filme | Formato, nome, autor ou direção, situação e capa. O resto entra por “+” | Biblioteca | Não (prateleiras por situação, gênero ou estrelas) |
 | Artigo de estudo | Link e pasta | Estudos | Sim, entre as pastas |
+| Música | Link do YouTube (vídeo ou playlist) | Músicas | Sim |
 | Desejo | Só o link do produto | Wishlist | Não |
 | Gasto | Valor, data da despesa, descrição, categoria | Gastos | Não (categoria livre) |
 | Lembrete | Texto, data, horário opcional | Lembretes | Não |

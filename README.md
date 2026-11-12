@@ -41,7 +41,7 @@ meu-espaco/
 └── docs/
     ├── ESCOPO.md  OUTRAS_FEATURES.md  DIRECAO_VISUAL_MVP.md
     ├── BIBLIOTECA_E_WISHLIST.md  ESTUDOS.md  TAREFAS.md  LOGIN.md
-    ├── SINCRONIZACAO.md  ATUALIZACOES.md  README-PROMPT.md
+    ├── SINCRONIZACAO.md  MUSICAS.md  ATUALIZACOES.md  README-PROMPT.md
     └── historico/          capturas de cada versão, feitas antes de mudar
 ```
 
@@ -54,6 +54,9 @@ meu-espaco/
 - **Biblioteca:** livros e filmes com capa, situação, estrelas, **página atual com progresso** e **anotações** separadas da opinião, em prateleiras.
 - **Estudos:** pastas com capa e artigos; PDF abre em **janela dentro do site**, e o trecho selecionado vira anotação pelo botão direito.
 - **Links:** grade de três colunas, com favoritos e fila de leitura.
+- **Músicas:** link do YouTube vira capa, nome e um player no canto que continua tocando enquanto você navega. Ver `docs/MUSICAS.md`.
+- **Coleções em bento:** clicar numa coleção mostra tudo que está nela — tarefas, notas, links, livros, músicas, desejos, estudos e gastos — em blocos de tamanhos diferentes.
+- **Menus do seu jeito:** as áreas do menu da esquerda e os blocos da coluna da direita se reordenam arrastando.
 - **Wishlist:** só o link; foto, nome, preço, estrelas e loja são capturados. Ao abrir a vitrine, produtos lidos há mais de 12 horas são conferidos de novo, e **se o preço cair entra um lembrete avisando**.
 - **Lembretes:** faixa no topo do Início e quadro em quatro colunas.
 - **Gastos, Currículo, Perfil e Configurações.**
