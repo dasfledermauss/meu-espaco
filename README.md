@@ -22,6 +22,7 @@ meu-espaco/
 ├── vercel.json             configuração do site publicado
 ├── api/                    as mesmas rotas como funções da Vercel
 │   ├── capturar.js         lê título, descrição, imagem, preço e estrelas de uma página
+│   ├── playlist.js         lê os vídeos de uma playlist do YouTube
 │   ├── pdf.js              entrega o PDF para o leitor interno
 │   ├── sessao.js           login com conta Google (ver docs/LOGIN.md)
 │   └── status.js           diz ao site que a captura está disponível
@@ -54,7 +55,7 @@ meu-espaco/
 - **Biblioteca:** livros e filmes com capa, situação, estrelas, **página atual com progresso** e **anotações** separadas da opinião, em prateleiras.
 - **Estudos:** pastas com capa e artigos; PDF abre em **janela dentro do site**, e o trecho selecionado vira anotação pelo botão direito.
 - **Links:** grade de três colunas, com favoritos e fila de leitura.
-- **Músicas:** link do YouTube vira capa, nome e um player no canto que continua tocando enquanto você navega. Ver `docs/MUSICAS.md`.
+- **Músicas:** o disco ao lado do perfil abre um mini app no canto — lista, grupos, tocar, anterior/próxima, modo MP3 na cor do tema e os vídeos de uma playlist. Ver `docs/MUSICAS.md`.
 - **Coleções em bento:** clicar numa coleção mostra tudo que está nela — tarefas, notas, links, livros, músicas, desejos, estudos e gastos — em blocos de tamanhos diferentes.
 - **Menus do seu jeito:** as áreas do menu da esquerda e os blocos da coluna da direita se reordenam arrastando.
 - **Wishlist:** só o link; foto, nome, preço, estrelas e loja são capturados. Ao abrir a vitrine, produtos lidos há mais de 12 horas são conferidos de novo, e **se o preço cair entra um lembrete avisando**.

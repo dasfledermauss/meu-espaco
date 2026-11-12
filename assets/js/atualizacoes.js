@@ -10,6 +10,19 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '3.8',
+    data: '2026-11-12',
+    titulo: 'Música como mini app',
+    itens: [
+      'O disco ao lado do perfil abre um mini app no canto: lista das músicas, tocar, anterior e próxima, guardar música e criar grupos.',
+      'Modo MP3: a barra fica na cor do tema, com capa quadrada e o nome do vídeo passando — numa playlist, o nome é o da faixa que está tocando.',
+      'Arraste para reordenar as músicas e use grupos para separar o que é de quê.',
+      'Playlist do YouTube: continua tocando com um toque, e a setinha abre os vídeos da lista para escolher um.',
+      'Fechar guarda o player como um disco flutuando na direita, sem parar a música.',
+      'Post-its de volta com cor no modo escuro, e o bloco de guardar com contraste decente no escuro.'
+    ]
+  },
+  {
     versao: '3.7',
     data: '2026-11-12',
     titulo: 'Músicas, coleções em bento e menus que você arruma',

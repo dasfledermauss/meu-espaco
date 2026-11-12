@@ -160,6 +160,8 @@
   function migrar(st) {
     st.destinoPadrao = st.destinoPadrao || { nota: '', link: 'col-pessoal' };
     if (st.destinoPadrao.tarefa === undefined) st.destinoPadrao.tarefa = '';
+    st.gruposMusica = st.gruposMusica || [];
+    (st.itens || []).forEach((i, k) => { if (i.tipo === 'musica' && i.ordem === undefined) i.ordem = k; });
     st.lembretes = st.lembretes || []; st.pastas = st.pastas || []; st.colecoes = st.colecoes || [];
     st.perfil.corCustom = st.perfil.corCustom || '';
     st.perfil.modo = st.perfil.modo || 'sistema';
@@ -492,6 +494,7 @@
       if (!it) c.fixo(`<p class="dica">${ic('priority-high')}<span>Vale vídeo, playlist ou mix. A capa e o nome vêm do próprio YouTube.</span></p>`);
       c.opc('titulo', 'Nome', campo('f-titulo', 'Nome', txt('f-titulo', 'titulo', v.titulo)));
       c.opc('artista', 'Artista', campo('f-artista', 'Artista', txt('f-artista', 'artista', v.artista)));
+      c.opc('grupo', 'Grupo', campo('f-grupo', 'Grupo', selectHTML('f-grupo', 'grupo', [['', 'Sem grupo'], ...(S.gruposMusica || []).map((g) => [g.id, g.nome])], v.grupo || '')));
       campoDestino(c, 'musica', it, v);
     } else if (t === 'link') {
       c.fixo(campo('f-url', 'Endereço', `<input type="url" id="f-url" name="url" value="${esc(v.url || '')}" required placeholder="https://…" inputmode="url">`));
@@ -565,6 +568,26 @@
           <span class="espaco"></span>
           ${temRascunho(k) ? btn('descartar-rascunho', 'Descartar', `data-k="${esc(k)}"`, 'btn-f btn-perigo') : btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}${m.tipo === 'editar' ? 'Salvar' : 'Guardar'}</button></footer></form>`;
+    }
+    if (m.tipo === 'grupo-musica') {
+      const g = m.id ? grupoMusica(m.id) : null;
+      return `<form class="modal" method="dialog" data-form="grupo-musica" data-id="${m.id || ''}">
+        <header class="modal-cab">${ic('folder')}<h2>${g ? 'Renomear grupo' : 'Novo grupo de músicas'}</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="form">${campo('f-nome', 'Nome', txt('f-nome', 'nome', g ? g.nome : '', 'required placeholder="ex.: Para trabalhar"'))}</div></div>
+        <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
+          <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
+    }
+    if (m.tipo === 'musica-grupo') {
+      const i = item(m.id);
+      if (!i) return '';
+      const gs = S.gruposMusica || [];
+      return `<form class="modal" method="dialog" data-form="musica-grupo" data-id="${m.id}">
+        <header class="modal-cab">${ic('folder')}<h2>Mover para grupo</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="form">${campo('f-grupo', 'Grupo',
+          selectHTML('f-grupo', 'grupo', [['', 'Sem grupo'], ...gs.map((g) => [g.id, g.nome])], i.grupo || ''))}
+          ${gs.length ? '' : '<p class="dica">' + ic('priority-high') + '<span>Nenhum grupo criado ainda. Use o botão Grupo no painel de músicas.</span></p>'}</div></div>
+        <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
+          <button class="btn-1" type="submit">${ic('check')}Mover</button></footer></form>`;
     }
     if (m.tipo === 'tarefa-ver') {
       const i = item(m.id);
@@ -692,61 +715,188 @@
     if (!/^[\w-]{6,20}$/.test(video)) video = '';
     return { video, lista: /^[\w-]{8,60}$/.test(lista) ? lista : '' };
   }
-  const musicas = () => doTipo('musica');
+  const musicas = () => doTipo('musica').slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0) || b.criadoEm.localeCompare(a.criadoEm));
+  const grupoMusica = (id) => (S.gruposMusica || []).find((g) => g.id === id);
+  const musicasDoGrupo = () => {
+    const g = UI.grupoMusica || '';
+    return musicas().filter((i) => !g || (g === 'soltas' ? !i.grupo : i.grupo === g));
+  };
+  function reordenarMusicas(de, para) {
+    const lista = musicas();
+    const a = lista.find((x) => x.id === de), b = lista.find((x) => x.id === para);
+    if (!a || !b) return;
+    const sem = lista.filter((x) => x.id !== de);
+    sem.splice(sem.indexOf(b), 0, a);
+    sem.forEach((x, n) => { x.ordem = n; });
+    salvar(); UI.pularColheita = true; render();
+  }
+  function vizinha(passo) {
+    const lista = musicasDoGrupo();
+    if (!lista.length) return null;
+    const n = lista.findIndex((x) => x.id === UI.tocando);
+    if (n < 0) return lista[0];
+    return lista[(n + passo + lista.length) % lista.length];
+  }
   const capaYT = (i) => i.video ? `https://img.youtube.com/vi/${encodeURIComponent(i.video)}/mqdefault.jpg` : '';
+  const videoAtual = (i) => (UI.tocando === i.id && UI.videoForcado) || i.video || '';
   function urlPlayer(i) {
     const base = 'https://www.youtube-nocookie.com/embed/';
     const comum = 'autoplay=1&rel=0&modestbranding=1&enablejsapi=1';
-    if (i.video) return base + encodeURIComponent(i.video) + '?' + comum + (i.listaYT ? '&list=' + encodeURIComponent(i.listaYT) : '');
+    const v = videoAtual(i);
+    if (v) return base + encodeURIComponent(v) + '?' + comum + (i.listaYT ? '&list=' + encodeURIComponent(i.listaYT) : '');
     return base + 'videoseries?' + comum + '&list=' + encodeURIComponent(i.listaYT);
   }
-  function tocar(id) {
-    const i = item(id); if (!i) return;
-    UI.tocando = id; i.tocadoEm = agora(); salvar(); UI.pularColheita = true; render();
+  /* As faixas de uma playlist são lidas pelo servidor e ficam guardadas no próprio item. */
+  async function carregarFaixas(id) {
+    const i = item(id);
+    if (!i || !i.listaYT || i.buscandoFaixas) return;
+    if (!UI.servidor) return toast('Ligue o servidor para ver os vídeos da lista.');
+    i.buscandoFaixas = true; pintarMiniApp();
+    try {
+      const r = await fetch('api/playlist?lista=' + encodeURIComponent(i.listaYT), { cache: 'no-store' });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.erro || 'não deu');
+      i.faixas = d.faixas; i.faixasEm = agora();
+      salvar();
+    } catch (e) {
+      toast('Não consegui ler os vídeos dessa lista.');
+    }
+    i.buscandoFaixas = false; UI.pularColheita = true; render();
   }
-  function pararMusica() { UI.tocando = null; UI.pularColheita = true; render(); }
+  function tocar(id, video) {
+    const i = item(id); if (!i) return;
+    if (UI.tocando === id && !video) return pausarOuTocar();
+    UI.tocando = id; UI.videoForcado = video || ''; UI.painelMusica = true;
+    i.tocadoEm = agora(); salvar(); UI.pularColheita = true; render();
+  }
+
   /** O player fica fora do main para não recomeçar a cada tela. */
-  /** Manda um comando para o player do YouTube sem recarregar o iframe. */
+  /* ---------------- mini app de música ----------------
+     Um painel no canto: lista, controles e o vídeo. O iframe é criado uma vez
+     por faixa e nunca é redesenhado junto com o resto, senão a música reinicia. */
+  /* O YouTube avisa qual vídeo está tocando quando a gente se registra como ouvinte.
+     É assim que a barra mostra o nome da faixa, e não o da playlist. */
+  function ouvirYT(iframe) {
+    if (!iframe) return;
+    const avisar = () => { try { iframe.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*'); } catch (e) { /* ignora */ } };
+    iframe.addEventListener('load', () => { avisar(); setTimeout(avisar, 900); });
+    avisar();
+  }
+  window.addEventListener('message', (e) => {
+    if (!/youtube(-nocookie)?\.com$/.test((() => { try { return new URL(e.origin).hostname; } catch (er) { return ''; } })())) return;
+    let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (er) { return; }
+    const info = d && d.info;
+    if (!info) return;
+    if (info.videoData && info.videoData.title && info.videoData.title !== UI.faixaYT) { UI.faixaYT = info.videoData.title; pintarMiniApp(); }
+    if (info.playerState !== undefined) {
+      const pausado = info.playerState === 2;
+      if (pausado !== !!UI.pausado) { UI.pausado = pausado; pintarMiniApp(); }
+    }
+  });
   function comandoYT(func) {
-    const f = document.querySelector('#player iframe');
+    const f = document.querySelector('#ma-video iframe');
     if (!f || !f.contentWindow) return;
     try { f.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*'); } catch (e) { /* ignora */ }
   }
   function pausarOuTocar() {
+    if (!UI.tocando) { const p = musicasDoGrupo()[0]; return p ? tocar(p.id) : toast('Guarde uma música primeiro.'); }
     UI.pausado = !UI.pausado;
     comandoYT(UI.pausado ? 'pauseVideo' : 'playVideo');
-    pintarPlayer();
+    pintarMiniApp();
   }
-  /** Só troca classes e ícones: recriar o HTML reiniciaria a música. */
-  function pintarPlayer() {
-    const cx = document.querySelector('#player .player');
-    if (!cx) return;
-    cx.classList.toggle('min', !!UI.playerMin);
-    const min = cx.querySelector('[data-act="player-min"]');
-    if (min) { min.innerHTML = ic(UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down'); min.title = min.ariaLabel = UI.playerMin ? 'Mostrar o vídeo' : 'Esconder o vídeo'; }
-    const pp = cx.querySelector('[data-act="player-pausar"]');
-    if (pp) { pp.innerHTML = ic(UI.pausado ? 'play' : 'pause'); pp.title = pp.ariaLabel = UI.pausado ? 'Tocar' : 'Pausar'; }
+  const abrirMusica = () => { UI.painelMusica = true; UI.pularColheita = true; render(); };
+  // Fechar guarda o player no canto sem parar a música; sem nada tocando, some de vez.
+  const fecharMusica = () => { UI.painelMusica = false; if (!UI.tocando) UI.playerMin = false; UI.pularColheita = true; render(); };
+
+  function listaMiniApp() {
+    const lista = musicasDoGrupo();
+    if (!lista.length) return `<p class="nada" style="padding:14px 16px">Nada neste grupo ainda.</p>`;
+    return lista.map((i) => `<div class="ma-faixa ${UI.tocando === i.id ? 'tocando' : ''}" draggable="true" data-musica="${i.id}">
+      <button type="button" class="ma-tocar" data-act="tocar" data-id="${i.id}" aria-label="Tocar ${esc(tituloItem(i))}">
+        ${ic(UI.tocando === i.id && !UI.pausado ? 'pause' : 'play-solid')}</button>
+      <span class="ma-nome">${esc(tituloItem(i))}${i.listaYT ? ` <em class="ma-selo">${ic('playlist')}lista</em>` : ''}</span>
+      ${i.listaYT ? btnIco('ma-faixas', UI.listaAberta === i.id ? 'nav-arrow-up' : 'nav-arrow-down', 'Ver os vídeos da lista', `data-id="${i.id}"`) : ''}
+      ${menuMais([{ act: 'musica-grupo', id: i.id, ico: 'folder', txt: 'Mover para grupo' },
+        { act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
+        { act: 'abrir-fora', id: i.id, ico: 'open-new-window', txt: 'Abrir no YouTube' },
+        '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>
+      ${UI.listaAberta === i.id ? faixasHTML(i) : ''}`).join('');
   }
-  function renderPlayer() {
+  function faixasHTML(i) {
+    if (i.buscandoFaixas) return `<p class="ma-vazio">Lendo os vídeos da lista…</p>`;
+    if (!i.faixas || !i.faixas.length) return `<p class="ma-vazio">Nenhum vídeo lido ainda.</p>`;
+    const atual = videoAtual(i);
+    return `<div class="ma-faixas">${i.faixas.map((f, n) => `<button type="button" class="ma-sub-faixa ${atual === f.video ? 'tocando' : ''}"
+      data-act="tocar-video" data-id="${i.id}" data-video="${esc(f.video)}">
+      <em>${n + 1}</em><span>${esc(f.titulo)}</span></button>`).join('')}</div>`;
+  }
+  function cabecalhoMiniApp() {
+    const g = UI.grupoMusica || '';
+    const ops = [['', 'Todas as músicas'], ...(S.gruposMusica || []).map((x) => [x.id, x.nome]), ['soltas', 'Sem grupo']];
+    return `<select class="ma-grupo" data-act="ma-grupo" aria-label="Grupo">${ops.map(([v, n]) =>
+      `<option value="${esc(v)}" ${g === v ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
+  }
+  /** Só pinta estado: classes, ícones e a lista. Nunca mexe no iframe. */
+  function pintarMiniApp() {
+    const ap = document.querySelector('#player .mini-app');
+    if (!ap) return;
+    ap.classList.toggle('min', !!UI.playerMin);
+    ap.classList.toggle('sem-video', !UI.tocando);
+    const i = UI.tocando && item(UI.tocando);
+    const nome = i ? (UI.faixaYT || tituloItem(i)) : 'Nada tocando';
+    ap.querySelectorAll('.ma-nome-atual').forEach((n) => { n.textContent = nome; });
+    const sub = ap.querySelector('.ma-sub');
+    if (sub) sub.textContent = i && UI.faixaYT && UI.faixaYT !== tituloItem(i) ? tituloItem(i) : 'Músicas';
+    const capa = ap.querySelector('.ma-capa');
+    if (capa) capa.innerHTML = i && capaYT(i) ? `<img src="${esc(capaYT(i))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ic('music-note');
+    const pp = ap.querySelector('[data-act="player-pausar"]');
+    if (pp) { pp.innerHTML = ic(UI.pausado || !UI.tocando ? 'play' : 'pause'); pp.title = pp.ariaLabel = UI.pausado || !UI.tocando ? 'Tocar' : 'Pausar'; }
+    const mn = ap.querySelector('[data-act="player-min"]');
+    if (mn) { mn.innerHTML = ic(UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down'); mn.title = mn.ariaLabel = UI.playerMin ? 'Abrir o painel' : 'Modo MP3'; }
+    const lista = ap.querySelector('#ma-lista');
+    if (lista) lista.innerHTML = listaMiniApp();
+    // as opções também mudam quando um grupo é criado ou renomeado
+    const barra = ap.querySelector('.ma-barra');
+    const sel = ap.querySelector('.ma-grupo');
+    if (sel && barra) { const novo = cabecalhoMiniApp(); if (sel.outerHTML !== novo) sel.outerHTML = novo; }
+  }
+  function renderMiniApp() {
     const caixa = document.getElementById('player');
     if (!caixa) return;
-    const i = UI.tocando && item(UI.tocando);
-    if (!i || i.tipo !== 'musica') { caixa.innerHTML = ''; caixa.hidden = true; delete caixa.dataset.id; return; }
+    if (!UI.painelMusica && !UI.tocando) { caixa.innerHTML = ''; caixa.hidden = true; delete caixa.dataset.faixa; UI.faixaYT = ''; return; }
     caixa.hidden = false;
-    if (caixa.dataset.id === i.id && caixa.querySelector('.player')) return pintarPlayer();
-    caixa.dataset.id = i.id;
-    UI.pausado = false;
+    caixa.classList.toggle('guardado', !UI.painelMusica);
+    if (!caixa.querySelector('.mini-app')) {
+      delete caixa.dataset.faixa;
+      caixa.innerHTML = `<div class="mini-app">
+        <header class="ma-cab" data-act="player-abrir">
+          <span class="ma-capa"></span>
+          <span class="ma-titulo"><strong class="ma-nome-atual"></strong><span class="ma-sub">Músicas</span></span>
+          <span class="ma-rolagem" aria-hidden="true"><span class="ma-nome-atual"></span><span class="ma-nome-atual"></span></span>
+          ${btnIco('player-anterior', 'skip-prev', 'Anterior')}
+          ${btnIco('player-pausar', 'play', 'Tocar')}
+          ${btnIco('player-proxima', 'skip-next', 'Próxima')}
+          ${btnIco('player-min', 'nav-arrow-down', 'Modo MP3')}
+          ${btnIco('player-fechar', 'xmark', 'Guardar no canto')}</header>
+        <div class="ma-video" id="ma-video"></div>
+        <div class="ma-barra">${cabecalhoMiniApp()}
+          ${btn('criar', ic('plus') + 'Música', 'data-t="musica"', 'btn-f btn-p')}
+          ${btn('novo-grupo-musica', ic('folder') + 'Grupo', '', 'btn-f btn-p')}</div>
+        <div class="ma-lista" id="ma-lista"></div></div>
+        <button type="button" class="ma-pega" data-act="player-abrir" aria-label="Abrir o player"><span class="disco girando"><span></span></span></button>`;
+    }
+    // o vídeo só é recriado quando muda a faixa
+    const i = UI.tocando && item(UI.tocando);
+    const alvo = caixa.querySelector('#ma-video');
+    const chave = i ? i.id + ':' + (UI.videoForcado || '') : '';
+    if (i && caixa.dataset.faixa !== chave) {
+      caixa.dataset.faixa = chave; UI.pausado = false;
+      UI.faixaYT = '';
+      alvo.innerHTML = `<iframe src="${esc(urlPlayer(i))}" title="${esc(tituloItem(i))}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      ouvirYT(alvo.querySelector('iframe'));
+    } else if (!i && caixa.dataset.faixa) { delete caixa.dataset.faixa; alvo.innerHTML = ''; }
     renderDisco();
-    const nome = tituloItem(i), capa = capaYT(i);
-    caixa.innerHTML = `<div class="player ${UI.playerMin ? 'min' : ''}">
-      <header>
-        <span class="player-capa">${capa ? `<img src="${esc(capa)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ic('music-note')}</span>
-        <span class="player-tit">${ic('music-note')}<span>${esc(corta(nome, 42))}</span></span>
-        <span class="player-rolagem" aria-hidden="true"><span>${esc(nome)}</span><span>${esc(nome)}</span></span>
-        ${btnIco('player-pausar', 'pause', 'Pausar')}
-        ${btnIco('player-min', UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down', UI.playerMin ? 'Mostrar o vídeo' : 'Esconder o vídeo')}
-        ${btnIco('player-fechar', 'xmark', 'Fechar o player')}</header>
-      <div class="player-video"><iframe src="${esc(urlPlayer(i))}" title="${esc(nome)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>`;
+    pintarMiniApp();
   }
   function renderMusicas() {
     const lista = musicas().slice().sort((a, b2) => b2.criadoEm.localeCompare(a.criadoEm));
@@ -960,7 +1110,7 @@
     if (!topoMusica) return;
     const i = UI.tocando && item(UI.tocando);
     const rotulo = i ? 'Tocando: ' + tituloItem(i) : 'Músicas';
-    topoMusica.innerHTML = `<a class="disco ${i ? 'girando' : ''}" href="#/musicas" title="${esc(rotulo)}" aria-label="${esc(rotulo)}"><span></span></a>`;
+    topoMusica.innerHTML = `<button type="button" class="disco ${i ? 'girando' : ''}" data-act="abrir-musica" title="${esc(rotulo)}" aria-label="${esc(rotulo)}"><span></span></button>`;
   }
   function renderTopo() {
     const p = S.perfil, h = p.humores[hoje()];
@@ -1795,7 +1945,7 @@
     if (rota === 'item') renderFicha(id); else ROTAS[rota]();
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
-    renderModal(); renderJanelas(); renderPlayer();
+    renderModal(); renderJanelas(); renderMiniApp();
     { const ms = document.getElementById('menu-selecao'); if (ms && !String(getSelection() || '').trim()) ms.hidden = true; }
     if (buscaTopo.value !== UI.busca && document.activeElement !== buscaTopo) buscaTopo.value = UI.busca;
     if (focar) main.focus({ preventScroll: true });
@@ -1846,10 +1996,30 @@
       case 'novidades': e.preventDefault(); return abrirModal({ tipo: 'novidades' });
       case 'tarefa-ver': e.preventDefault(); return abrirModal({ tipo: 'tarefa-ver', id: b.dataset.id });
       case 'criar-em': e.preventDefault(); UI.colPadrao = b.dataset.col === 'soltos' ? '' : b.dataset.col; return abrirModal({ tipo: 'tipo' });
-      case 'tocar': e.preventDefault(); return UI.tocando === b.dataset.id ? pararMusica() : tocar(b.dataset.id);
-      case 'player-fechar': e.preventDefault(); return pararMusica();
-      case 'player-min': e.preventDefault(); UI.playerMin = !UI.playerMin; return pintarPlayer();
+      case 'tocar': e.preventDefault(); return tocar(b.dataset.id);
+      case 'tocar-video': e.preventDefault(); return tocar(b.dataset.id, b.dataset.video);
+      case 'ma-faixas': {
+        e.preventDefault();
+        const mesmo = UI.listaAberta === b.dataset.id;
+        UI.listaAberta = mesmo ? '' : b.dataset.id;
+        const alvo = item(b.dataset.id);
+        if (!mesmo && alvo && !alvo.faixas) carregarFaixas(alvo.id);
+        return pintarMiniApp();
+      }
+      case 'player-fechar': e.preventDefault(); return fecharMusica();
+      case 'player-abrir': {
+        e.preventDefault();
+        if (!UI.painelMusica) { UI.painelMusica = true; UI.pularColheita = true; return render(); }
+        if (UI.playerMin) { UI.playerMin = false; return pintarMiniApp(); }
+        location.hash = '#/musicas'; return;
+      }
+      case 'player-min': e.preventDefault(); UI.playerMin = !UI.playerMin; return pintarMiniApp();
       case 'player-pausar': e.preventDefault(); return pausarOuTocar();
+      case 'player-anterior': { e.preventDefault(); const v = vizinha(-1); return v && tocar(v.id); }
+      case 'player-proxima': { e.preventDefault(); const v = vizinha(1); return v && tocar(v.id); }
+      case 'abrir-musica': e.preventDefault(); return abrirMusica();
+      case 'novo-grupo-musica': e.preventDefault(); return abrirModal({ tipo: 'grupo-musica' });
+      case 'musica-grupo': fecharMenu(); return abrirModal({ tipo: 'musica-grupo', id });
       case 'tar-ok': e.preventDefault(); return alternarTarefa(b.dataset.id);
       case 'tar-fazendo': { e.preventDefault(); const i = item(b.dataset.id); return mudarEtapa(i.id, etapa(i) === 'fazendo' ? 'afazer' : 'fazendo'); }
       case 'tar-visao': e.preventDefault(); UI.tarefaVisao = b.dataset.v; UI.pularColheita = true; return render();
@@ -2051,6 +2221,7 @@
       return redimensionar(f, fmt === 'capa' ? 300 : 440, fmt === 'capa' ? 450 : 440)
         .then((u) => { UI.imagens[k] = u; render(); }).catch(() => toast('Não consegui abrir essa imagem.'));
     }
+    if (act === 'ma-grupo') { UI.grupoMusica = t.value; UI.pularColheita = true; return pintarMiniApp(); }
     if (act === 'destino' && t.value === '__nova') { t.value = ''; return abrirModal({ tipo: 'colecao', voltar: UI.modal }); }
     if (act === 'dia-sel' && t.value) { UI.dia = t.value; return render(); }
     if (act === 'mural-col') { UI.muralCol = t.value; return render(); }
@@ -2108,6 +2279,19 @@
     const t = agora();
     const ok = (msg, icone) => { salvar(); UI.pularColheita = true; if (msg) toast(msg, icone); };
 
+    if (tipo === 'grupo-musica') {
+      const nome = (d.nome || '').trim();
+      if (!nome) return toast('Dê um nome ao grupo.');
+      S.gruposMusica = S.gruposMusica || [];
+      if (f.dataset.id) { const g = grupoMusica(f.dataset.id); if (g) g.nome = nome; }
+      else { const g = { id: uid('gmus'), nome }; S.gruposMusica.push(g); UI.grupoMusica = g.id; }
+      UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
+    }
+    if (tipo === 'musica-grupo') {
+      const i = item(f.dataset.id);
+      if (i) { i.grupo = d.grupo || ''; i.editadoEm = agora(); }
+      UI.modal = null; ok('Movida.', 'folder'); return render();
+    }
     if (tipo === 'criar' || tipo === 'editar') {
       const alvo = f.dataset.t, id = f.dataset.id;
       const k = tipo === 'editar' ? 'editar:' + id : 'criar:' + alvo;
@@ -2159,6 +2343,8 @@
           if (!y.video && !y.lista) return toast('Esse link não parece ser do YouTube.');
           i.video = y.video; i.listaYT = y.lista;
           if (d.artista !== undefined) i.artista = d.artista.trim();
+          if (d.grupo !== undefined) i.grupo = d.grupo;
+          if (novo) i.ordem = Math.min(0, ...musicas().map((x) => x.ordem ?? 0)) - 1;
           if (d.destino !== undefined) i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : [];
           if (novo) i.titulo = i.titulo || (y.lista && !y.video ? 'Playlist do YouTube' : 'Música do YouTube');
         }
@@ -2342,6 +2528,34 @@
     if (!n || n.tagName === 'BUTTON' || n.tagName === 'A') return;
     e.preventDefault(); n.click();
   });
+
+  /* ---------------- arrastar: faixas do mini app ---------------- */
+  let faixaArrastada = null;
+  const caixaPlayer = document.getElementById('player');
+  if (caixaPlayer) {
+    caixaPlayer.addEventListener('dragstart', (e) => {
+      const n = e.target.closest('[data-musica]');
+      if (!n) return;
+      faixaArrastada = n.dataset.musica; n.classList.add('arrastando');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', faixaArrastada); } catch (er) { /* ignora */ }
+    });
+    caixaPlayer.addEventListener('dragover', (e) => {
+      const n = e.target.closest && e.target.closest('[data-musica]');
+      if (!faixaArrastada || !n) return;
+      e.preventDefault();
+      caixaPlayer.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
+      if (n.dataset.musica !== faixaArrastada) n.classList.add('alvo-solta');
+    });
+    caixaPlayer.addEventListener('drop', (e) => {
+      const n = e.target.closest && e.target.closest('[data-musica]');
+      if (!faixaArrastada || !n) return;
+      e.preventDefault();
+      const de = faixaArrastada; faixaArrastada = null;
+      if (n.dataset.musica !== de) reordenarMusicas(de, n.dataset.musica);
+    });
+    caixaPlayer.addEventListener('dragend', () => caixaPlayer.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')));
+  }
 
   /* ---------------- arrastar: áreas do menu da esquerda ---------------- */
   let areaArrastada = null;
