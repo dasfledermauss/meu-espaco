@@ -89,7 +89,7 @@ img { max-width: 100%; }
 .menu > summary::-webkit-details-marker { display: none; }
 .menu-corpo { position: absolute; right: 0; max-width: calc(100vw - 24px); top: calc(100% + 8px); background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-m); padding: 6px; min-width: 232px; z-index: 40; display: flex; flex-direction: column; gap: 2px; }
 .menu-corpo.esq { right: auto; left: 0; }
-.menu-corpo button, .menu-corpo a { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border-radius: 10px; background: none; border: 0; font: inherit; font-size: 14px; color: var(--tinta); text-align: left; cursor: pointer; }
+.menu-corpo button, .menu-corpo a { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; padding: 9px 12px; border-radius: 10px; background: none; border: 0; font: inherit; font-size: 14px; color: var(--tinta); text-align: left; cursor: pointer; }
 .menu-corpo button:hover, .menu-corpo a:hover { background: var(--hover-2); text-decoration: none; }
 .menu-corpo .ico { color: var(--tinta-3); width: 17px; height: 17px; }
 .menu-corpo hr { border: 0; border-top: 1px solid var(--linha); margin: 5px 2px; }
@@ -501,9 +501,10 @@ button.mini-item:hover { background: var(--hover-2); }
 
 /* ---------- músicas ---------- */
 .grade-musicas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-.musica { background: var(--cartao); border-radius: var(--r-g); overflow: hidden; display: flex; flex-direction: column; }
+/* sem overflow: hidden, senão o menu "..." fica preso dentro do cartão */
+.musica { background: var(--cartao); border-radius: var(--r-g); padding: 12px; display: flex; flex-direction: column; }
 .musica.tocando { outline: 2px solid var(--marca); outline-offset: -2px; }
-.musica-capa { position: relative; display: block; width: 100%; aspect-ratio: 16/9; padding: 0; border: 0; background: var(--campo); cursor: pointer; overflow: hidden; }
+.musica-capa { position: relative; display: block; width: 100%; aspect-ratio: 16/9; padding: 0; border: 0; border-radius: 0; background: var(--campo); cursor: pointer; overflow: hidden; }
 .musica-capa img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .musica-capa .capa-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--tinta-3); }
 .musica-capa .capa-ph .ico { width: 30px; height: 30px; }
@@ -511,13 +512,26 @@ button.mini-item:hover { background: var(--hover-2); }
 .musica-capa:hover .play { background: var(--marca); }
 .musica-capa .play .ico { width: 20px; height: 20px; }
 .musica-linha { display: flex; gap: 14px; align-items: flex-start; }
-.musica-capa.p { width: 148px; flex: none; border-radius: 12px; }
+.musica-capa.p { width: 148px; flex: none; border-radius: 0; }
 .musica-capa.p .play { width: 36px; height: 36px; }
 .musica-capa.p .play .ico { width: 16px; height: 16px; }
-.musica-dados { padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+.musica-dados { padding: 12px 4px 0; display: flex; flex-direction: column; gap: 4px; }
 .musica-dados h3 { font-size: 14.5px; font-weight: 600; line-height: 1.35; }
 .musica-acoes { display: flex; align-items: center; gap: 2px; margin-top: 6px; }
 .musica-acoes .menu { margin-left: auto; }
+.musica-acoes .menu[open] { position: relative; z-index: 30; }
+
+/* disco ao lado do perfil */
+.disco { width: 34px; height: 34px; border-radius: 50%; flex: none; display: block; position: relative;
+  background:
+    radial-gradient(circle at 50% 50%, var(--marca-escura) 0 32%, transparent 32.5%),
+    repeating-radial-gradient(circle at 50% 50%, var(--marca) 0 2.5px, color-mix(in srgb, var(--marca) 78%, #000) 2.5px 3.5px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--marca) 70%, #000); }
+.disco:hover { text-decoration: none; filter: brightness(1.08); }
+.disco > span { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--cartao); }
+.disco.girando { animation: girar 3.2s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .disco.girando { animation: none; } }
 
 /* player preso no canto */
 #player { position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px); }
@@ -529,6 +543,22 @@ button.mini-item:hover { background: var(--hover-2); }
 .player-video { aspect-ratio: 16/9; background: #000; }
 .player-video iframe { width: 100%; height: 100%; display: block; border: 0; }
 .player.min .player-video { display: none; }
+
+/* minimizado: capa quadrada, nome passando e controles */
+.player-capa, .player-rolagem { display: none; }
+.player.min header { padding: 8px 8px 8px 8px; gap: 4px; }
+.player.min .player-tit { display: none; }
+.player.min .player-capa { display: block; width: 40px; height: 40px; flex: none; background: var(--campo); overflow: hidden; }
+.player.min .player-capa img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.player.min .player-capa .ico { width: 18px; height: 18px; margin: 11px; color: var(--tinta-3); }
+.player.min .player-rolagem { display: flex; flex: 1; min-width: 0; overflow: hidden; gap: 36px; mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
+.player.min .player-rolagem > span { flex: none; font-size: 13px; font-weight: 500; white-space: nowrap; animation: passar 14s linear infinite; }
+.player.min:hover .player-rolagem > span { animation-play-state: paused; }
+@keyframes passar { to { transform: translateX(calc(-100% - 36px)); } }
+@media (prefers-reduced-motion: reduce) {
+  .player.min .player-rolagem > span { animation: none; }
+  .player.min .player-rolagem > span + span { display: none; }
+}
 
 /* ---------- tarefas ---------- */
 .tarefa-linha { display: flex; align-items: flex-start; gap: 12px; }

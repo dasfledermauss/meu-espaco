@@ -23,7 +23,10 @@ window.ATUALIZACOES = [
       'No Início, "Atividade recente" e o dia agora dividem a mesma linha, e o bloco de guardar está na cor do tema.',
       'Clicar num post-it já abre a nota para editar.',
       'Correção: a janela de editar mostrava um texto abandonado no lugar do que estava salvo. Agora rascunho vale só para post novo.',
-      'Correção: as bolinhas da nota em lista estavam recuadas demais.'
+      'Correção: as bolinhas da nota em lista estavam recuadas demais.',
+      'Disco na barra do topo, ao lado do perfil: atalho para as músicas, que gira enquanto algo toca.',
+      'Esconder o vídeo não reinicia mais a música, e a barra minimizada mostra capa quadrada, o nome passando e os controles.',
+      'Correção: o menu "…" do cartão de música ficava preso dentro dele.'
     ]
   },
   {
