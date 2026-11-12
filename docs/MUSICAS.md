@@ -19,7 +19,8 @@ Link que não seja do YouTube é recusado na hora, com aviso.
 
 Clicar na capa (ou no botão de tocar) abre um quadro de 360 px **preso no canto inferior direito**, por cima do sistema. Ele fica fora da área que é redesenhada a cada tela, então **continua tocando enquanto você navega** pelo Mural, Tarefas ou qualquer outra parte.
 
-- A seta esconde o vídeo e deixa só a barra com o nome — útil para ouvir música enquanto trabalha.
+- A seta esconde o vídeo e deixa só a barra: capa quadrada, o nome passando devagar e os controles de pausar, mostrar e fechar. Esconder **não reinicia** a música — o quadro muda de forma, o vídeo continua o mesmo.
+- Pausar e voltar a tocar falam com o player do YouTube por mensagem, sem recarregar nada.
 - O X fecha e para.
 - Playlist sem vídeo específico toca pelo `videoseries`, na ordem da playlist.
 
@@ -27,6 +28,7 @@ O embed usa `youtube-nocookie.com`. O YouTube é quem toca: o Meu Espaço não b
 
 ## Onde aparece
 
+- **Disco na barra do topo**, ao lado do perfil: atalho para as Músicas, na cor do tema. Ele gira enquanto algo está tocando.
 - **Músicas**, no menu lateral: grade de capas com tocar, favoritar e abrir no YouTube.
 - **Início**: entra no feed como qualquer outro registro, com a capa e o botão de tocar.
 - **Coleção**: as músicas da coleção aparecem no bloco Músicas do bento, com um toque para tocar.

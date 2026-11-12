@@ -20,6 +20,9 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 - Clicar num post-it já abre a nota para editar.
 - Correção: a janela de editar mostrava um texto abandonado no lugar do que estava salvo. Agora rascunho vale só para post novo.
 - Correção: as bolinhas da nota em lista estavam recuadas demais.
+- Disco na barra do topo, ao lado do perfil: atalho para as músicas, que gira enquanto algo toca.
+- Esconder o vídeo não reinicia mais a música, e a barra minimizada mostra capa quadrada, o nome passando e os controles.
+- Correção: o menu "…" do cartão de música ficava preso dentro dele.
 
 ## 3.6 — 12/11/2026 · Listas
 

@@ -12,6 +12,7 @@
   const direita = document.getElementById('direita');
   const layout = document.getElementById('layout');
   const topoPerfil = document.getElementById('topo-perfil');
+  const topoMusica = document.getElementById('topo-musica');
   const buscaTopo = document.getElementById('busca-topo');
   const modal = document.getElementById('modal');
 
@@ -695,7 +696,7 @@
   const capaYT = (i) => i.video ? `https://img.youtube.com/vi/${encodeURIComponent(i.video)}/mqdefault.jpg` : '';
   function urlPlayer(i) {
     const base = 'https://www.youtube-nocookie.com/embed/';
-    const comum = 'autoplay=1&rel=0&modestbranding=1';
+    const comum = 'autoplay=1&rel=0&modestbranding=1&enablejsapi=1';
     if (i.video) return base + encodeURIComponent(i.video) + '?' + comum + (i.listaYT ? '&list=' + encodeURIComponent(i.listaYT) : '');
     return base + 'videoseries?' + comum + '&list=' + encodeURIComponent(i.listaYT);
   }
@@ -705,19 +706,47 @@
   }
   function pararMusica() { UI.tocando = null; UI.pularColheita = true; render(); }
   /** O player fica fora do main para não recomeçar a cada tela. */
+  /** Manda um comando para o player do YouTube sem recarregar o iframe. */
+  function comandoYT(func) {
+    const f = document.querySelector('#player iframe');
+    if (!f || !f.contentWindow) return;
+    try { f.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*'); } catch (e) { /* ignora */ }
+  }
+  function pausarOuTocar() {
+    UI.pausado = !UI.pausado;
+    comandoYT(UI.pausado ? 'pauseVideo' : 'playVideo');
+    pintarPlayer();
+  }
+  /** Só troca classes e ícones: recriar o HTML reiniciaria a música. */
+  function pintarPlayer() {
+    const cx = document.querySelector('#player .player');
+    if (!cx) return;
+    cx.classList.toggle('min', !!UI.playerMin);
+    const min = cx.querySelector('[data-act="player-min"]');
+    if (min) { min.innerHTML = ic(UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down'); min.title = min.ariaLabel = UI.playerMin ? 'Mostrar o vídeo' : 'Esconder o vídeo'; }
+    const pp = cx.querySelector('[data-act="player-pausar"]');
+    if (pp) { pp.innerHTML = ic(UI.pausado ? 'play' : 'pause'); pp.title = pp.ariaLabel = UI.pausado ? 'Tocar' : 'Pausar'; }
+  }
   function renderPlayer() {
     const caixa = document.getElementById('player');
     if (!caixa) return;
     const i = UI.tocando && item(UI.tocando);
-    if (!i || i.tipo !== 'musica') { caixa.innerHTML = ''; caixa.hidden = true; return; }
+    if (!i || i.tipo !== 'musica') { caixa.innerHTML = ''; caixa.hidden = true; delete caixa.dataset.id; return; }
     caixa.hidden = false;
-    if (caixa.dataset.id === i.id && caixa.dataset.min === String(!!UI.playerMin)) return; // já está tocando
-    caixa.dataset.id = i.id; caixa.dataset.min = String(!!UI.playerMin);
+    if (caixa.dataset.id === i.id && caixa.querySelector('.player')) return pintarPlayer();
+    caixa.dataset.id = i.id;
+    UI.pausado = false;
+    renderDisco();
+    const nome = tituloItem(i), capa = capaYT(i);
     caixa.innerHTML = `<div class="player ${UI.playerMin ? 'min' : ''}">
-      <header><span class="player-tit">${ic('music-note')}<span>${esc(corta(tituloItem(i), 42))}</span></span>
-        ${btnIco('player-min', UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down', UI.playerMin ? 'Mostrar' : 'Esconder o vídeo')}
+      <header>
+        <span class="player-capa">${capa ? `<img src="${esc(capa)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ic('music-note')}</span>
+        <span class="player-tit">${ic('music-note')}<span>${esc(corta(nome, 42))}</span></span>
+        <span class="player-rolagem" aria-hidden="true"><span>${esc(nome)}</span><span>${esc(nome)}</span></span>
+        ${btnIco('player-pausar', 'pause', 'Pausar')}
+        ${btnIco('player-min', UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down', UI.playerMin ? 'Mostrar o vídeo' : 'Esconder o vídeo')}
         ${btnIco('player-fechar', 'xmark', 'Fechar o player')}</header>
-      <div class="player-video"><iframe src="${esc(urlPlayer(i))}" title="${esc(tituloItem(i))}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>`;
+      <div class="player-video"><iframe src="${esc(urlPlayer(i))}" title="${esc(nome)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>`;
   }
   function renderMusicas() {
     const lista = musicas().slice().sort((a, b2) => b2.criadoEm.localeCompare(a.criadoEm));
@@ -926,6 +955,13 @@
   }
 
   /* ---------------- topo, navegação e coluna direita ---------------- */
+  /** Disco ao lado do perfil: atalho para as músicas, girando quando há algo tocando. */
+  function renderDisco() {
+    if (!topoMusica) return;
+    const i = UI.tocando && item(UI.tocando);
+    const rotulo = i ? 'Tocando: ' + tituloItem(i) : 'Músicas';
+    topoMusica.innerHTML = `<a class="disco ${i ? 'girando' : ''}" href="#/musicas" title="${esc(rotulo)}" aria-label="${esc(rotulo)}"><span></span></a>`;
+  }
   function renderTopo() {
     const p = S.perfil, h = p.humores[hoje()];
     topoPerfil.innerHTML = `<details class="menu menu-perfil"><summary aria-label="Perfil e configurações">
@@ -1755,7 +1791,7 @@
     const [r, id] = rotaAtual();
     const rota = r === 'item' ? 'item' : (ROTAS[r] ? r : 'inicio');
     aplicarTema();
-    renderTopo(); renderNav(rota); renderDireita(rota);
+    renderTopo(); renderDisco(); renderNav(rota); renderDireita(rota);
     if (rota === 'item') renderFicha(id); else ROTAS[rota]();
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
@@ -1812,7 +1848,8 @@
       case 'criar-em': e.preventDefault(); UI.colPadrao = b.dataset.col === 'soltos' ? '' : b.dataset.col; return abrirModal({ tipo: 'tipo' });
       case 'tocar': e.preventDefault(); return UI.tocando === b.dataset.id ? pararMusica() : tocar(b.dataset.id);
       case 'player-fechar': e.preventDefault(); return pararMusica();
-      case 'player-min': e.preventDefault(); UI.playerMin = !UI.playerMin; UI.pularColheita = true; return render();
+      case 'player-min': e.preventDefault(); UI.playerMin = !UI.playerMin; return pintarPlayer();
+      case 'player-pausar': e.preventDefault(); return pausarOuTocar();
       case 'tar-ok': e.preventDefault(); return alternarTarefa(b.dataset.id);
       case 'tar-fazendo': { e.preventDefault(); const i = item(b.dataset.id); return mudarEtapa(i.id, etapa(i) === 'fazendo' ? 'afazer' : 'fazendo'); }
       case 'tar-visao': e.preventDefault(); UI.tarefaVisao = b.dataset.v; UI.pularColheita = true; return render();
