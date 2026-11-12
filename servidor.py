@@ -144,6 +144,28 @@ ROBO = ("validateCaptcha", "Digite os caracteres", "Enter the characters you see
         "To discuss automated access", "Sorry, we just need to make sure you")
 
 
+def faixas_da_playlist(pagina):
+    """A página da playlist traz os vídeos num JSON embutido (ytInitialData)."""
+    achados, vistos = [], set()
+    padrao = re.compile(
+        r'"playlistVideoRenderer":\{"videoId":"([\w-]{6,20})".*?"title":\{(?:"runs":\[\{"text":"((?:[^"\\]|\\.)*)"|"simpleText":"((?:[^"\\]|\\.)*)")',
+        re.S)
+    for m in padrao.finditer(pagina):
+        vid = m.group(1)
+        if vid in vistos:
+            continue
+        vistos.add(vid)
+        bruto = m.group(2) or m.group(3) or ""
+        try:
+            titulo = json.loads('"' + bruto + '"')
+        except Exception:
+            titulo = bruto
+        achados.append({"video": vid, "titulo": titulo.strip() or "Sem nome"})
+        if len(achados) >= 200:
+            break
+    return achados
+
+
 def bloqueado(pagina):
     return any(m in pagina for m in ROBO) and len(pagina) < 200000
 
@@ -378,6 +400,19 @@ class Manipulador(SimpleHTTPRequestHandler):
             except Exception as e:
                 motivo = getattr(e, "code", None) or getattr(e, "reason", None) or e.__class__.__name__
                 return self.responder(502, {"erro": f"não consegui baixar o PDF ({motivo})"})
+        if rota.path == "/api/playlist":
+            lista = (parse_qs(rota.query).get("lista") or [""])[0].strip()
+            if not re.fullmatch(r"[\w-]{8,60}", lista):
+                return self.responder(400, {"erro": "lista inválida"})
+            try:
+                pagina, _ = baixar("https://www.youtube.com/playlist?list=" + lista + "&hl=pt-BR")
+                faixas = faixas_da_playlist(pagina)
+                if not faixas:
+                    return self.responder(502, {"erro": "não consegui ler os vídeos dessa lista"})
+                return self.responder(200, {"faixas": faixas})
+            except Exception as e:
+                motivo = getattr(e, "code", None) or getattr(e, "reason", None) or e.__class__.__name__
+                return self.responder(502, {"erro": f"o YouTube não respondeu ({motivo})"})
         if rota.path == "/api/capturar":
             url = (parse_qs(rota.query).get("url") or [""])[0].strip()
             if urlparse(url).scheme not in ("http", "https"):

@@ -523,42 +523,84 @@ button.mini-item:hover { background: var(--hover-2); }
 
 /* disco ao lado do perfil */
 .disco { width: 34px; height: 34px; border-radius: 50%; flex: none; display: block; position: relative;
+  border: 0; padding: 0; cursor: pointer;
   background:
-    radial-gradient(circle at 50% 50%, var(--marca-escura) 0 32%, transparent 32.5%),
-    repeating-radial-gradient(circle at 50% 50%, var(--marca) 0 2.5px, color-mix(in srgb, var(--marca) 78%, #000) 2.5px 3.5px);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--marca) 70%, #000); }
-.disco:hover { text-decoration: none; filter: brightness(1.08); }
+    radial-gradient(circle at 50% 50%, var(--marca-escura) 0 33%, rgba(0,0,0,0) 33.5%),
+    repeating-radial-gradient(circle at 50% 50%, var(--marca) 0 2px, var(--marca-escura) 2px 3.5px); }
+.disco:hover { text-decoration: none; filter: brightness(1.1); background-color: transparent; }
 .disco > span { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--cartao); }
 .disco.girando { animation: girar 3.2s linear infinite; }
 @keyframes girar { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .disco.girando { animation: none; } }
 
-/* player preso no canto */
+/* mini app de música, preso no canto */
 #player { position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px); }
-.player { width: 360px; max-width: 100%; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-m); overflow: hidden; }
-.player header { display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 14px; }
-.player-tit { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
-.player-tit > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.player-tit .ico { width: 15px; height: 15px; color: var(--tinta-3); flex: none; }
-.player-video { aspect-ratio: 16/9; background: #000; }
-.player-video iframe { width: 100%; height: 100%; display: block; border: 0; }
-.player.min .player-video { display: none; }
+.mini-app { width: 340px; max-width: 100%; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-m); overflow: hidden; display: flex; flex-direction: column; max-height: min(70vh, 560px); }
+.ma-cab { display: flex; align-items: center; gap: 2px; padding: 8px 8px 8px 10px; border-bottom: 1px solid var(--linha); }
+.ma-capa { width: 38px; height: 38px; flex: none; background: var(--campo); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-right: 8px; }
+.ma-capa img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ma-capa .ico { width: 17px; height: 17px; color: var(--tinta-3); }
+.ma-titulo { flex: 1; min-width: 0; display: flex; flex-direction: column; margin-right: 6px; }
+.ma-titulo strong { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ma-sub { font-size: 11.5px; color: var(--tinta-3); }
+.ma-cab .ico-btn { width: 30px; height: 30px; flex: none; }
+.ma-cab .ico-btn .ico { width: 16px; height: 16px; }
+.ma-video { aspect-ratio: 16/9; background: #000; flex: none; }
+.ma-video:empty { display: none; }
+.ma-video iframe { width: 100%; height: 100%; display: block; border: 0; }
+.ma-barra { display: flex; align-items: center; gap: 6px; padding: 10px; border-bottom: 1px solid var(--linha); }
+.ma-grupo { flex: 1; min-width: 0; height: 34px; padding: 0 10px; font-size: 13px; }
+.ma-barra .btn { padding: 8px 10px; font-size: 12.5px; }
+.ma-lista { overflow: auto; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+.ma-faixa { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 4px; border-radius: 10px; cursor: grab; }
+.ma-faixa:hover { background: var(--hover-2); }
+.ma-faixa.tocando { background: var(--marca-leve); }
+.ma-faixa.tocando .ma-nome { color: var(--marca); font-weight: 600; }
+.ma-faixa.arrastando { opacity: .45; }
+.ma-faixa.alvo-solta { outline: 2px dashed var(--marca); outline-offset: -2px; }
+.ma-tocar { background: none; border: 0; padding: 4px; cursor: pointer; color: var(--tinta-3); display: flex; line-height: 0; }
+.ma-tocar:hover { background: none; color: var(--marca); }
+.ma-tocar .ico { width: 15px; height: 15px; }
+.ma-nome { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ma-selo { display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; color: var(--tinta-3); background: var(--campo); border-radius: 999px; padding: 1px 7px; margin-left: 4px; }
+.ma-selo .ico { width: 11px; height: 11px; }
+.ma-faixa .menu summary { width: 26px; height: 26px; }
+.ma-rolagem { display: none; }
+.ma-faixas { display: flex; flex-direction: column; margin: 2px 0 8px 26px; border-left: 1px solid var(--linha); }
+.ma-sub-faixa { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: 0; padding: 6px 8px; border-radius: 0 8px 8px 0; font: inherit; font-size: 12.5px; text-align: left; color: var(--tinta-2); cursor: pointer; }
+.ma-sub-faixa:hover { background: var(--hover-2); color: var(--tinta); }
+.ma-sub-faixa.tocando { color: var(--marca); font-weight: 600; }
+.ma-sub-faixa em { flex: none; width: 18px; font-size: 11px; color: var(--tinta-3); font-variant-numeric: tabular-nums; }
+.ma-sub-faixa span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ma-vazio { font-size: 12.5px; color: var(--tinta-3); padding: 4px 8px 10px 30px; }
 
-/* minimizado: capa quadrada, nome passando e controles */
-.player-capa, .player-rolagem { display: none; }
-.player.min header { padding: 8px 8px 8px 8px; gap: 4px; }
-.player.min .player-tit { display: none; }
-.player.min .player-capa { display: block; width: 40px; height: 40px; flex: none; background: var(--campo); overflow: hidden; }
-.player.min .player-capa img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.player.min .player-capa .ico { width: 18px; height: 18px; margin: 11px; color: var(--tinta-3); }
-.player.min .player-rolagem { display: flex; flex: 1; min-width: 0; overflow: hidden; gap: 36px; mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
-.player.min .player-rolagem > span { flex: none; font-size: 13px; font-weight: 500; white-space: nowrap; animation: passar 14s linear infinite; }
-.player.min:hover .player-rolagem > span { animation-play-state: paused; }
+/* guardado no canto: só o disco flutuando na borda direita */
+.ma-pega { display: none; background: none; border: 0; padding: 0; cursor: pointer; }
+#player.guardado .mini-app { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+#player.guardado .ma-pega { display: block; }
+#player.guardado { right: 14px; bottom: 50%; }
+.ma-pega .disco { width: 44px; height: 44px; }
+
+/* modo MP3: só a barra de cima, na cor do tema */
+.mini-app.min { width: 320px; background: var(--marca); border-color: var(--marca); color: var(--marca-texto); }
+.mini-app.min .ma-cab { cursor: pointer; }
+.mini-app.min .ico-btn { color: var(--marca-texto); opacity: .85; }
+.mini-app.min .ico-btn:hover { background: rgba(255,255,255,.18); opacity: 1; }
+.mini-app.min .ma-capa { background: rgba(255,255,255,.16); }
+.mini-app.min .ma-capa .ico { color: var(--marca-texto); }
+.mini-app.min .ma-video, .mini-app.min .ma-barra, .mini-app.min .ma-lista { display: none; }
+.mini-app.min .ma-cab { border-bottom: 0; }
+.mini-app.min .ma-titulo { display: none; }
+.mini-app.min .ma-rolagem { display: flex; flex: 1; min-width: 0; overflow: hidden; gap: 36px; margin-right: 4px;
+  mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent); }
+.mini-app.min .ma-rolagem > span { flex: none; font-size: 13px; font-weight: 500; white-space: nowrap; animation: passar 14s linear infinite; }
+.mini-app.min:hover .ma-rolagem > span { animation-play-state: paused; }
 @keyframes passar { to { transform: translateX(calc(-100% - 36px)); } }
 @media (prefers-reduced-motion: reduce) {
-  .player.min .player-rolagem > span { animation: none; }
-  .player.min .player-rolagem > span + span { display: none; }
+  .mini-app.min .ma-rolagem > span { animation: none; }
+  .mini-app.min .ma-rolagem > span + span { display: none; }
 }
+@media (max-width: 560px) { #player { right: 12px; left: 12px; bottom: 12px; } .mini-app, .mini-app.min { width: auto; } }
 
 /* ---------- tarefas ---------- */
 .tarefa-linha { display: flex; align-items: flex-start; gap: 12px; }
@@ -769,18 +811,28 @@ button, .btn { white-space: nowrap; }
 :root[data-modo="escuro"] .previa-doc { background: var(--cartao); }
 :root[data-modo="escuro"] .capa-ph { filter: saturate(.8) brightness(.85); }
 :root[data-modo="escuro"] .foto-produto img { background: #f4f6f9; }
-/* No escuro a nota é um cartão comum: papel colorido aqui só suja a leitura.
-   A cor escolhida continua guardada e volta a aparecer no modo claro. */
-:root[data-modo="escuro"] .postit,
-:root[data-modo="escuro"] .postit.amarelo, :root[data-modo="escuro"] .postit.rosa,
-:root[data-modo="escuro"] .postit.azul, :root[data-modo="escuro"] .postit.verde,
-:root[data-modo="escuro"] .postit.laranja { --papel: var(--cartao); color: var(--tinta); }
-:root[data-modo="escuro"] .postit h3, :root[data-modo="escuro"] .postit h2 { color: var(--tinta); }
-:root[data-modo="escuro"] .postit footer time { color: var(--tinta-3); }
-:root[data-modo="escuro"] .mural .ico-btn { color: var(--tinta-3); }
-:root[data-modo="escuro"] .mural .ico-btn:hover { background: var(--hover-2); color: var(--tinta); }
+/* No escuro o papel mantém a cor, em tons cheios e escuros o bastante
+   para o texto claro ficar legível por cima. */
+:root[data-modo="escuro"] .postit { --papel: #2a2f3a; color: #f1f4fa; }
+:root[data-modo="escuro"] .postit.amarelo  { --papel: #594a0f; }
+:root[data-modo="escuro"] .postit.rosa     { --papel: #5c2239; }
+:root[data-modo="escuro"] .postit.azul     { --papel: #173b66; }
+:root[data-modo="escuro"] .postit.verde    { --papel: #1d4a28; }
+:root[data-modo="escuro"] .postit.laranja  { --papel: #5d3310; }
+:root[data-modo="escuro"] .postit h3, :root[data-modo="escuro"] .postit h2 { color: #fff; }
+:root[data-modo="escuro"] .postit footer time { color: rgba(255,255,255,.62); }
+:root[data-modo="escuro"] .mural .ico-btn { color: rgba(255,255,255,.62); }
+:root[data-modo="escuro"] .mural .ico-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+:root[data-modo="escuro"] .postit .lista-conta { opacity: .75; }
 :root[data-modo="escuro"] .gaveta .frente { background: var(--cartao); }
 :root[data-modo="escuro"] .gaveta:hover .frente { background: #1d222c; }
+/* No escuro, o bloco de guardar usa a cor do tema como superfície escura:
+   texto claro em cima dela lê muito melhor que texto escuro sobre o azul cheio. */
+:root[data-modo="escuro"] .compositor { background: var(--marca-leve); color: var(--tinta); }
+:root[data-modo="escuro"] .compositor h2 { color: var(--tinta); }
+:root[data-modo="escuro"] .compositor .tipo-chip { background: rgba(255,255,255,.05); border: 1px solid var(--linha); color: var(--tinta); }
+:root[data-modo="escuro"] .compositor .tipo-chip .ico { color: var(--marca); opacity: 1; }
+:root[data-modo="escuro"] .compositor .tipo-chip:hover { background: rgba(255,255,255,.12); color: var(--tinta); }
 :root[data-modo="escuro"] .menu-selecao { background: #2b323f; }
 :root[data-modo="escuro"] .toast { background: #2b323f; color: var(--tinta); }
 
