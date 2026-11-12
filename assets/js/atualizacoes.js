@@ -21,7 +21,9 @@ window.ATUALIZACOES = [
       'Na lateral o texto manda: datas viraram 12/11 e o progresso virou 1/4.',
       'Post-its com cores mais cheias no modo claro e nota limpa no escuro; hover do modo escuro corrigido.',
       'No Início, "Atividade recente" e o dia agora dividem a mesma linha, e o bloco de guardar está na cor do tema.',
-      'Clicar num post-it já abre a nota para editar.'
+      'Clicar num post-it já abre a nota para editar.',
+      'Correção: a janela de editar mostrava um texto abandonado no lugar do que estava salvo. Agora rascunho vale só para post novo.',
+      'Correção: as bolinhas da nota em lista estavam recuadas demais.'
     ]
   },
   {
