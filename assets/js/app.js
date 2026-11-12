@@ -151,6 +151,7 @@
 
   function migrar(st) {
     st.destinoPadrao = st.destinoPadrao || { nota: '', link: 'col-pessoal' };
+    if (st.destinoPadrao.tarefa === undefined) st.destinoPadrao.tarefa = '';
     st.lembretes = st.lembretes || []; st.pastas = st.pastas || []; st.colecoes = st.colecoes || [];
     st.perfil.corCustom = st.perfil.corCustom || '';
     st.perfil.modo = st.perfil.modo || 'sistema';
@@ -342,7 +343,13 @@
   const pasta = (id) => S.pastas.find((c) => c.id === id);
   const item = (id) => S.itens.find((i) => i.id === id);
   const lembrete = (id) => S.lembretes.find((l) => l.id === id);
-  const TIPOS = { nota: ['Nota', 'journal-page'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
+  const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
+  /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
+  const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
+  const etapa = (i) => i.concluida ? 'feito' : (i.etapa === 'fazendo' ? 'fazendo' : 'afazer');
+  const tarefas = () => doTipo('tarefa');
+  const tarefasAbertas = () => tarefas().filter((i) => !i.concluida);
+  const atrasada = (i) => !i.concluida && i.prazo && i.prazo < hoje();
   const nomeTipo = (i) => i.tipo === 'midia' ? (i.formato === 'filme' ? 'Filme' : 'Livro') : TIPOS[i.tipo][0];
   const icoTipo = (i) => i.tipo === 'midia' ? (i.formato === 'filme' ? 'movie' : 'book') : TIPOS[i.tipo][1];
   const STATUS = { livro: { quero: 'Quero ler', andamento: 'Lendo', concluido: 'Lido' }, filme: { quero: 'Quero assistir', andamento: 'Assistindo', concluido: 'Assistido' } };
@@ -436,9 +443,9 @@
   }
 
   /* ---------------- formulários de criação e edição ---------------- */
-  const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
+  const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['tarefa', 'Tarefa', 'list'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
     ['artigo', 'Artigo de estudo', 'page'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
-  const tituloCriar = { nota: 'Nova nota', link: 'Guardar link', midia: 'Novo na biblioteca', artigo: 'Novo artigo', desejo: 'Novo desejo', gasto: 'Novo gasto', lembrete: 'Novo lembrete' };
+  const tituloCriar = { nota: 'Nova nota', tarefa: 'Nova tarefa', link: 'Guardar link', midia: 'Novo na biblioteca', artigo: 'Novo artigo', desejo: 'Novo desejo', gasto: 'Novo gasto', lembrete: 'Novo lembrete' };
 
   function formulario(t, it) {
     const k = it ? 'editar:' + it.id : 'criar:' + t;
@@ -449,6 +456,12 @@
       c.opc('titulo', 'Título', campo('f-titulo', 'Título', txt('f-titulo', 'titulo', v.titulo)));
       c.opc('destino', 'Coleção', campo('f-destino', 'Coleção', `<select id="f-destino" name="destino" data-act="destino">${opcoesDestino(it ? (v.colecoes[0] || {}).id : S.destinoPadrao.nota)}</select>`));
       c.opc('cor', 'Cor do papel', campo('f-cor', 'Cor do papel', selectHTML('f-cor', 'cor', CORES_NOTA.map((x) => [x, x[0].toUpperCase() + x.slice(1)]), v.cor || corNota(v.id ? v : { id: 'x' }))));
+    } else if (t === 'tarefa') {
+      c.fixo(campo('f-titulo', 'O que precisa ser feito', txt('f-titulo', 'titulo', v.titulo, 'required placeholder="ex.: mandar a proposta da paróquia"')));
+      c.opc('prazo', 'Prazo', campo('f-prazo', 'Prazo <span class="opcional">(opcional)</span>', `<input type="date" id="f-prazo" name="prazo" value="${esc(v.prazo || '')}">`, 'medio')
+        + `<label class="check"><input type="checkbox" name="avisar" ${v.lembreteId || !it ? 'checked' : ''}> Criar lembrete no prazo</label>`);
+      c.opc('etapa', 'Situação', campo('f-etapa', 'Situação', selectHTML('f-etapa', 'etapa', Object.entries(ETAPAS), etapa(v)), 'medio'));
+      c.opc('destino', 'Coleção', campo('f-destino', 'Coleção', `<select id="f-destino" name="destino" data-act="destino">${opcoesDestino(it ? (v.colecoes[0] || {}).id : S.destinoPadrao.tarefa)}</select>`));
     } else if (t === 'link') {
       c.fixo(campo('f-url', 'Endereço', `<input type="url" id="f-url" name="url" value="${esc(v.url || '')}" required placeholder="https://…" inputmode="url">`));
       if (!it) c.fixo(`<p class="dica">${ic('priority-high')}<span>Título, descrição e imagem são capturados da página.${UI.servidor ? '' : ' Sem o servidor ligado, dá para preencher à mão.'}</span></p>`);
@@ -586,6 +599,52 @@
     if (campo1 && !modal.contains(document.activeElement)) campo1.focus();
   }
 
+  /* ---------------- tarefas ---------------- */
+  /** Uma tarefa é sempre uma linha: círculo para riscar, título e, se houver, prazo e situação. */
+  function linhaTarefa(i, opts = {}) {
+    const e = etapa(i);
+    const atras = atrasada(i);
+    const prazo = i.prazo ? `<span class="tar-prazo ${atras ? 'atrasada' : ''}">${ic('calendar')}${atras ? 'venceu ' : ''}${fmtDiaCurto(i.prazo)}</span>` : '';
+    const cols = opts.semColecao ? '' : (i.colecoes || []).map((c) => (colecao(c.id) || {}).nome).filter(Boolean)
+      .map((n) => `<span class="tar-col">${esc(n)}</span>`).join('');
+    return `<div class="tarefa-linha ${i.concluida ? 'feita' : ''}">
+      <button type="button" class="tar-marca" data-act="tar-ok" data-id="${i.id}"
+        aria-pressed="${!!i.concluida}" aria-label="${i.concluida ? 'Reabrir tarefa' : 'Marcar como feita'}" title="${i.concluida ? 'Reabrir' : 'Marcar como feita'}">
+        ${ic(i.concluida ? 'check-circle-solid' : 'check-circle')}</button>
+      <span class="tar-corpo"><a class="tar-tit" href="#/item/${i.id}">${esc(i.titulo || 'Tarefa sem nome')}</a>
+        <span class="tar-meta">${prazo}${e === 'fazendo' ? `<span class="tar-etapa">${ic('clock')}Fazendo</span>` : ''}${cols}</span></span></div>`;
+  }
+  function alternarTarefa(id) {
+    const i = item(id); if (!i) return;
+    i.concluida = !i.concluida;
+    i.etapa = i.concluida ? 'feito' : 'afazer';
+    i.editadoEm = agora();
+    if (i.concluida) concluirLembreteDe(i); // some o aviso junto com a tarefa
+    salvar(); render();
+    toast(i.concluida ? 'Feito: ' + corta(i.titulo, 40) : 'Tarefa reaberta.', i.concluida ? 'check-circle-solid' : 'list');
+  }
+  function mudarEtapa(id, nova) {
+    const i = item(id); if (!i) return;
+    i.etapa = nova; i.concluida = nova === 'feito'; i.editadoEm = agora();
+    if (i.concluida) concluirLembreteDe(i);
+    salvar(); render();
+  }
+  function concluirLembreteDe(i) {
+    const l = i.lembreteId && lembrete(i.lembreteId);
+    if (l) l.concluido = true;
+  }
+  /** Ponte com os lembretes: o prazo da tarefa vira um lembrete ligado a ela. */
+  function sincronizarPrazo(i, avisar) {
+    const atual = i.lembreteId ? lembrete(i.lembreteId) : null;
+    if (!i.prazo || !avisar || i.concluida) {
+      if (atual) { S.lembretes = S.lembretes.filter((l) => l.id !== atual.id); i.lembreteId = ''; }
+      return;
+    }
+    if (atual) { atual.texto = i.titulo; atual.data = i.prazo; atual.concluido = false; return; }
+    const novo = { id: uid('lemb'), texto: i.titulo, data: i.prazo, hora: '', itemId: i.id, concluido: false, criadoEm: agora(), motivo: 'tarefa' };
+    S.lembretes.push(novo); i.lembreteId = novo.id;
+  }
+
   /* ---------------- novidades ----------------
      A lista vem de assets/js/atualizacoes.js, da mais nova para a mais antiga.
      O popup abre sozinho quando a versão do topo ainda não foi vista aqui. */
@@ -615,6 +674,10 @@
       b.push(btnAlterna('ler-depois', i.id, i.lerDepois, 'bookmark', 'Na fila de leitura', 'Ler mais tarde'));
       b.push(btnAlterna('lido', i.id, i.lido, 'check-circle', 'Lido', 'Marcar como lido'));
     }
+    if (i.tipo === 'tarefa') {
+      b.push(btnAlterna('tar-ok', i.id, i.concluida, 'check-circle', 'Feita', 'Marcar como feita'));
+      if (!i.concluida) b.push(btnAlterna('tar-fazendo', i.id, etapa(i) === 'fazendo', 'clock', 'Fazendo agora', 'Marcar como fazendo'));
+    }
     if (i.tipo === 'nota') {
       b.push(btnAlterna('fixar', i.id, i.fixado, 'pin', 'Fixada no mural', 'Fixar no mural'));
       b.push(btnIco('cor', 'palette', 'Trocar a cor', `data-id="${i.id}"`));
@@ -633,7 +696,7 @@
     if (i.url) b.push(btnIco('copiar-link', 'copy', 'Copiar endereço', `data-id="${i.id}"`));
     mais.push({ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' });
     if (i.url) mais.push({ act: 'abrir-fora', id: i.id, ico: 'open-new-window', txt: 'Abrir em nova guia' });
-    if (i.tipo === 'nota' || i.tipo === 'link') mais.push({ act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' });
+    if (i.tipo === 'nota' || i.tipo === 'link' || i.tipo === 'tarefa') mais.push({ act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' });
     if (i.tipo === 'midia') mais.push({ act: 'progresso', id: i.id, ico: 'bookmark', txt: 'Onde parei' });
     mais.push({ act: 'lembrar-item', id: i.id, ico: 'alarm', txt: 'Criar lembrete' });
     mais.push('-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true });
@@ -654,48 +717,7 @@
   function corpoPost(i) {
     if (i.tipo === 'nota') return `<div class="postit ${corNota(i)}">${i.titulo ? `<h3><a href="#/item/${i.id}">${esc(i.titulo)}</a></h3>` : ''}
       <p>${esc(corta(i.texto, 420))}</p>${(i.texto || '').length > 420 ? `<a class="meta" href="#/item/${i.id}">Ler tudo</a>` : ''}</div>`;
-    if (i.tipo === 'link') return `<div class="link-rico">
-        ${i.imagem ? `<span class="arte"><img src="${esc(i.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>` : ''}
-        <div class="link-dados"><h3><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(tituloItem(i))}</a></h3>
-          <p class="fonte">${i.favicon ? `<img src="${esc(i.favicon)}" alt="" onerror="this.remove()">` : ic('link')}${esc(dominio(i.url))}</p>
-          ${i.comentario ? `<p class="porque">${esc(corta(i.comentario, 160))}</p>` : (i.descricao ? `<p class="descricao">${esc(i.descricao)}</p>` : '')}
-          ${i.capturaStatus === 'capturando' ? '<p class="meta">Capturando prévia…</p>' : ''}
-        </div></div>`;
-    if (i.tipo === 'midia') {
-      b.push(btnIco('progresso', 'bookmark', unidade(i) === 'minuto' ? 'Onde parei' : 'Página atual', `data-id="${i.id}"`));
-      b.push(btnIco('anotar', 'page-edit', 'Nova anotação', `data-id="${i.id}"`));
-    }
-    if (i.tipo === 'artigo') b.push(btnIco('anotar', 'page-edit', 'Nova anotação', `data-id="${i.id}"`));
-    if (i.tipo === 'desejo') {
-      b.push(btnAlterna('comprei', i.id, i.comprado, 'check-circle', 'Comprado', 'Marcar como comprado'));
-      b.push(btnIco('recapturar', 'refresh', 'Atualizar preço', `data-id="${i.id}"`));
-    }
-    const nc = (i.comentarios || []).length;
-    b.push(`<button type="button" class="ico-btn ${nc ? 'ativo' : ''}" data-act="comentar" data-id="${i.id}" aria-label="Comentários" title="Comentários">${icAtivo('chat-bubble', nc)}${nc ? `<em>${nc}</em>` : ''}</button>`);
-    if (i.url) b.push(btnIco('copiar-link', 'copy', 'Copiar endereço', `data-id="${i.id}"`));
-    mais.push({ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' });
-    if (i.url) mais.push({ act: 'abrir-fora', id: i.id, ico: 'open-new-window', txt: 'Abrir em nova guia' });
-    if (i.tipo === 'nota' || i.tipo === 'link') mais.push({ act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' });
-    if (i.tipo === 'midia') mais.push({ act: 'progresso', id: i.id, ico: 'bookmark', txt: 'Onde parei' });
-    mais.push({ act: 'lembrar-item', id: i.id, ico: 'alarm', txt: 'Criar lembrete' });
-    mais.push('-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true });
-    return `<footer class="post-acoes">${b.join('')}<span class="espaco"></span>${menuMais(mais)}</footer>`;
-  }
-
-  function comentariosHTML(i) {
-    const nc = (i.comentarios || []).length;
-    if (UI.comentando !== i.id && !nc) return '';
-    if (UI.comentando !== i.id) return '';
-    return `<div class="comentarios">
-      ${i.comentarios.map((c) => `<div class="comentario">${avatarHTML('p')}<div class="balao">${esc(c.texto)}<time>${fmtDataHora(c.em)}</time></div></div>`).join('')}
-      <form class="comentar" data-form="comentar" data-id="${i.id}">${avatarHTML('p')}
-        <input name="texto" required placeholder="Comentar de novo…" autocomplete="off">
-        <button class="btn-1 btn-p" type="submit">Enviar</button></form></div>`;
-  }
-
-  function corpoPost(i) {
-    if (i.tipo === 'nota') return `<div class="postit ${corNota(i)}">${i.titulo ? `<h3><a href="#/item/${i.id}">${esc(i.titulo)}</a></h3>` : ''}
-      <p>${esc(corta(i.texto, 420))}</p>${(i.texto || '').length > 420 ? `<a class="meta" href="#/item/${i.id}">Ler tudo</a>` : ''}</div>`;
+    if (i.tipo === 'tarefa') return linhaTarefa(i);
     if (i.tipo === 'link') return `<div class="link-rico">
         ${i.imagem ? `<span class="arte"><img src="${esc(i.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>` : ''}
         <div class="link-dados"><h3><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(tituloItem(i))}</a></h3>
@@ -763,7 +785,7 @@
       </div></details>`;
   }
   function renderNav(rota) {
-    const itens = [['inicio', 'Início', 'home-simple', ''], ['mural', 'Mural', 'journal-page', doTipo('nota').length],
+    const itens = [['inicio', 'Início', 'home-simple', ''], ['tarefas', 'Tarefas', 'list', tarefasAbertas().length], ['mural', 'Mural', 'journal-page', doTipo('nota').length],
       ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length], ['estudos', 'Estudos', 'folder', doTipo('artigo').length],
       ['links', 'Links', 'link', doTipo('link').length], ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
       ['gastos', 'Gastos', 'wallet', ''], ['lembretes', 'Lembretes', 'alarm', pendentes().length], ['curriculo', 'Currículo', 'suitcase', '']];
@@ -779,6 +801,19 @@
     if (rota !== 'inicio') { direita.innerHTML = ''; direita.hidden = true; layout.classList.add('sem-direita'); return; }
     direita.hidden = false; layout.classList.remove('sem-direita');
     const b = [];
+    const abertas = tarefasAbertas();
+    const feitasHoje = tarefas().filter((i) => i.concluida && (i.editadoEm || i.criadoEm).slice(0, 10) === hoje());
+    if (abertas.length || feitasHoje.length) {
+      const total = abertas.length + feitasHoje.length;
+      const pct = Math.round((feitasHoje.length / total) * 100);
+      const proximas = abertas.slice().sort((x, y) => (x.prazo || '9999').localeCompare(y.prazo || '9999')).slice(0, 3);
+      b.push(cartao(ic('list') + 'Tarefas', `<p class="progresso" style="margin-bottom:12px">
+          <span class="barra"><i style="width:${pct}%"></i></span> ${feitasHoje.length} de ${total} feitas hoje</p>
+        <div class="mini-lista">${proximas.map((i) => `<p class="mini-item"><em class="ponto ${atrasada(i) ? 'vence' : ''}"></em>
+          <span><a href="#/tarefas">${esc(corta(i.titulo, 40))}</a></span>
+          <span class="meta">${i.prazo ? fmtDiaCurto(i.prazo) : ''}</span></p>`).join('')}</div>`,
+        '<a href="#/tarefas">ver todas</a>', 'fino'));
+    }
     const pend = pendentes().slice(0, 3);
     if (pend.length) b.push(cartao(ic('alarm') + 'Lembretes', `<div class="mini-lista">${pend.map((l) => `<p class="mini-item"><em class="ponto ${venc(l) <= Date.now() ? 'vence' : ''}"></em><span>${esc(l.texto)}</span><span class="meta">${fmtDiaCurto(l.data)}</span></p>`).join('')}</div>`, '<a href="#/lembretes">quadro</a>', 'fino'));
     const and = doTipo('midia').filter((i) => i.status === 'andamento').slice(0, 4);
@@ -1039,7 +1074,7 @@
       const alvo = l.itemId && item(l.itemId);
       return `<article class="lembrete ${!l.concluido && venc(l) <= Date.now() ? 'vence' : ''} ${l.concluido ? 'feito' : ''}">
         <p>${alvo ? `<a href="#/item/${alvo.id}">${esc(l.texto)}</a>` : esc(l.texto)}</p>
-        <p class="meta">${l.motivo === 'preco' ? ic('shopping-bag') + ' queda de preço · ' : ic('calendar') + ' '}${fmtDiaCurto(l.data)}${l.hora ? ' · ' + l.hora : ''}${alvo ? '<br>' + ic(icoTipo(alvo)) + ' ' + esc(corta(tituloItem(alvo), 40)) : ''}</p>
+        <p class="meta">${l.motivo === 'preco' ? ic('shopping-bag') + ' queda de preço · ' : l.motivo === 'tarefa' ? ic('list') + ' prazo de tarefa · ' : ic('calendar') + ' '}${fmtDiaCurto(l.data)}${l.hora ? ' · ' + l.hora : ''}${alvo ? '<br>' + ic(icoTipo(alvo)) + ' ' + esc(corta(tituloItem(alvo), 40)) : ''}</p>
         <div class="pe">${l.concluido ? btnIco('lemb-reabrir', 'undo', 'Reabrir', `data-id="${l.id}"`) : btnIco('lemb-concluir', 'check-circle', 'Concluir', `data-id="${l.id}"`)}
           ${l.concluido ? '' : btnIco('lemb-adiar', 'clock', 'Adiar', `data-id="${l.id}"`)}<span class="espaco"></span>
           ${menuMais([{ act: 'editar-item', id: l.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'excluir-lembrete', id: l.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></article>`;
@@ -1050,6 +1085,71 @@
         ${ls.map(card).join('') || '<p class="nada" style="padding:0 6px">—</p>'}</section>`).join('')}</div>
       ${feitos.length ? `<details class="cartao"><summary style="cursor:pointer;font-weight:600;font-size:14px">${ic('check-circle-solid')} Concluídos (${feitos.length})</summary>
         <div class="quadro-col" style="margin-top:14px">${feitos.map(card).join('')}</div></details>` : ''}`;
+  }
+
+  /* ---------------- Tarefas ---------------- */
+  const VISOES = [['prazo', 'Por prazo', 'calendar'], ['quadro', 'Quadro', 'view-grid'], ['colecao', 'Por coleção', 'folder']];
+  function renderTarefas() {
+    const visao = VISOES.some((v) => v[0] === UI.tarefaVisao) ? UI.tarefaVisao : 'prazo';
+    const todas = tarefas();
+    const abertas = todas.filter((i) => !i.concluida);
+    const feitas = todas.filter((i) => i.concluida).sort((a, b) => (b.editadoEm || b.criadoEm).localeCompare(a.editadoEm || a.criadoEm));
+    const linha = (i, o) => `<div class="tar-item">${linhaTarefa(i, o)}${acoesTarefa(i)}</div>`;
+    const grupo = (nome, lista, cls, o) => lista.length
+      ? `<section class="tar-grupo ${cls || ''}"><h2>${esc(nome)}<em class="pino ${cls === 'alerta' && lista.length ? 'alerta' : ''}">${lista.length}</em></h2>
+          ${lista.map((i) => linha(i, o)).join('')}</section>` : '';
+
+    let corpo = '';
+    if (!todas.length) {
+      corpo = vazio('list', 'Nenhuma tarefa ainda. Uma linha por tarefa, com prazo só quando fizer falta.',
+        btn('criar', ic('plus') + 'Nova tarefa', 'data-t="tarefa"', 'btn-1'));
+    } else if (visao === 'prazo') {
+      const h = hoje(), sem = somaDias(h, 7);
+      const semPrazo = abertas.filter((i) => !i.prazo);
+      corpo = grupo('Atrasadas', abertas.filter((i) => atrasada(i)).sort((a, b) => a.prazo.localeCompare(b.prazo)), 'alerta')
+        + grupo('Hoje', abertas.filter((i) => i.prazo === h), '')
+        + grupo('Próximos 7 dias', abertas.filter((i) => i.prazo > h && i.prazo <= sem).sort((a, b) => a.prazo.localeCompare(b.prazo)), '')
+        + grupo('Depois', abertas.filter((i) => i.prazo > sem).sort((a, b) => a.prazo.localeCompare(b.prazo)), '')
+        + grupo('Sem prazo', semPrazo, '');
+      if (!abertas.length) corpo = `<p class="nada">${ic('check-circle-solid')} Tudo feito por aqui.</p>`;
+    } else if (visao === 'quadro') {
+      corpo = `<div class="quadro tres">${Object.entries(ETAPAS).map(([v, n]) => {
+        const lista = v === 'feito' ? feitas : abertas.filter((i) => etapa(i) === v);
+        return `<section class="quadro-col"><h2>${n}<em class="pino">${lista.length}</em></h2>
+          ${lista.map((i) => `<article class="tar-cartao">${linhaTarefa(i)}
+            <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
+              ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
+              ${v !== 'feito' ? btnIco('tar-para', 'check-circle', 'Mover para Feito', `data-id="${i.id}" data-v="feito"`) : ''}
+              <span class="espaco"></span>${menuTarefa(i)}</div></article>`).join('') || '<p class="nada" style="padding:0 6px">—</p>'}</section>`;
+      }).join('')}</div>`;
+    } else {
+      const porCol = new Map(S.colecoes.map((c) => [c.id, []]));
+      const soltas = [];
+      abertas.forEach((i) => { const c = (i.colecoes || [])[0]; (c && porCol.has(c.id) ? porCol.get(c.id) : soltas).push(i); });
+      corpo = S.colecoes.map((c) => grupo(c.nome, porCol.get(c.id), '', { semColecao: true })).join('')
+        + grupo('Sem coleção', soltas, '', { semColecao: true });
+      if (!abertas.length) corpo = `<p class="nada">${ic('check-circle-solid')} Tudo feito por aqui.</p>`;
+    }
+
+    const feitasHTML = feitas.length && visao !== 'quadro'
+      ? `<details class="cartao tar-feitas" ${UI.verFeitas ? 'open' : ''}><summary data-act="tar-feitas">${ic('check-circle-solid')} Feitas (${feitas.length})</summary>
+          <div class="tar-lista-feitas">${feitas.slice(0, 50).map((i) => linha(i)).join('')}</div></details>` : '';
+
+    main.innerHTML = `<header class="pagina-cab"><h1>${ic('list')}Tarefas</h1>
+        <div class="ferramentas">${btn('criar', ic('plus') + 'Nova tarefa', 'data-t="tarefa"', 'btn-1')}</div></header>
+      <div class="barra-filtros"><div class="segmento" role="group" aria-label="Como ver as tarefas">
+        ${VISOES.map(([v, n, icone]) => `<button type="button" data-act="tar-visao" data-v="${v}" aria-pressed="${visao === v}">${ic(icone)}${n}</button>`).join('')}</div>
+        ${abertas.length ? `<p class="meta">${abertas.length} aberta${abertas.length > 1 ? 's' : ''}${feitas.length ? ' · ' + feitas.length + ' feita' + (feitas.length > 1 ? 's' : '') : ''}</p>` : ''}</div>
+      ${corpo}${feitasHTML}`;
+  }
+  function menuTarefa(i) {
+    return menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
+      { act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' },
+      '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }]);
+  }
+  function acoesTarefa(i) {
+    return `<div class="tar-acoes">${i.concluida ? '' : btnIco('tar-fazendo', etapa(i) === 'fazendo' ? 'clock' : 'clock', etapa(i) === 'fazendo' ? 'Tirar de Fazendo' : 'Marcar como fazendo', `data-id="${i.id}"`)}
+      ${menuTarefa(i)}</div>`;
   }
 
   /* ---------------- Perfil e Configurações ---------------- */
@@ -1400,7 +1500,7 @@
   }
 
   /* ---------------- roteamento ---------------- */
-  const ROTAS = { inicio: renderInicio, mural: renderMural, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
+  const ROTAS = { inicio: renderInicio, mural: renderMural, tarefas: renderTarefas, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
     wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
   function rotaAtual() { return location.hash.replace(/^#\/?/, '').split('/'); }
   function render(focar) {
@@ -1462,6 +1562,11 @@
       case 'trocar-tipo': return abrirModal({ tipo: 'tipo' });
       case 'modal-fechar': e.preventDefault(); return fecharModal();
       case 'novidades': e.preventDefault(); return abrirModal({ tipo: 'novidades' });
+      case 'tar-ok': e.preventDefault(); return alternarTarefa(b.dataset.id);
+      case 'tar-fazendo': { e.preventDefault(); const i = item(b.dataset.id); return mudarEtapa(i.id, etapa(i) === 'fazendo' ? 'afazer' : 'fazendo'); }
+      case 'tar-visao': e.preventDefault(); UI.tarefaVisao = b.dataset.v; UI.pularColheita = true; return render();
+      case 'tar-feitas': e.preventDefault(); UI.verFeitas = !UI.verFeitas; UI.pularColheita = true; return render();
+      case 'tar-para': e.preventDefault(); return mudarEtapa(b.dataset.id, b.dataset.v);
       case 'descartar-rascunho': {
         if (!confirm('Descartar o que você digitou?')) return;
         limparRascunho(b.dataset.k); UI.pularColheita = true; UI.modal = null; return render();
@@ -1575,7 +1680,10 @@
         return passa();
       }
       case 'wl-filtro': UI.wlFiltro = b.dataset.v; return render();
-      case 'lemb-concluir': { const l = lembrete(id); l.concluido = true; l.concluidoEm = agora(); toast('Lembrete concluído.', 'check-circle-solid'); return passa(); }
+      case 'lemb-concluir': { const l = lembrete(id); l.concluido = true; l.concluidoEm = agora();
+        // Lembrete que veio de uma tarefa: concluir aqui também risca a tarefa.
+        if (l.motivo === 'tarefa' && l.itemId) { const tf = item(l.itemId); if (tf) { tf.concluida = true; tf.etapa = 'feito'; tf.editadoEm = agora(); } }
+        toast(l.motivo === 'tarefa' ? 'Tarefa concluída.' : 'Lembrete concluído.', 'check-circle-solid'); return passa(); }
       case 'lemb-reabrir': { const l = lembrete(id); l.concluido = false; return passa(); }
       case 'lemb-adiar': { const l = lembrete(id); return abrirModal({ tipo: 'editar', id: l.id }); }
       case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!confirm(`Excluir o lembrete “${l.texto}”?`)) return; S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
@@ -1750,6 +1858,12 @@
           paginaAtual: d.paginaAtual ? +d.paginaAtual : i.paginaAtual, paginas: d.paginas ? +d.paginas : i.paginas });
         i.anotacoes = i.anotacoes || [];
         if (img !== undefined) { if (img) i.capa = img; else delete i.capa; }
+      } else if (alvo === 'tarefa') {
+        if (!d.titulo || !d.titulo.trim()) return toast('Escreva o que precisa ser feito.');
+        const et = d.etapa && ETAPAS[d.etapa] ? d.etapa : etapa(i);
+        Object.assign(i, { titulo: d.titulo.trim(), prazo: d.prazo || '', etapa: et, concluida: et === 'feito' });
+        if (d.destino !== undefined) { i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : []; if (novo) S.destinoPadrao.tarefa = d.destino; }
+        sincronizarPrazo(i, d.prazo ? !!d.avisar : false);
       } else if (alvo === 'gasto') {
         const v = parseFloat(String(d.valor).replace(',', '.'));
         if (!(v > 0)) return toast('Informe um valor maior que zero.');

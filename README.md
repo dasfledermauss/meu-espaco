@@ -40,7 +40,7 @@ meu-espaco/
 ├── data/                   currículo e links de exemplo
 └── docs/
     ├── ESCOPO.md  OUTRAS_FEATURES.md  DIRECAO_VISUAL_MVP.md
-    ├── BIBLIOTECA_E_WISHLIST.md  ESTUDOS.md  LOGIN.md
+    ├── BIBLIOTECA_E_WISHLIST.md  ESTUDOS.md  TAREFAS.md  LOGIN.md
     ├── SINCRONIZACAO.md  ATUALIZACOES.md  README-PROMPT.md
     └── historico/          capturas de cada versão, feitas antes de mudar
 ```
@@ -49,6 +49,7 @@ meu-espaco/
 
 - **Criar:** barra com a pergunta e os tipos (Nota, Link, Livro ou filme, Artigo, Desejo, Gasto, Lembrete). Cada tipo abre só o essencial; o resto entra por “+”. **Nada digitado se perde:** vira rascunho automático.
 - **Feed:** por dia, cada tipo com seu formato. Comentar e editar no próprio post. Busca global (Ctrl+K).
+- **Tarefas:** uma linha por tarefa, com prazo opcional. Três visões (por prazo, quadro e por coleção), risca no clique e resumo com progresso na lateral do Início. Ver `docs/TAREFAS.md`.
 - **Mural:** post-its quase quadrados, arrastáveis para reordenar, com cor e alfinete.
 - **Biblioteca:** livros e filmes com capa, situação, estrelas, **página atual com progresso** e **anotações** separadas da opinião, em prateleiras.
 - **Estudos:** pastas com capa e artigos; PDF abre em **janela dentro do site**, e o trecho selecionado vira anotação pelo botão direito.
