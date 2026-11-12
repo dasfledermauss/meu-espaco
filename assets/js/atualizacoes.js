@@ -10,6 +10,16 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '3.6',
+    data: '2026-11-12',
+    titulo: 'Listas',
+    itens: [
+      'A nota agora tem dois modos: Texto e Lista. Na Lista, cada linha vira um item para marcar, com a conta de quantos já foram.',
+      'Em Nova tarefa, colar várias linhas cria uma tarefa por linha, com o mesmo prazo e a mesma coleção.',
+      'Marcadores colados como “-”, “•”, “1.” e “[ ]” são removidos sozinhos.'
+    ]
+  },
+  {
     versao: '3.5',
     data: '2026-11-12',
     titulo: 'Tarefas',

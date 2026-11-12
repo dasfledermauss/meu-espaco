@@ -13,6 +13,8 @@ Uma tarefa é **uma linha só**: o que precisa ser feito. Sem subtarefas, sem de
 | Situação | não | A fazer, Fazendo ou Feito |
 | Coleção | não | a mesma lista de coleções do resto do sistema |
 
+**Colar uma lista.** No campo de *Nova tarefa*, texto com várias linhas vira **uma tarefa por linha** — o aviso embaixo do campo diz quantas vão sair. Prazo, situação e coleção escolhidos valem para todas. Marcadores de lista colados junto (`-`, `*`, `•`, `1.`, `[ ]`) são removidos.
+
 Tarefa é um tipo de post como os outros (`tipo: 'tarefa'`), então ela aparece no feed do Início, entra na busca (Ctrl+K), aceita comentário, favorito e “Mover para coleção”, e sincroniza entre aparelhos como tudo mais.
 
 ## Tarefa e lembrete
