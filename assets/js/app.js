@@ -5,6 +5,7 @@
 
   const CHAVE = 'meuEspaco.v1';
   const CHAVE_RASC = 'meuEspaco.rascunhos';
+  const CHAVE_NOVID = 'meuEspaco.novidades';
   const FOTO_PADRAO = 'assets/img/foto-perfil.jpg';
   const main = document.getElementById('conteudo');
   const navLateral = document.getElementById('nav-lateral');
@@ -521,6 +522,13 @@
           ${temRascunho(k) ? btn('descartar-rascunho', 'Descartar', `data-k="${esc(k)}"`, 'btn-f btn-perigo') : btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}${m.tipo === 'editar' ? 'Salvar' : 'Guardar'}</button></footer></form>`;
     }
+    if (m.tipo === 'novidades') {
+      return `<div class="modal modal-novidades"><header class="modal-cab">${ic('page-star')}
+          <h2>O que há de novo</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo">${novidadesHTML()}</div>
+        <footer class="modal-pe"><span class="espaco"></span>
+          <button class="btn-1" type="button" data-act="modal-fechar">${ic('check')}Entendi</button></footer></div>`;
+    }
     if (m.tipo === 'tipo') {
       return `<div class="modal"><header class="modal-cab"><h2>O que você quer guardar?</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
         <div class="modal-corpo"><div class="compositor">${TIPOS_CRIAR.map(([v, n, i]) => `<button type="button" class="tipo-chip" data-act="criar" data-t="${v}">${ic(i)}${n}${temRascunho('criar:' + v) ? ' ·' : ''}</button>`).join('')}</div></div></div>`;
@@ -565,7 +573,10 @@
     return '';
   }
   function abrirModal(m) { colherRascunhos(); UI.modal = m; render(); }
-  function fecharModal() { colherRascunhos(); UI.modal = null; render(); }
+  function fecharModal() {
+    if (UI.modal && UI.modal.tipo === 'novidades') marcarNovidadesVistas();
+    colherRascunhos(); UI.modal = null; render();
+  }
   function renderModal() {
     if (!UI.modal) { if (modal.open) modal.close(); modal.innerHTML = ''; return; }
     modal.innerHTML = conteudoModal(UI.modal);
@@ -573,6 +584,27 @@
     restaurarRascunhos();
     const campo1 = modal.querySelector('input:not([type=hidden]):not([type=radio]):not([type=file]), textarea');
     if (campo1 && !modal.contains(document.activeElement)) campo1.focus();
+  }
+
+  /* ---------------- novidades ----------------
+     A lista vem de assets/js/atualizacoes.js, da mais nova para a mais antiga.
+     O popup abre sozinho quando a versão do topo ainda não foi vista aqui. */
+  const listaNovidades = () => (Array.isArray(window.ATUALIZACOES) ? window.ATUALIZACOES : []);
+  const versaoNova = () => (listaNovidades()[0] || {}).versao || '';
+  const versaoVista = () => { try { return localStorage.getItem(CHAVE_NOVID) || ''; } catch (e) { return versaoNova(); } };
+  const temNovidade = () => !!versaoNova() && versaoVista() !== versaoNova();
+  function marcarNovidadesVistas() { try { localStorage.setItem(CHAVE_NOVID, versaoNova()); } catch (e) { /* ignora */ } }
+  function novidadesHTML() {
+    const vista = versaoVista();
+    const lista = listaNovidades();
+    const novas = lista.filter((a) => !vista || a.versao > vista);
+    const mostrar = novas.length ? novas : lista.slice(0, 1);
+    const antigas = lista.filter((a) => !mostrar.includes(a));
+    const bloco = (a, aberto) => `<section class="novid${aberto ? '' : ' novid-velha'}">
+      <h3>${esc(a.titulo)}<small>versão ${esc(a.versao)} · ${esc(fmtDiaCurto(a.data))}</small></h3>
+      <ul>${(a.itens || []).map((t) => `<li>${esc(t)}</li>`).join('')}</ul></section>`;
+    return mostrar.map((a) => bloco(a, true)).join('')
+      + (antigas.length ? `<details class="novid-antes"><summary>O que mudou antes</summary>${antigas.map((a) => bloco(a, false)).join('')}</details>` : '');
   }
 
   /* ---------------- posts ---------------- */
@@ -721,6 +753,7 @@
         <a href="#/perfil">${ic('user')}<span>Editar perfil e humor</span></a>
         <a href="#/curriculo">${ic('suitcase')}<span>Meu currículo</span></a>
         <a href="#/config">${ic('settings')}<span>Configurações e backup</span></a>
+        <button type="button" data-act="novidades">${ic('page-star')}<span>O que há de novo</span>${temNovidade() ? '<em class="novid-selo">novo</em>' : ''}</button>
         <div class="menu-modo"><span>${ic(modoAtual() === 'escuro' ? 'half-moon' : 'sun-light')}Aparência</span>
           <span class="segmento pequeno" role="group" aria-label="Aparência">
             ${[['claro', 'Claro'], ['escuro', 'Escuro'], ['sistema', 'Sistema']].map(([v, n]) =>
@@ -1428,6 +1461,7 @@
       case 'criar': return abrirModal({ tipo: 'criar', t: b.dataset.t });
       case 'trocar-tipo': return abrirModal({ tipo: 'tipo' });
       case 'modal-fechar': e.preventDefault(); return fecharModal();
+      case 'novidades': e.preventDefault(); return abrirModal({ tipo: 'novidades' });
       case 'descartar-rascunho': {
         if (!confirm('Descartar o que você digitou?')) return;
         limparRascunho(b.dataset.k); UI.pularColheita = true; UI.modal = null; return render();
@@ -2123,6 +2157,7 @@
   (async function iniciar() {
     S = carregar(CHAVE);
     RASC = carregar(CHAVE_RASC) || {};
+    const novo = !S;
     if (!S) { S = await criarInicial(); salvar(); } else migrar(S);
     S.itens.forEach((i) => { if (i.capturaStatus === 'capturando') i.capturaStatus = 'pendente'; });
     if (location.protocol !== 'file:') {
@@ -2146,6 +2181,8 @@
     }
     if (UI.sessao.modo === 'deslogado') { renderEntrada(); return; }
     render();
+    // Espaço recém-criado já começa em dia: o popup é para quem volta e encontra o sistema mudado.
+    if (temNovidade()) { if (novo) marcarNovidadesVistas(); else abrirModal({ tipo: 'novidades' }); }
     if (temNuvem) {
       if (doFirebase) await ligarNuvem();
       else if (UI.nuvem.estado !== 'erro') { UI.nuvem.estado = 'desligada'; pintarNuvem(); }
