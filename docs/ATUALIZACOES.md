@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 3.5 — 12/11/2026 · Tarefas
+
+- Nova área Tarefas, com uma linha por tarefa e o círculo que risca na hora.
+- Três visões da mesma lista: por prazo, em quadro (A fazer, Fazendo, Feito) e por coleção.
+- Tarefa com prazo cria um lembrete ligado a ela — concluir um risca o outro.
+- Resumo de tarefas no topo da coluna direita do Início, com o progresso do dia.
+
 ## 3.4 — 12/11/2026 · Preços conferidos sozinhos
 
 - Ao abrir a Wishlist, produtos ainda não comprados lidos há mais de 12 horas são conferidos de novo em segundo plano.

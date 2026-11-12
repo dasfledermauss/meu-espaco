@@ -434,6 +434,38 @@ dialog::backdrop { background: rgba(21, 25, 36, .45); backdrop-filter: blur(2px)
 .faixa-lembrete > div { flex: 1 1 240px; }
 .faixa-lembrete strong { font-weight: 600; }
 
+/* ---------- tarefas ---------- */
+.tarefa-linha { display: flex; align-items: flex-start; gap: 12px; }
+.tar-marca { background: none; border: 0; padding: 0; cursor: pointer; color: var(--tinta-3); display: flex; line-height: 0; margin-top: 1px; transition: color .18s ease-out; }
+.tar-marca:hover { color: var(--marca); }
+.tar-marca .ico { width: 22px; height: 22px; }
+.tar-marca[aria-pressed="true"] { color: var(--ok); }
+.tar-corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.tar-tit { font-size: 15.5px; font-weight: 500; color: var(--tinta); letter-spacing: -.01em; }
+.tar-tit:hover { text-decoration: underline; }
+.tarefa-linha.feita .tar-tit { text-decoration: line-through; color: var(--tinta-3); font-weight: 400; }
+.tar-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tar-meta:empty { display: none; }
+.tar-prazo, .tar-etapa, .tar-col { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--tinta-2); background: var(--campo); border-radius: 999px; padding: 3px 10px; }
+.tar-prazo .ico, .tar-etapa .ico { width: 13px; height: 13px; }
+.tar-prazo.atrasada { background: var(--alerta-leve); color: #8a6100; }
+.tar-etapa { background: var(--marca-leve); color: var(--marca); }
+.tar-grupo { margin-bottom: 26px; max-width: 760px; }
+.tar-grupo > h2 { font-size: 13px; font-weight: 600; color: var(--tinta-2); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.tar-grupo.alerta > h2 { color: #8a6100; }
+.tar-item { background: var(--cartao); border-radius: 16px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.tar-item > .tarefa-linha { flex: 1; min-width: 0; }
+.tar-acoes { display: flex; align-items: center; gap: 2px; }
+.tar-cartao { background: var(--cartao); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.tar-cartao .pe { display: flex; align-items: center; gap: 3px; }
+.tar-cartao .pe .espaco { flex: 1; }
+.tar-feitas { max-width: 760px; }
+.tar-feitas > summary { cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.tar-lista-feitas { margin-top: 14px; }
+.barra-filtros { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+.barra-filtros .meta { margin-left: auto; }
+.quadro.tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
 /* ---------- gastos ---------- */
 .total-grande { font-size: 36px; font-weight: 600; letter-spacing: -.03em; }
 .barras { display: flex; flex-direction: column; gap: 10px; }
