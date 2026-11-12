@@ -13,6 +13,8 @@
   const layout = document.getElementById('layout');
   const topoPerfil = document.getElementById('topo-perfil');
   const topoMusica = document.getElementById('topo-musica');
+  const caixaTrabalho = document.getElementById('trabalho');
+  const caixaAtalho = document.getElementById('atalho-add');
   const buscaTopo = document.getElementById('busca-topo');
   const modal = document.getElementById('modal');
 
@@ -771,6 +773,52 @@
   }
 
   /** O player fica fora do main para não recomeçar a cada tela. */
+  /* ---------------- modo trabalho ----------------
+     Um quadro de tarefas por cima de tudo, para quando o assunto é só executar.
+     Abre e fecha com Shift+Espaço; a música continua visível à direita. */
+  function alternarTrabalho(ligado) {
+    UI.modoTrabalho = ligado === undefined ? !UI.modoTrabalho : ligado;
+    document.body.classList.toggle('em-trabalho', !!UI.modoTrabalho);
+    UI.pularColheita = true; render();
+  }
+  function renderTrabalho() {
+    if (!caixaTrabalho) return;
+    if (!UI.modoTrabalho) { caixaTrabalho.hidden = true; caixaTrabalho.innerHTML = ''; return; }
+    caixaTrabalho.hidden = false;
+    const todas = tarefas();
+    const abertas = todas.filter((i) => !i.concluida);
+    const feitas = todas.filter((i) => i.concluida).sort((a, b) => (b.editadoEm || b.criadoEm).localeCompare(a.editadoEm || a.criadoEm));
+    const colunas = Object.entries(ETAPAS).map(([v, n]) => {
+      const lista = v === 'feito' ? feitas.slice(0, 12) : abertas.filter((i) => etapa(i) === v);
+      return `<section class="quadro-col"><h2>${n}<em class="pino">${v === 'feito' ? feitas.length : lista.length}</em></h2>
+        ${lista.map((i) => `<article class="tar-cartao">${linhaTarefa(i)}
+          <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
+            ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
+            ${v !== 'feito' ? btnIco('tar-para', 'check-circle', 'Mover para Feito', `data-id="${i.id}" data-v="feito"`) : ''}
+            <span class="espaco"></span>${menuTarefa(i)}</div></article>`).join('') || '<p class="nada" style="padding:0 6px">—</p>'}</section>`;
+    }).join('');
+    caixaTrabalho.innerHTML = `<div class="trab-interno">
+      <header class="trab-cab"><h1>${ic('list')}Modo trabalho</h1>
+        <p class="meta">${abertas.length} em aberto${feitas.length ? ' · ' + feitas.length + ' feita' + (feitas.length > 1 ? 's' : '') : ''}</p>
+        <span class="espaco"></span>
+        ${btn('criar', ic('plus') + 'Nova tarefa', 'data-t="tarefa"', 'btn-1')}
+        <button type="button" class="disco ${UI.tocando ? 'girando' : ''}" data-act="abrir-musica" title="Músicas" aria-label="Músicas"><span></span></button>
+        ${btnIco('trabalho-sair', 'xmark', 'Sair do modo trabalho (Shift + Espaço)')}</header>
+      <div class="quadro tres">${colunas}</div>
+      <p class="trab-dica">${ic('priority-high')}Shift + Espaço fecha e abre este modo.</p></div>`;
+  }
+
+  /* ---------------- atalho de adicionar ----------------
+     Um botão no canto de baixo à esquerda que abre ao passar o mouse. */
+  function renderAtalho() {
+    if (!caixaAtalho) return;
+    if (UI.sessao.modo === 'deslogado') { caixaAtalho.innerHTML = ''; return; }
+    caixaAtalho.innerHTML = `<div class="atalho ${UI.atalhoAberto ? 'aberto' : ''}">
+      <div class="atalho-tipos">${TIPOS_CRIAR.map(([v, n, i]) => `<button type="button" data-act="criar" data-t="${v}">
+        ${ic(i)}<span>${n}</span>${temRascunho('criar:' + v) ? '<em class="ponto-rasc" title="rascunho guardado"></em>' : ''}</button>`).join('')}</div>
+      <button type="button" class="atalho-botao" data-act="atalho" aria-expanded="${!!UI.atalhoAberto}" aria-label="Guardar algo">${ic('plus')}</button></div>`;
+  }
+
   /* ---------------- mini app de música ----------------
      Um painel no canto: lista, controles e o vídeo. O iframe é criado uma vez
      por faixa e nunca é redesenhado junto com o resto, senão a música reinicia. */
@@ -1125,7 +1173,8 @@
     if (!topoMusica) return;
     const i = UI.tocando && item(UI.tocando);
     const rotulo = i ? 'Tocando: ' + tituloItem(i) : 'Músicas';
-    topoMusica.innerHTML = `<button type="button" class="disco ${i ? 'girando' : ''}" data-act="abrir-musica" title="${esc(rotulo)}" aria-label="${esc(rotulo)}"><span></span></button>`;
+    topoMusica.innerHTML = `<button type="button" class="ico-btn btn-trabalho ${UI.modoTrabalho ? 'ativo' : ''}" data-act="trabalho" title="Modo trabalho (Shift + Espaço)" aria-label="Modo trabalho">${ic('list')}</button>`
+      + `<button type="button" class="disco ${i ? 'girando' : ''}" data-act="abrir-musica" title="${esc(rotulo)}" aria-label="${esc(rotulo)}"><span></span></button>`;
   }
   function renderTopo() {
     const p = S.perfil, h = p.humores[hoje()] || {};
@@ -1973,7 +2022,7 @@
     if (rota === 'item') renderFicha(id); else ROTAS[rota]();
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
-    renderModal(); renderJanelas(); renderMiniApp();
+    renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho();
     { const ms = document.getElementById('menu-selecao'); if (ms && !String(getSelection() || '').trim()) ms.hidden = true; }
     if (buscaTopo.value !== UI.busca && document.activeElement !== buscaTopo) buscaTopo.value = UI.busca;
     if (focar) main.focus({ preventScroll: true });
@@ -2021,6 +2070,9 @@
       case 'criar': return abrirModal({ tipo: 'criar', t: b.dataset.t });
       case 'trocar-tipo': return abrirModal({ tipo: 'tipo' });
       case 'modal-fechar': e.preventDefault(); return fecharModal();
+      case 'trabalho': e.preventDefault(); return alternarTrabalho();
+      case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
+      case 'atalho': e.preventDefault(); UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
       case 'novidades': e.preventDefault(); UI.novidPagina = undefined; return abrirModal({ tipo: 'novidades' });
       case 'novid-ir': e.preventDefault(); UI.novidPagina = +b.dataset.n; UI.pularColheita = true; return render();
       case 'tarefa-ver': e.preventDefault(); return abrirModal({ tipo: 'tarefa-ver', id: b.dataset.id });
@@ -2556,6 +2608,13 @@
     };
     r.readAsText(f);
   }
+
+  // Shift + Espaço abre e fecha o modo trabalho (fora de campos de texto).
+  document.addEventListener('keydown', (e) => {
+    const escrevendo = e.target.closest && e.target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]');
+    if (e.shiftKey && (e.code === 'Space' || e.key === ' ') && !escrevendo && !UI.modal) { e.preventDefault(); return alternarTrabalho(); }
+    if (e.key === 'Escape' && UI.modoTrabalho && !UI.modal) { e.preventDefault(); return alternarTrabalho(false); }
+  });
 
   // Enter e espaço valem como clique no que é botão por papel (o post-it, por exemplo).
   document.addEventListener('keydown', (e) => {

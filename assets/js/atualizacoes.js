@@ -10,6 +10,16 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '4.0',
+    data: '2026-11-12',
+    titulo: 'Modo trabalho',
+    itens: [
+      'Shift + Espaço abre um quadro de tarefas por cima de tudo, para quando o assunto é só executar. Esc fecha.',
+      'A música fica à mão dentro dele, no canto direito, e continua tocando.',
+      'Novo atalho redondo no canto de baixo à esquerda: passe o mouse e escolha o que guardar.'
+    ]
+  },
+  {
     versao: '3.9',
     data: '2026-11-12',
     titulo: 'Perfil, conta e acertos de leitura',
