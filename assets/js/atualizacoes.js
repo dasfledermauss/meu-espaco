@@ -17,7 +17,8 @@ window.ATUALIZACOES = [
       'Nova área Tarefas, com uma linha por tarefa e o círculo que risca na hora.',
       'Três visões da mesma lista: por prazo, em quadro (A fazer, Fazendo, Feito) e por coleção.',
       'Tarefa com prazo cria um lembrete ligado a ela — concluir um risca o outro.',
-      'Resumo de tarefas no topo da coluna direita do Início, com o progresso do dia.'
+      'Resumo de tarefas no topo da coluna direita do Início, com o progresso do dia.',
+      'As janelas não fecham mais ao clicar fora: só pelo X ou pela tecla Esc.'
     ]
   },
   {
