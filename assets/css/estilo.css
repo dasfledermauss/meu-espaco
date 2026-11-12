@@ -225,6 +225,19 @@ dialog::backdrop { background: rgba(21, 25, 36, .45); backdrop-filter: blur(2px)
 .rascunho-aviso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--tinta-2); background: var(--campo); border-radius: 999px; padding: 6px 12px; }
 .rascunho-aviso .ico { color: var(--ok); width: 15px; height: 15px; }
 
+/* novidades */
+.modal-novidades { width: min(520px, calc(100vw - 32px)); }
+.novid { padding: 14px 0; border-top: 1px solid var(--linha); }
+.novid:first-child { border-top: 0; padding-top: 4px; }
+.novid h3 { font-size: 15.5px; font-weight: 600; letter-spacing: -.01em; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.novid h3 small { font-size: 12px; font-weight: 400; color: var(--tinta-3); }
+.novid ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+.novid li { font-size: 14px; line-height: 1.5; color: var(--tinta-2); }
+.novid-antes { margin-top: 6px; border-top: 1px solid var(--linha); padding-top: 10px; }
+.novid-antes summary { font-size: 13px; color: var(--tinta-3); cursor: pointer; padding: 4px 0; }
+.novid-antes .novid-velha h3 { font-size: 14px; font-weight: 500; }
+.novid-selo { font-style: normal; font-size: 11px; font-weight: 600; color: var(--marca); background: var(--marca-leve); border-radius: 999px; padding: 2px 8px; margin-left: auto; }
+
 /* ---------- compositor ---------- */
 .compositor { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 10px; }
 .compositor h2 { font-size: 17px; font-weight: 600; letter-spacing: -.02em; flex-basis: 100%; }

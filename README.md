@@ -33,6 +33,7 @@ meu-espaco/
 │   ├── js/config.js        ID do cliente Google e projeto Firebase (públicos)
 │   ├── js/nuvem.js         sincronização com o Firestore
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)
+│   ├── js/atualizacoes.js  lista do popup "O que há de novo"
 │   ├── fonts/              Lexend
 │   ├── vendor/             pdf.js (leitor de PDF)
 │   └── img/foto-perfil.jpg
@@ -40,7 +41,7 @@ meu-espaco/
 └── docs/
     ├── ESCOPO.md  OUTRAS_FEATURES.md  DIRECAO_VISUAL_MVP.md
     ├── BIBLIOTECA_E_WISHLIST.md  ESTUDOS.md  LOGIN.md
-    ├── SINCRONIZACAO.md  README-PROMPT.md
+    ├── SINCRONIZACAO.md  ATUALIZACOES.md  README-PROMPT.md
     └── historico/          capturas de cada versão, feitas antes de mudar
 ```
 
@@ -57,10 +58,12 @@ meu-espaco/
 - **Gastos, Currículo, Perfil e Configurações.**
 - **Modo claro, escuro ou automático**, no menu da foto de perfil.
 - **Começa vazio:** espaço novo abre com "Meu Nome", ícone de perfil padrão e nenhum registro.
+- **O que há de novo:** popup com as últimas mudanças, aberto sozinho quando o sistema muda e disponível a qualquer hora no menu da foto de perfil.
 - **Login com conta Google** no servidor local e no site publicado, com lista de e-mails liberados. Abrindo o `index.html` direto, entra sem login. Detalhes e configuração em `docs/LOGIN.md`.
 - **Sincronização entre aparelhos** pelo Firestore: o que você guarda no computador aparece no celular. O navegador continua salvando na hora, mesmo sem internet. Ver `docs/SINCRONIZACAO.md`.
 
 ## Regras do projeto
 
 - Toda mudança de produto é registrada nos arquivos de `docs/`.
+- **Toda mudança entra em `docs/ATUALIZACOES.md` e em `assets/js/atualizacoes.js`**, no mesmo texto, com uma versão nova no topo. É o que alimenta o popup "O que há de novo".
 - Antes de mudar o visual, capturar Início e Coleções em `docs/historico/` (ver o README de lá).
