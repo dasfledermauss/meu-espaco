@@ -140,6 +140,55 @@ def primeiro(v):
     return v
 
 
+ROBO = ("validateCaptcha", "Digite os caracteres", "Enter the characters you see",
+        "To discuss automated access", "Sorry, we just need to make sure you")
+
+
+def bloqueado(pagina):
+    return any(m in pagina for m in ROBO) and len(pagina) < 200000
+
+
+def amazon(pagina, r):
+    """A Amazon não publica dados estruturados de produto; é preciso ler a própria página."""
+    if not r["nome"]:
+        m = re.search(r'id="productTitle"[^>]*>(.*?)<', pagina, flags=re.S)
+        if m:
+            r["nome"] = m.group(1)
+    if not r["imagem"]:
+        m = re.search(r'id="landingImage"[^>]*data-old-hires="([^"]+)"', pagina)
+        if not m:
+            d = re.search(r"data-a-dynamic-image=\"({[^\"]+})\"", pagina)
+            if d:
+                try:
+                    r["imagem"] = next(iter(json.loads(html.unescape(d.group(1)))), None)
+                except ValueError:
+                    pass
+        else:
+            r["imagem"] = m.group(1)
+        if not r["imagem"]:
+            m = re.search(r'id="landingImage"[^>]*\ssrc="([^"]+)"', pagina)
+            if m:
+                r["imagem"] = m.group(1)
+    if r["preco"] is None:
+        for padrao in (r'id="corePrice[^"]*"[\s\S]{0,800}?class="a-offscreen">\s*([^<]+)<',
+                       r'class="a-price[^"]*"[^>]*>\s*<span class="a-offscreen">\s*([^<]+)<',
+                       r'id="priceblock_[^"]*"[^>]*>\s*([^<]+)<'):
+            m = re.search(padrao, pagina)
+            if m:
+                r["preco"] = numero(m.group(1))
+                break
+    if r["estrelas"] is None:
+        m = re.search(r'([\d.,]+)\s*(?:de|out of)\s*5\s*(?:estrelas|stars)', pagina)
+        if m:
+            v = numero(m.group(1))
+            r["estrelas"] = round(v, 1) if v is not None and v <= 5 else None
+    if r["avaliacoes"] is None:
+        m = re.search(r'id="acrCustomerReviewText"[^>]*>\s*([\d.,]+)', pagina)
+        if m:
+            q = numero(m.group(1))
+            r["avaliacoes"] = int(q) if q else None
+
+
 def extrair(pagina, url):
     m = metas(pagina)
     r = {"nome": None, "descricao": None, "imagem": None, "favicon": None, "preco": None, "moeda": None,
@@ -171,6 +220,8 @@ def extrair(pagina, url):
             qtd = numero(nota.get("reviewCount") or nota.get("ratingCount"))
             r["avaliacoes"] = int(qtd) if qtd else None
 
+    if "amazon." in (urlparse(url).hostname or "") or 'id="productTitle"' in pagina:
+        amazon(pagina, r)
     r["nome"] = r["nome"] or m.get("og:title") or m.get("twitter:title")
     if not r["nome"]:
         t = re.search(r"<title[^>]*>(.*?)</title>", pagina, flags=re.S | re.I)
@@ -333,6 +384,8 @@ class Manipulador(SimpleHTTPRequestHandler):
                 return self.responder(400, {"erro": "endereço inválido"})
             try:
                 pagina, final = baixar(url)
+                if bloqueado(pagina):
+                    return self.responder(502, {"erro": "a loja bloqueou a leitura automática desta página"})
                 return self.responder(200, extrair(pagina, final))
             except Exception as e:  # rede, bloqueio da loja, página fora do ar
                 motivo = getattr(e, "code", None) or getattr(e, "reason", None) or e.__class__.__name__
