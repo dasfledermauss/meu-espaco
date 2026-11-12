@@ -1788,8 +1788,8 @@
     }
   });
   document.getElementById('form-busca').addEventListener('submit', (e) => e.preventDefault());
+  // Esc fecha; clicar fora, não — para não perder o que está sendo escrito.
   modal.addEventListener('cancel', (e) => { e.preventDefault(); fecharModal(); });
-  modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(); });
 
   /* ---------------- envio de formulários ---------------- */
   document.addEventListener('submit', (e) => {

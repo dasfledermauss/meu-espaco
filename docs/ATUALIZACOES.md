@@ -14,6 +14,7 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 - Três visões da mesma lista: por prazo, em quadro (A fazer, Fazendo, Feito) e por coleção.
 - Tarefa com prazo cria um lembrete ligado a ela — concluir um risca o outro.
 - Resumo de tarefas no topo da coluna direita do Início, com o progresso do dia.
+- As janelas não fecham mais ao clicar fora: só pelo X ou pela tecla Esc.
 
 ## 3.4 — 12/11/2026 · Preços conferidos sozinhos
 
