@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.5 — 13/11/2026 · Notas soltas na coleção
+
+- Na tela de uma coleção, cada nota agora é um post-it próprio, do mesmo tamanho do Mural, em vez de ficar agrupada num cartão “Notas” com tamanhos estranhos. Clicar abre a edição.
+- As colunas da coleção ficaram mais estreitas (mais blocos por linha).
+
 ## 4.4 — 13/11/2026 · Seu emoji do dia
 
 - No menu da foto, o humor do dia mostra os 4 últimos emojis que você usou, para repetir com um toque.
