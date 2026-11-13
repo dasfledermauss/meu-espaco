@@ -365,8 +365,6 @@ button.mini-item:hover { background: var(--hover-2); }
 .bloco-dir .pegar { position: absolute; top: 14px; right: 14px; opacity: 0; color: var(--tinta-3); cursor: grab; transition: opacity .18s ease-out; }
 .bloco-dir:hover .pegar { opacity: .7; }
 .bloco-dir .pegar .ico { width: 15px; height: 15px; }
-.bloco-dir.arrastando { opacity: .45; }
-.bloco-dir.alvo-solta > .cartao { outline: 2px dashed var(--marca); outline-offset: 3px; }
 
 /* modal de uma tarefa */
 .modal-tarefa { width: min(480px, calc(100vw - 32px)); }
@@ -505,8 +503,6 @@ button.mini-item:hover { background: var(--hover-2); }
 @media (max-width: 900px) { .bento-bloco.largo, .bento-bloco.alto { grid-column: auto; grid-row: auto; } }
 
 /* arrastar as áreas do menu */
-.nav-areas a.arrastando { opacity: .45; }
-.nav-areas a.alvo-solta { outline: 2px dashed var(--marca); outline-offset: -2px; }
 
 /* ---------- músicas ---------- */
 .grade-musicas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
@@ -568,7 +564,7 @@ body.em-trabalho { overflow: hidden; }
 
 /* ---------- atalho de adicionar ---------- */
 #atalho-add { position: fixed; left: 20px; bottom: 20px; z-index: 65; }
-.atalho { display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 10px; }
+.atalho { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .atalho-botao { width: 52px; height: 52px; border-radius: 50%; border: 0; background: var(--marca); color: var(--marca-texto); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s ease-out, background .2s ease-out; }
 .atalho-botao:hover { background: var(--marca-escura); }
 .atalho-botao .ico { width: 24px; height: 24px; }
@@ -605,8 +601,6 @@ body.em-trabalho { overflow: hidden; }
 .ma-faixa:hover { background: var(--hover-2); }
 .ma-faixa.tocando { background: var(--marca-leve); }
 .ma-faixa.tocando .ma-nome { color: var(--marca); font-weight: 600; }
-.ma-faixa.arrastando { opacity: .45; }
-.ma-faixa.alvo-solta { outline: 2px dashed var(--marca); outline-offset: -2px; }
 .ma-tocar { background: none; border: 0; padding: 4px; cursor: pointer; color: var(--tinta-3); display: flex; line-height: 0; }
 .ma-tocar:hover { background: none; color: var(--marca); }
 .ma-tocar .ico { width: 15px; height: 15px; }
@@ -999,6 +993,26 @@ kbd { font: inherit; font-size: 12.5px; font-weight: 500; padding: 4px 9px; bord
 html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
 @media (display-mode: standalone) { body { overscroll-behavior-y: none; } }
 
+.ma-faixas { max-height: 260px; overflow-y: auto; }
+.musica-dados .ma-faixas { margin: 10px 0 0; }
+.musica-dados .ma-sub-faixa { padding: 7px 8px; }
+.ma-de-novo { background: none; border: 0; padding: 0; margin-left: 6px; font: inherit; color: var(--marca); font-weight: 600; cursor: pointer; }
+/* Reordenar arrastando: o item segue o ponteiro; no lugar dele fica uma vaga clara e os outros abrem espaço. */
+[data-ordena] { cursor: grab; -webkit-user-drag: none; -webkit-touch-callout: none; }
+.vaga { opacity: .22; }
+.fantasma { position: fixed !important; left: 0; top: 0; z-index: 300; margin: 0 !important; pointer-events: none; cursor: grabbing; opacity: 1 !important; transition: none; will-change: transform;
+  box-shadow: 0 20px 44px rgba(20, 28, 50, .24), 0 4px 12px rgba(20, 28, 50, .14); }
+body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-select: none !important; -webkit-user-select: none !important; }
+.atalho-tipos button { justify-content: flex-start; }
+.modal-ver { width: min(520px, calc(100vw - 32px)); }
+.modal-ver .modal-corpo { display: flex; flex-direction: column; gap: 12px; }
+.modal-ver .postit.lido { cursor: default; padding: 20px 22px; border-radius: 18px; }
+.modal-ver .postit.lido p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15.5px; line-height: 1.55; }
+.ver-capa { width: 100%; max-height: 240px; object-fit: cover; border-radius: 14px; }
+.ver-linha { display: flex; gap: 16px; align-items: flex-start; }
+.ver-linha > :last-child { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.ver-texto { font-size: 14.5px; line-height: 1.55; color: var(--tinta-2); white-space: pre-wrap; overflow-wrap: anywhere; }
+.ver-valor { font-size: 28px; font-weight: 600; }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

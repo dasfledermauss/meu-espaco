@@ -27,9 +27,9 @@ O disco ao lado da foto de perfil abre um painel no canto inferior direito, por 
 | Botões | **+ Música** (guarda uma nova) e **Grupo** (cria um grupo) |
 | Lista | tudo do grupo escolhido, com tocar, mover para grupo, editar, abrir no YouTube e excluir |
 
-**Ordem e grupos.** Arraste uma faixa sobre a outra para reordenar; a ordem fica guardada. Um grupo é uma lista sua (“Para trabalhar”, “Domingo”), independente das coleções do resto do sistema — uma música fica em um grupo só, e o seletor filtra por ele.
+**Ordem e grupos.** Segure e arraste uma faixa: ela segue o ponteiro e as outras abrem espaço; a ordem fica guardada. Um grupo é uma lista sua (“Para trabalhar”, “Domingo”), independente das coleções do resto do sistema — uma música fica em um grupo só, e o seletor filtra por ele.
 
-**Playlist do YouTube.** O cartão de uma playlist toca com um toque, como antes. A setinha ao lado dele abre **os vídeos da lista**, lidos pelo servidor direto da página da playlist, e tocar um deles continua dentro da lista. Os vídeos ficam guardados no item, então na segunda vez abrem na hora.
+**Playlist do YouTube.** O cartão de uma playlist toca com um toque, como antes. A setinha ao lado dele (no mini app) ou o botão de lista (na tela Músicas) abre **os vídeos da lista**, lidos pelo servidor direto da página da playlist (com o feed público do YouTube como reserva; se falhar, aparece “Tentar de novo”), e tocar um deles continua dentro da lista. Os vídeos ficam guardados no item, então na segunda vez abrem na hora.
 
 **Modo MP3.** A barra fica na **cor do tema**, com capa quadrada e o nome passando devagar. Numa playlist, o nome que passa é o **do vídeo que está tocando**, não o do cartão: o player do YouTube avisa a cada troca de faixa. Clicar na capa ou num espaço vazio da barra volta para o painel inteiro.
 
