@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.3 — 13/11/2026 · Marcar como lido ou assistido
+
+- Na Biblioteca, cada livro e filme ganhou um botão para marcar como lido ou assistido (e desmarcar), direto na capa.
+- Também dá para excluir pela capa ou pela página do item, com confirmação antes.
+
 ## 5.2 — 13/11/2026 · Ajustes nas vasilhas e no banho
 
 - As vasilhas de comida e de água esvaziam a cada 5 minutos; encher agora mostra a ração e a água caindo, e o nível desce enquanto ele come.

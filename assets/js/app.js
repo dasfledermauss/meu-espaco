@@ -763,7 +763,8 @@
       else if (i.tipo === 'midia') corpo = `<div class="ver-linha">${capaHTML(i)}<div>
         <p class="meta">${[i.autor, i.ano].filter(Boolean).map(esc).join(' · ')}</p>${estrelasHTML(i.estrelas)}
         <p class="tags"><span class="tag">${esc(STATUS[i.formato][i.status])}</span>${(i.generos || []).map((g) => `<span class="tag">${esc(g)}</span>`).join('')}</p>
-        ${p !== null ? `<p class="progresso"><span class="barra"><i style="width:${p}%"></i></span> ${unidade(i)} ${i.paginaAtual} de ${i.paginas} · ${p}%</p>` : ''}</div></div>
+        ${p !== null ? `<p class="progresso"><span class="barra"><i style="width:${p}%"></i></span> ${unidade(i)} ${i.paginaAtual} de ${i.paginas} · ${p}%</p>` : ''}
+        <div class="acoes-form">${btn('midia-concluir', ic('check-circle') + (i.status === 'concluido' ? 'Desmarcar como ' : 'Marcar como ') + (i.formato === 'filme' ? 'assistido' : 'lido'), `data-id="${i.id}"`, i.status === 'concluido' ? 'btn-2 btn-p' : 'btn-1 btn-p')}</div></div></div>
         ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}${(i.anotacoes || []).length ? `<p class="meta">${i.anotacoes.length} anotação${i.anotacoes.length > 1 ? 'es' : ''}</p>` : ''}`;
       else if (i.tipo === 'desejo') corpo = `<div class="ver-linha">${fotoProduto(i)}<div><p class="fonte">${ic('shop')}${esc(i.loja || dominio(i.url))}</p><p>${precoHTML(i)}</p>${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ')' : '')}${i.comprado ? '<p class="tag">Comprado</p>' : ''}</div></div>
         ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}`;
@@ -778,7 +779,7 @@
           <dl class="ficha-dados"><div><dt>Tipo</dt><dd>${esc(TIPOS[i.tipo][0])}</dd></div>
             ${col ? `<div><dt>Coleção</dt><dd>${col}</dd></div>` : ''}
             <div><dt>Guardado em</dt><dd>${fmtDiaCurto(dataLocal(i.criadoEm))}</dd></div></dl></div>
-        <footer class="modal-pe">${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-f')}
+        <footer class="modal-pe">${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-f')}${btn('excluir-item', ic('trash') + 'Excluir', `data-id="${i.id}"`, 'btn-f')}
           <span class="espaco"></span>${pagina ? `<a class="btn btn-f" href="#/item/${i.id}" data-act="modal-fechar">${ic('open-new-window')}Abrir página</a>` : ''}
           ${btn('modal-fechar', 'Fechar', '', 'btn-1')}</footer></div>`;
     }
@@ -1956,10 +1957,11 @@
     else if (UI.bibAgrupar === 'estrelas') { [5, 4, 3, 2, 1].forEach((n) => { const l = ms.filter((i) => Math.round(i.estrelas || 0) === n); if (l.length) grupos.push([n + ' estrela' + (n > 1 ? 's' : ''), l]); }); const s = ms.filter((i) => !i.estrelas); if (s.length) grupos.push(['Sem nota', s]); }
     else [...new Set(ms.flatMap((i) => (i.generos && i.generos.length) ? i.generos : ['Sem gênero']))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
       .forEach((g) => grupos.push([g, ms.filter((i) => ((i.generos && i.generos.length) ? i.generos : ['Sem gênero']).includes(g))]));
-    const volume = (i) => { const p = progresso(i); return `<a class="volume" href="#/item/${i.id}">${capaHTML(i)}
+    const volume = (i) => { const p = progresso(i), ok = i.status === 'concluido', verbo = i.formato === 'filme' ? 'assistido' : 'lido'; return `<div class="volume-caixa"><a class="volume" href="#/item/${i.id}">${capaHTML(i)}
       <strong>${esc(i.titulo)}</strong>${estrelasHTML(i.estrelas)}
       <span class="meta">${esc(STATUS[i.formato][i.status])}${p !== null ? ' · ' + p + '%' : ''}</span>
-      ${p !== null ? `<span class="barra"><i style="width:${p}%"></i></span>` : ''}</a>`; };
+      ${p !== null ? `<span class="barra"><i style="width:${p}%"></i></span>` : ''}</a>
+      <span class="volume-acoes"><button type="button" class="ico-btn" data-act="midia-concluir" data-id="${i.id}" aria-pressed="${ok}" aria-label="${ok ? 'Desmarcar como ' + verbo : 'Marcar como ' + verbo}" title="${ok ? 'Desmarcar como ' + verbo : 'Marcar como ' + verbo}">${icAtivo('check-circle', ok)}</button><button type="button" class="ico-btn" data-act="excluir-item" data-id="${i.id}" aria-label="Excluir" title="Excluir">${ic('trash')}</button></span></div>`; };
     const seg = (act, atual, ops) => `<span class="segmento" role="group">${ops.map(([v, n]) => `<button type="button" data-act="${act}" data-v="${v}" aria-pressed="${atual === v}">${n}</button>`).join('')}</span>`;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('book-stack')}Biblioteca</h1>
         <div class="ferramentas">${btn('criar', ic('plus') + 'Adicionar', 'data-t="midia"', 'btn-1')}</div></header>
@@ -2364,7 +2366,7 @@
         ${estrelasHTML(i.estrelas) || '<p class="meta">Sem nota</p>'}
         <p class="tags"><span class="tag on">${esc(STATUS[i.formato][i.status])}</span>${(i.generos || []).map((g) => `<span class="tag">${esc(g)}</span>`).join('')}</p>
         ${p !== null ? `<p class="progresso"><span class="barra"><i style="width:${p}%"></i></span> ${unidade(i)} ${i.paginaAtual} de ${i.paginas} · ${p}%</p>` : ''}
-        <div class="acoes-form">${btn('progresso', ic('bookmark') + 'Onde parei', `data-id="${i.id}"`, 'btn-2 btn-p')}${btn('anotar', ic('page-edit') + 'Anotar', `data-id="${i.id}"`, 'btn-2 btn-p')}</div>
+        <div class="acoes-form">${btn('midia-concluir', ic('check-circle') + (i.status === 'concluido' ? 'Desmarcar como ' : 'Marcar como ') + (i.formato === 'filme' ? 'assistido' : 'lido'), `data-id="${i.id}"`, i.status === 'concluido' ? 'btn-2 btn-p' : 'btn-1 btn-p')}${btn('progresso', ic('bookmark') + 'Onde parei', `data-id="${i.id}"`, 'btn-2 btn-p')}${btn('anotar', ic('page-edit') + 'Anotar', `data-id="${i.id}"`, 'btn-2 btn-p')}${btn('excluir-item', ic('trash') + 'Excluir', `data-id="${i.id}"`, 'btn-2 btn-p')}</div>
         ${i.resumo ? `<p class="meta" style="margin-top:10px">${esc(i.resumo)}</p>` : ''}
         ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}</div></div>`;
     else if (i.tipo === 'desejo') {
@@ -2820,6 +2822,7 @@
       }
       case 'img-remover': { UI.imagens[b.dataset.k] = ''; return render(); }
       case 'estrelas-limpar': { const f = b.closest('.campo'); f.querySelectorAll('input').forEach((x) => (x.checked = false)); return; }
+      case 'midia-concluir': { const ok = i.status !== 'concluido'; i.status = ok ? 'concluido' : (i.paginaAtual ? 'andamento' : 'quero'); toast(ok ? 'Marcado como ' + (i.formato === 'filme' ? 'assistido' : 'lido') + '.' : (i.status === 'andamento' ? 'Voltou para ' + (i.formato === 'filme' ? 'assistindo' : 'lendo') + '.' : 'Voltou para a fila.')); return passa(); }
       case 'fav': i.favorito = !i.favorito; return passa();
       case 'lido': i.lido = !i.lido; if (i.lido) i.lerDepois = false; return passa();
       case 'ler-depois': i.lerDepois = !i.lerDepois; if (i.lerDepois) i.lido = false; return passa();
@@ -2846,7 +2849,7 @@
       case 'comentar': fecharMenu(); UI.comentando = UI.comentando === id ? null : id; render();
         { const c = document.querySelector(`[data-form="comentar"][data-id="${id}"] input`); if (c) c.focus(); } return;
       case 'editar-item': fecharMenu(); return abrirModal({ tipo: 'editar', id });
-      case 'excluir-item': fecharMenu(); return excluirItem(i);
+      case 'excluir-item': fecharMenu(); if (UI.modal && UI.modal.tipo === 'item-ver') fecharModal(); return excluirItem(i);
       case 'abrir-fora': fecharMenu(); window.open(i.url, '_blank', 'noopener'); return;
       case 'copiar-link': fecharMenu(); navigator.clipboard && navigator.clipboard.writeText(i.url).then(() => toast('Endereço copiado.', 'copy'), () => toast('Não consegui copiar.')); return;
       case 'organizar-em': {

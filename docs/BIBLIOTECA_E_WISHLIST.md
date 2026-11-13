@@ -19,6 +19,8 @@ Tudo é preenchido pela própria pessoa. Nada é buscado em catálogos externos.
 | Capa | Imagem enviada do computador, reduzida para 240×360 e guardada com os dados. Sem capa, o sistema desenha uma lombada colorida com o nome. |
 | Resumo e minha opinião | Texto livre. A opinião é o que aparece em destaque no feed. Anotações ficam na ficha. |
 
+**Lido / assistido e excluir:** passe o mouse na capa (no celular os botões ficam sempre visíveis) para marcar como lido ou assistido, ou excluir. A página do item tem os mesmos botões. Desmarcar volta para "Lendo/Assistindo" se houver progresso, senão para a fila.
+
 **Onde cadastrar:** no Início, tipo **Livro ou filme**, ou em **Biblioteca → Adicionar**. A janela pede só formato, nome, autor, situação e capa; estrelas, progresso, gêneros, ano, resumo e opinião entram por “+”. O item entra no feed do dia como um post com capa.
 
 **Tela em prateleiras.** As capas ficam em pé sobre tábuas de madeira, com nome, estrelas e situação na legenda. Controles:
