@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.5 — 13/11/2026 · O pet conversa com você
+
+- O pet agora conversa com você, só com a janela visível: comenta o que você guardou (notas, imagens, links, livros, filmes, músicas), tarefas feitas, lembretes e tarefas para hoje ou atrasados, o tempo e o dia da semana.
+- Ele também elogia, diz que gosta de você, que sentiu sua falta quando você volta depois de um tempo e que está ansioso pelo fim de semana.
+- As frases ficam numa biblioteca própria, fácil de ampliar. Dá para desligar a conversa na engrenagem do cenário.
+- Novo pet para escolher: o shollie.
+
 ## 5.4 — 13/11/2026 · Previsão do tempo
 
 - A coluna da direita do Início ganhou a previsão do tempo: temperatura agora, máxima e mínima, sensação, chance de chuva, vento e os próximos 5 dias.

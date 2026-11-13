@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.4 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.3 mais o bloco de previsão do tempo na coluna da direita. | — |
+| v5.5 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.4 mais balão de conversa do pet e o pet shollie. | — |
+| v5.4 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.3 mais o bloco de previsão do tempo na coluna da direita. | — |
 | v5.3 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.2 mais botões de lido/assistido e excluir nas capas da Biblioteca. | — |
 | v5.2 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.1 sem o botão Brincar e com vasilhas de 5 min. | — |
 | v5.1 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.0 mais três pets, bolinha e vasilhas de comida e água. | — |

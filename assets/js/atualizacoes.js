@@ -10,6 +10,17 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.5',
+    data: '2026-11-13',
+    titulo: 'O pet conversa com você',
+    itens: [
+      'O pet agora conversa com você, só com a janela visível: comenta o que você guardou (notas, imagens, links, livros, filmes, músicas), tarefas feitas, lembretes e tarefas para hoje ou atrasados, o tempo e o dia da semana.',
+      'Ele também elogia, diz que gosta de você, que sentiu sua falta quando você volta depois de um tempo e que está ansioso pelo fim de semana.',
+      'As frases ficam numa biblioteca própria, fácil de ampliar. Dá para desligar a conversa na engrenagem do cenário.',
+      'Novo pet para escolher: o shollie.'
+    ]
+  },
+  {
     versao: '5.4',
     data: '2026-11-13',
     titulo: 'Previsão do tempo',
