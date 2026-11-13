@@ -47,7 +47,7 @@ Dentro dele só existem as três colunas — A fazer, Fazendo, Feito —, o bot�
 
 ## O atalho de guardar
 
-No canto de baixo à esquerda há um botão redondo. **Passar o mouse** abre a lista de tipos (Nota, Tarefa, Link, Livro, Artigo, Música, Desejo, Gasto, Lembrete) e um clique abre a janela daquele tipo. Tipo com rascunho guardado mostra um pontinho. No celular ele responde ao toque.
+O atalho existe **só dentro do modo trabalho**. No canto de baixo à esquerda há um botão redondo. **Passar o mouse** abre a lista de tipos (Nota, Tarefa, Imagem, Link, Livro, Artigo, Música, Desejo, Gasto, Lembrete) e um clique abre a janela daquele tipo. Tipo com rascunho guardado mostra um pontinho. No celular ele responde ao toque.
 
 ## O resumo na lateral
 

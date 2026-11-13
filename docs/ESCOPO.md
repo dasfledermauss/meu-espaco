@@ -128,6 +128,7 @@ O produto não depende de IA para organizar o que é salvo. Quem decide para ond
 | Livro ou filme | Formato, nome, autor ou direção, situação e capa. O resto entra por “+” | Biblioteca | Não (prateleiras por situação, gênero ou estrelas) |
 | Artigo de estudo | Link e pasta | Estudos | Sim, entre as pastas |
 | Música | Link do YouTube (vídeo ou playlist) | Músicas | Sim |
+| Imagem | Arquivo, imagem colada (Ctrl + V) ou link | Imagens | Sim |
 | Desejo | Só o link do produto | Wishlist | Não |
 | Gasto | Valor, data da despesa, descrição, categoria | Gastos | Não (categoria livre) |
 | Lembrete | Texto, data, horário opcional | Lembretes | Não |

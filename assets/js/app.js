@@ -93,12 +93,62 @@
     });
   }
 
+  /** Reduz sem cortar: o lado maior fica em `max` px. JPEG com fundo claro, para PNG transparente não virar preto. */
+  function reduzir(file, max = 1200) {
+    return new Promise((ok, falha) => {
+      const img = new Image();
+      img.onload = () => {
+        const f = Math.min(1, max / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * f)), h = Math.max(1, Math.round(img.height * f));
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(img.src); ok({ src: c.toDataURL('image/jpeg', 0.82) });
+      };
+      img.onerror = () => falha(new Error('imagem'));
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  /** Porta única de entrada de imagem: arquivo, imagem colada ou link. Devolve { src, link?, soEndereco? }.
+      Formatos: 'capa' (300×450), 'quadrada' (440×440) e 'livre' (proporção original). */
+  async function carregarImagem(fonte, formato) {
+    const preparar = (blob) => formato === 'capa' ? redimensionar(blob, 300, 450).then((src) => ({ src }))
+      : formato === 'quadrada' ? redimensionar(blob, 440, 440).then((src) => ({ src }))
+        : reduzir(blob, 1200);
+    if (typeof fonte !== 'string') return preparar(fonte);
+    const url = fonte.trim();
+    if (/^data:image\//i.test(url)) return preparar(await (await fetch(url)).blob());
+    try {
+      const r = await fetch(url, { mode: 'cors' });
+      if (!r.ok) throw new Error('http');
+      const b = await r.blob();
+      if (!/^image\//.test(b.type)) throw new Error('tipo');
+      const res = await preparar(b); res.link = url; return res;
+    } catch (e) { /* o site não libera a cópia: guarda só o endereço, se for mesmo uma imagem */ }
+    await new Promise((ok, no) => { const im = new Image(); im.referrerPolicy = 'no-referrer'; im.onload = ok; im.onerror = () => no(new Error('imagem')); im.src = url; });
+    return { src: url, link: url, soEndereco: true };
+  }
+  const EXT_IMAGEM = /\.(png|jpe?g|gif|webp|avif|bmp|svg)(\?|#|$)/i;
+  const arquivoDeImagem = (dt) => {
+    const f = [...(dt.files || [])].find((x) => /^image\//.test(x.type));
+    if (f) return f;
+    const it = [...(dt.items || [])].find((x) => x.kind === 'file' && /^image\//.test(x.type));
+    return it ? it.getAsFile() : null;
+  };
+  /** Endereço de imagem vindo da área de transferência: <img src> do HTML copiado, ou o texto, se for um link. */
+  function linkDeImagem(dt) {
+    const html = dt.getData('text/html');
+    const m = html && html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (m) return m[1].replace(/&amp;/g, '&');
+    const t = ((dt.getData('text/uri-list') || dt.getData('text/plain') || '').trim().split(/\s+/)[0]) || '';
+    return /^https?:\/\//i.test(t) ? t : '';
+  }
+
   /* ---------------- estado ---------------- */
   let S = null;
   const UI = { busca: '', feedModo: 'todos', dia: hoje(), colSel: 'todas', colFiltro: 'todos', colTipo: 'todos', colBusca: '',
     editando: null, comentando: null, cvEdit: null, cvAdd: null, plano: null, previa: false, adiando: null, lembEdit: null,
     gastoMes: hoje().slice(0, 7), bibFormato: 'todos', bibAgrupar: 'status', bibBusca: '', bibVer: null,
-    wlFiltro: 'desejos', wlOrdem: 'recentes', muralCol: 'todas', pastaAberta: null, extras: {}, imagens: {}, servidor: false, janelas: [], sessao: { modo: 'local' }, nuvem: { estado: 'local', em: '', erro: '' } };
+    grupoImagem: '', origens: {}, wlFiltro: 'desejos', wlOrdem: 'recentes', muralCol: 'todas', pastaAberta: null, extras: {}, imagens: {}, servidor: false, janelas: [], sessao: { modo: 'local' }, nuvem: { estado: 'local', em: '', erro: '' } };
   let RASC = {};
 
   function salvar() {
@@ -162,7 +212,9 @@
   function migrar(st) {
     st.destinoPadrao = st.destinoPadrao || { nota: '', link: 'col-pessoal' };
     if (st.destinoPadrao.tarefa === undefined) st.destinoPadrao.tarefa = '';
+    if (st.destinoPadrao.imagem === undefined) st.destinoPadrao.imagem = '';
     st.gruposMusica = st.gruposMusica || [];
+    st.gruposImagem = st.gruposImagem || [];
     (st.itens || []).forEach((i, k) => { if (i.tipo === 'musica' && i.ordem === undefined) i.ordem = k; });
     st.lembretes = st.lembretes || []; st.pastas = st.pastas || []; st.colecoes = st.colecoes || [];
     st.perfil.corCustom = st.perfil.corCustom || '';
@@ -356,7 +408,7 @@
   const pasta = (id) => S.pastas.find((c) => c.id === id);
   const item = (id) => S.itens.find((i) => i.id === id);
   const lembrete = (id) => S.lembretes.find((l) => l.id === id);
-  const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], musica: ['Música', 'music-note'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
+  const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], imagem: ['Imagem', 'media-image'], musica: ['Música', 'music-note'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
   /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
   const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
   const etapa = (i) => i.concluida ? 'feito' : (i.etapa === 'fazendo' ? 'fazendo' : 'afazer');
@@ -371,12 +423,12 @@
   const corNota = (i) => i.cor || CORES_NOTA[hashNum(i.id) % CORES_NOTA.length];
   const ehImportado = (i) => !!i.importadoEm && i.importadoEm === i.criadoEm;
   const unidade = (i) => i.formato === 'filme' ? 'minuto' : 'página';
-  const tituloItem = (i) => i.titulo || (i.tipo === 'gasto' ? (i.descricao || 'Gasto')
+  const tituloItem = (i) => i.titulo || (i.tipo === 'imagem' ? 'Imagem' : i.tipo === 'gasto' ? (i.descricao || 'Gasto')
     : i.tipo === 'desejo' ? 'Produto em ' + (dominio(i.url) || 'loja')
       : i.tipo === 'artigo' ? (dominio(i.url) || 'Artigo')
         : (i.texto || '').split('\n')[0].slice(0, 90) || 'Nota sem título');
   function textoBusca(i) {
-    return norm([i.titulo, i.url, i.texto, i.comentario, i.descricao, i.categoria, i.autor, i.resumo, i.loja, (i.generos || []).join(' '),
+    return norm([i.titulo, i.nota, i.origem, i.url, i.texto, i.comentario, i.descricao, i.categoria, i.autor, i.resumo, i.loja, (i.generos || []).join(' '),
       ...(i.comentarios || []).map((c) => c.texto), ...(i.anotacoes || []).map((a) => a.texto),
       ...(i.notasFonte || []).map((n) => [n.grupo, n.original && n.original.customTitle, n.original && n.original.customDescription, n.original && n.original.title].join(' '))].join(' '));
   }
@@ -445,20 +497,50 @@
     for (let k = 5; k >= 1; k--) h += `<input type="radio" name="estrelas" id="est-${k}" value="${k}" ${Number(v) === k ? 'checked' : ''}><label for="est-${k}">${ic('star', 'off')}${ic('star-solid', 'on')}<span class="sr-only">${k} estrela${k > 1 ? 's' : ''}</span></label>`;
     return `<div class="campo"><span class="rotulo">Estrelas</span><div class="linha" style="align-items:center;gap:8px"><span class="estrelas-input">${h}</span>${btn('estrelas-limpar', 'Limpar', '', 'btn-f btn-p')}</div></div>`;
   }
+  /** Campo de imagem usado em todo o sistema: escolher arquivo, arrastar, colar (Ctrl + V) ou usar um link. */
   function envioImagem(k, rot, formato, atual) {
     const prev = UI.imagens[k] !== undefined ? UI.imagens[k] : atual;
-    const cls = formato === 'capa' ? 'previa-capa' : 'previa-quadrada';
-    return `<div class="campo"><span class="rotulo">${rot}</span><div class="envio">
-      ${prev ? `<div class="envio-previa ${cls}"><img src="${prev}" alt="Prévia"><button type="button" class="ico-btn remover" data-act="img-remover" data-k="${esc(k)}" aria-label="Remover imagem" title="Remover">${ic('xmark')}</button></div>` : ''}
-      <label class="envio-alvo" data-solta="${esc(k)}">${ic('media-image')}<span>${prev ? 'Trocar imagem' : 'Escolher ou arrastar'}</span>
-        <input type="file" accept="image/*" hidden data-act="img-escolher" data-k="${esc(k)}" data-formato="${formato}"></label>
+    const cls = formato === 'capa' ? 'previa-capa' : formato === 'livre' ? 'previa-livre' : 'previa-quadrada';
+    return `<div class="campo"><span class="rotulo">${rot}</span><div class="envio" data-envio="${esc(k)}" data-formato="${formato}">
+      ${prev ? `<div class="envio-previa ${cls}"><img src="${esc(prev)}" alt="Prévia" referrerpolicy="no-referrer"><button type="button" class="ico-btn remover" data-act="img-remover" data-k="${esc(k)}" aria-label="Remover imagem" title="Remover">${ic('xmark')}</button></div>` : ''}
+      <div class="envio-lado">
+        <label class="envio-alvo">${ic('media-image')}<span>${prev ? 'Trocar imagem' : 'Escolher, arrastar ou colar'}</span><small>Ctrl + V cola uma imagem copiada</small>
+          <input type="file" accept="image/*" hidden data-act="img-escolher" data-k="${esc(k)}" data-formato="${formato}"></label>
+        <div class="envio-link"><input type="url" data-act="img-link" data-k="${esc(k)}" data-formato="${formato}" placeholder="ou cole o link de uma imagem" autocomplete="off" inputmode="url" aria-label="Link da imagem">
+          <button type="button" class="btn-f btn-p" data-act="img-link-ok">Usar</button></div>
+      </div>
     </div></div>`;
+  }
+  /** Carrega a imagem (arquivo, colada ou link) para o campo `k` e redesenha o formulário. */
+  function definirImagem(k, formato, fonte) {
+    toast('Carregando a imagem…', 'media-image');
+    return carregarImagem(fonte, formato).then((r) => {
+      UI.imagens[k] = r.src;
+      if (r.link) UI.origens[k] = r.link; else delete UI.origens[k];
+      render();
+      toast(r.soEndereco ? 'Guardei só o endereço da imagem: o site não deixa copiar o arquivo.' : 'Imagem pronta.', 'check-circle-solid');
+    }).catch(() => toast('Não consegui abrir essa imagem.'));
+  }
+  /** Guarda direto como imagem nova, sem abrir janela: usado ao colar ou soltar fora de um formulário. */
+  function guardarImagemRapido(fonte) {
+    toast('Guardando a imagem…', 'media-image');
+    return carregarImagem(fonte, 'livre').then((r) => {
+      const rota = rotaAtual();
+      const cols = rota[0] === 'colecao' && rota[1] && rota[1] !== 'soltos' && colecao(rota[1]) ? [{ id: rota[1], grupo: '' }] : [];
+      const grupo = rota[0] === 'imagens' && grupoImagem(UI.grupoImagem) ? UI.grupoImagem : '';
+      const i = { id: uid('ima'), tipo: 'imagem', src: r.src, origem: r.link || '', titulo: '', nota: '', grupo, colecoes: cols, organizar: !cols.length,
+        comentarios: [], favorito: false, criadoEm: agora() };
+      S.itens.push(i);
+      if (!salvar()) { S.itens.pop(); return; }
+      UI.pularColheita = true; render();
+      toast(r.soEndereco ? 'Imagem guardada pelo endereço (o site não deixa copiar).' : 'Imagem guardada.', 'check-circle-solid');
+    }).catch(() => toast('Não consegui abrir essa imagem.'));
   }
 
   /* ---------------- formulários de criação e edição ---------------- */
-  const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['tarefa', 'Tarefa', 'list'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
+  const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['tarefa', 'Tarefa', 'list'], ['imagem', 'Imagem', 'media-image'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
     ['artigo', 'Artigo de estudo', 'page'], ['musica', 'Música', 'music-note'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
-  const tituloCriar = { nota: 'Nova nota', tarefa: 'Nova tarefa', link: 'Guardar link', midia: 'Novo na biblioteca', artigo: 'Novo artigo', musica: 'Guardar música', desejo: 'Novo desejo', gasto: 'Novo gasto', lembrete: 'Novo lembrete' };
+  const tituloCriar = { nota: 'Nova nota', tarefa: 'Nova tarefa', imagem: 'Guardar imagem', link: 'Guardar link', midia: 'Novo na biblioteca', artigo: 'Novo artigo', musica: 'Guardar música', desejo: 'Novo desejo', gasto: 'Novo gasto', lembrete: 'Novo lembrete' };
 
   /** Coleção do post: vira campo fixo quando a pessoa clicou em "Guardar aqui" dentro de uma coleção. */
   function campoDestino(c, tipo, it, v) {
@@ -491,6 +573,13 @@
         + `<label class="check"><input type="checkbox" name="avisar" ${v.lembreteId || !it ? 'checked' : ''}> Criar lembrete no prazo</label>`);
       c.opc('etapa', 'Situação', campo('f-etapa', 'Situação', selectHTML('f-etapa', 'etapa', Object.entries(ETAPAS), etapa(v)), 'medio'));
       campoDestino(c, 'tarefa', it, v);
+    } else if (t === 'imagem') {
+      c.fixo(envioImagem(k, 'Imagem', 'livre', v.src));
+      c.fixo(campo('f-titulo', 'Título <span class="opcional">(opcional)</span>', txt('f-titulo', 'titulo', v.titulo)));
+      if ((S.gruposImagem || []).length) c.fixo(campo('f-grupo', 'Grupo', selectHTML('f-grupo', 'grupo', [['', 'Sem grupo'], ...S.gruposImagem.map((g) => [g.id, g.nome])],
+        v.grupo || (!it && grupoImagem(UI.grupoImagem) ? UI.grupoImagem : '')), 'medio'));
+      c.opc('nota', 'Anotação', campo('f-nota', 'Anotação', area('f-nota', 'nota', v.nota, 'placeholder="De onde veio, por que guardou, o que chamou a atenção…"')));
+      campoDestino(c, 'imagem', it, v);
     } else if (t === 'musica') {
       c.fixo(campo('f-url', 'Link do YouTube', `<input type="url" id="f-url" name="url" value="${esc(v.url || '')}" required placeholder="Cole o link do vídeo ou da playlist" inputmode="url">`));
       if (!it) c.fixo(`<p class="dica">${ic('priority-high')}<span>Vale vídeo, playlist ou mix. A capa e o nome vêm do próprio YouTube.</span></p>`);
@@ -537,7 +626,7 @@
         c.fixo(`<div class="linha">${campo('f-titulo', 'Nome do produto', txt('f-titulo', 'titulo', v.titulo))}
           ${campo('f-preco', 'Preço', `<input type="number" id="f-preco" name="preco" step="0.01" min="0" value="${v.preco ?? ''}">`, 'curto')}</div>`);
         c.opc('loja', 'Loja', campo('f-loja', 'Loja', txt('f-loja', 'loja', v.loja)));
-        c.opc('imagem', 'Endereço da foto', campo('f-img', 'Endereço da foto', `<input type="url" id="f-img" name="imagem" value="${esc(v.imagem || '')}">`));
+        c.opc('imagem', 'Foto do produto', envioImagem(k, 'Foto', 'quadrada', v.imagem));
       }
       c.opc('comentario', 'Comentário', campo('f-com', 'Comentário', txt('f-com', 'comentario', v.comentario)));
     } else if (t === 'gasto') {
@@ -570,6 +659,47 @@
           <span class="espaco"></span>
           ${temRascunho(k) ? btn('descartar-rascunho', 'Descartar', `data-k="${esc(k)}"`, 'btn-f btn-perigo') : btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}${m.tipo === 'editar' ? 'Salvar' : 'Guardar'}</button></footer></form>`;
+    }
+    if (m.tipo === 'imagem-ver') {
+      const i = item(m.id);
+      if (!i) return '';
+      const lista = imagens(), n = lista.findIndex((x) => x.id === i.id), gr = grupoImagem(i.grupo);
+      return `<div class="modal modal-imagem"><header class="modal-cab">${ic('media-image')}<h2>${esc(i.titulo || 'Imagem')}</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="img-palco">
+          ${lista.length > 1 ? btnIco('imagem-nav', 'nav-arrow-left', 'Anterior', `data-v="-1"`, 'nav-img') : ''}
+          <img class="img-grande" src="${esc(i.src)}" alt="${esc(i.titulo || '')}" referrerpolicy="no-referrer">
+          ${lista.length > 1 ? btnIco('imagem-nav', 'nav-arrow-right', 'Próxima', `data-v="1"`, 'nav-img dir') : ''}</div>
+          ${i.nota ? `<p class="porque">${esc(i.nota)}</p>` : ''}
+          <p class="meta">${[gr ? 'Grupo ' + esc(gr.nome) : '', i.origem ? `<a href="${esc(i.origem)}" target="_blank" rel="noopener">${esc(dominio(i.origem))}</a>` : '', lista.length > 1 ? (n + 1) + ' de ' + lista.length : ''].filter(Boolean).join(' · ')}</p></div>
+        <footer class="modal-pe">${btn('imagem-excluir', ic('trash') + 'Excluir', `data-id="${i.id}"`, 'btn-f btn-perigo')}<span class="espaco"></span>
+          ${btn('imagem-grupo', ic('folder') + 'Grupo', `data-id="${i.id}"`, 'btn-f')}
+          ${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-1')}</footer></div>`;
+    }
+    if (m.tipo === 'grupo-imagem') {
+      const g = m.id ? grupoImagem(m.id) : null;
+      return `<form class="modal" method="dialog" data-form="grupo-imagem" data-id="${m.id || ''}">
+        <header class="modal-cab">${ic('folder')}<h2>${g ? 'Renomear grupo' : 'Novo grupo de imagens'}</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="form">${campo('f-nome', 'Nome', txt('f-nome', 'nome', g ? g.nome : '', 'required placeholder="ex.: Referências de capa"'))}</div></div>
+        <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
+          <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
+    }
+    if (m.tipo === 'imagem-grupo') {
+      const i = item(m.id);
+      if (!i) return '';
+      const gs = S.gruposImagem || [];
+      return `<form class="modal" method="dialog" data-form="imagem-grupo" data-id="${m.id}">
+        <header class="modal-cab">${ic('folder')}<h2>Mover para grupo</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="form">${campo('f-grupo', 'Grupo', selectHTML('f-grupo', 'grupo', [['', 'Sem grupo'], ...gs.map((g) => [g.id, g.nome])], i.grupo || ''))}
+          ${gs.length ? '' : '<p class="dica">' + ic('priority-high') + '<span>Nenhum grupo criado ainda. Use o botão Grupo na tela de Imagens.</span></p>'}</div></div>
+        <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
+          <button class="btn-1" type="submit">${ic('check')}Mover</button></footer></form>`;
+    }
+    if (m.tipo === 'foto-perfil') {
+      return `<form class="modal" method="dialog" data-form="foto-perfil">
+        <header class="modal-cab">${ic('user')}<h2>Foto do perfil</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="form">${envioImagem('foto-perfil', 'Foto', 'quadrada', S.perfil.foto)}</div></div>
+        <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
+          <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
     }
     if (m.tipo === 'grupo-musica') {
       const g = m.id ? grupoMusica(m.id) : null;
@@ -812,7 +942,7 @@
      Um botão no canto de baixo à esquerda que abre ao passar o mouse. */
   function renderAtalho() {
     if (!caixaAtalho) return;
-    if (UI.sessao.modo === 'deslogado') { caixaAtalho.innerHTML = ''; return; }
+    if (UI.sessao.modo === 'deslogado' || !UI.modoTrabalho) { caixaAtalho.innerHTML = ''; return; }
     caixaAtalho.innerHTML = `<div class="atalho ${UI.atalhoAberto ? 'aberto' : ''}">
       <div class="atalho-tipos">${TIPOS_CRIAR.map(([v, n, i]) => `<button type="button" data-act="criar" data-t="${v}">
         ${ic(i)}<span>${n}</span>${temRascunho('criar:' + v) ? '<em class="ponto-rasc" title="rascunho guardado"></em>' : ''}</button>`).join('')}</div>
@@ -970,6 +1100,40 @@
           btn('criar', ic('plus') + 'Guardar música', 'data-t="musica"', 'btn-1'))}`;
   }
 
+  /* ---------------- imagens ----------------
+     Grade em colunas, como o Pinterest: cada imagem mantém a proporção que tem. Grupos separam o que é de quê;
+     arraste uma imagem sobre o nome de um grupo para movê-la. */
+  const imagens = () => doTipo('imagem').slice().sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
+  const grupoImagem = (id) => (S.gruposImagem || []).find((g) => g.id === id);
+  const imgPin = (i) => `<img src="${esc(i.src)}" alt="${esc(i.titulo || '')}" loading="lazy" draggable="false" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'pin-quebrada',textContent:'Imagem indisponível'}))">`;
+  function renderImagens() {
+    const todas = imagens(), gs = S.gruposImagem || [];
+    if (UI.grupoImagem && UI.grupoImagem !== 'soltas' && !grupoImagem(UI.grupoImagem)) UI.grupoImagem = '';
+    const g = UI.grupoImagem || '';
+    const lista = todas.filter((i) => !g || (g === 'soltas' ? !i.grupo : i.grupo === g));
+    const conta = (id) => todas.filter((i) => (id === 'soltas' ? !i.grupo : i.grupo === id)).length;
+    const chip = (v, nome, n, alvo) => `<button type="button" class="chip-grupo" data-act="img-grupo" data-v="${v}" ${alvo ? `data-grupo-alvo="${esc(alvo)}"` : ''} aria-pressed="${g === v}">${esc(nome)}<em>${n}</em></button>`;
+    const cartaoI = (i) => `<article class="pin" draggable="true" data-imagem="${i.id}">
+        <button type="button" class="pin-img" data-act="imagem-ver" data-id="${i.id}" aria-label="Ver ${esc(tituloItem(i))}">${imgPin(i)}</button>
+        <div class="pin-pe"><span class="pin-tit">${esc(i.titulo || '')}</span>
+          <span class="pin-acoes">${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorita', 'Favoritar', 'estrela')}
+            ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
+              { act: 'imagem-grupo', id: i.id, ico: 'folder', txt: 'Mover para grupo' },
+              { act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' },
+              i.origem ? { act: 'abrir-origem', id: i.id, ico: 'open-new-window', txt: 'Abrir a origem' } : null,
+              '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }], 'esq')}</span></div></article>`;
+    main.innerHTML = `<header class="pagina-cab"><h1>${ic('media-image')}Imagens</h1>
+        <div class="ferramentas">${btn('criar', ic('plus') + 'Guardar imagem', 'data-t="imagem"', 'btn-1')}</div></header>
+      <div class="grupos-img" role="group" aria-label="Grupos">
+        ${chip('', 'Todas', todas.length)}${gs.map((x) => chip(x.id, x.nome, conta(x.id), x.id)).join('')}${chip('soltas', 'Sem grupo', conta('soltas'), 'soltas')}
+        ${btn('novo-grupo-imagem', ic('plus') + 'Grupo', '', 'btn-f btn-p')}
+        ${grupoImagem(g) ? `<span class="espaco"></span>${btnIco('renomear-grupo-imagem', 'edit-pencil', 'Renomear grupo')}${btnIco('excluir-grupo-imagem', 'trash', 'Excluir grupo')}` : ''}</div>
+      ${lista.length ? `<div class="pin-grade">${lista.map(cartaoI).join('')}</div>`
+        : vazio('media-image', todas.length ? 'Nenhuma imagem neste grupo.' : 'Nenhuma imagem ainda. Cole uma com Ctrl + V, arraste um arquivo para cá ou guarde por link.',
+          btn('criar', ic('plus') + 'Guardar imagem', 'data-t="imagem"', 'btn-1'))}
+      <p class="meta dica-cola">${ic('priority-high')} Dica: com esta tela aberta, Ctrl + V guarda a imagem copiada na hora${grupoImagem(g) ? ' neste grupo' : ''}.</p>`;
+  }
+
   /* ---------------- tarefas ---------------- */
   /** Uma tarefa é sempre uma linha: círculo para riscar, título e, se houver, prazo e situação. */
   function linhaTarefa(i, opts = {}) {
@@ -1083,7 +1247,8 @@
     if (i.url) b.push(btnIco('copiar-link', 'copy', 'Copiar endereço', `data-id="${i.id}"`));
     mais.push({ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' });
     if (i.url) mais.push({ act: 'abrir-fora', id: i.id, ico: 'open-new-window', txt: 'Abrir em nova guia' });
-    if (i.tipo === 'nota' || i.tipo === 'link' || i.tipo === 'tarefa') mais.push({ act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' });
+    if (i.tipo === 'imagem') mais.push({ act: 'imagem-grupo', id: i.id, ico: 'folder', txt: 'Mover para grupo' });
+    if (i.tipo === 'nota' || i.tipo === 'link' || i.tipo === 'tarefa' || i.tipo === 'imagem') mais.push({ act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' });
     if (i.tipo === 'midia') mais.push({ act: 'progresso', id: i.id, ico: 'bookmark', txt: 'Onde parei' });
     mais.push({ act: 'lembrar-item', id: i.id, ico: 'alarm', txt: 'Criar lembrete' });
     mais.push('-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true });
@@ -1109,6 +1274,9 @@
         <p>${esc(corta(i.texto, 420))}</p></div>`;
     }
     if (i.tipo === 'tarefa') return linhaTarefa(i);
+    if (i.tipo === 'imagem') return `<div class="imagem-post"><button type="button" class="pin-img" data-act="imagem-ver" data-id="${i.id}" aria-label="Ver ${esc(tituloItem(i))}">${imgPin(i)}</button>
+        ${i.titulo ? `<h3>${esc(i.titulo)}</h3>` : ''}${i.nota ? `<p class="descricao">${esc(corta(i.nota, 220))}</p>` : ''}
+        ${i.origem ? `<p class="fonte">${ic('link')}<a href="${esc(i.origem)}" target="_blank" rel="noopener">${esc(dominio(i.origem))}</a></p>` : ''}</div>`;
     if (i.tipo === 'link') return `<div class="link-rico">
         ${i.imagem ? `<span class="arte"><img src="${esc(i.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>` : ''}
         <div class="link-dados"><h3><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(tituloItem(i))}</a></h3>
@@ -1202,7 +1370,7 @@
   }
   /* A ordem das áreas fica no perfil: arrastar muda, e áreas novas entram no fim. */
   const AREAS = () => [['inicio', 'Início', 'home-simple', ''], ['tarefas', 'Tarefas', 'list', tarefasAbertas().length],
-    ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length],
+    ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['imagens', 'Imagens', 'media-image', doTipo('imagem').length], ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length],
     ['estudos', 'Estudos', 'folder', doTipo('artigo').length], ['links', 'Links', 'link', doTipo('link').length],
     ['musicas', 'Músicas', 'music-note', musicas().length], ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
     ['gastos', 'Gastos', 'wallet', ''], ['lembretes', 'Lembretes', 'alarm', pendentes().length], ['curriculo', 'Currículo', 'suitcase', '']];
@@ -1559,6 +1727,11 @@
     if (mid.length) blocos.push({ cls: '', html: cartao(ic('book-stack') + 'Biblioteca',
       `<div class="mini-capas">${mid.slice(0, 6).map((i) => `<a href="#/item/${i.id}" title="${esc(i.titulo)}">${capaHTML(i, 'p')}</a>`).join('')}</div>`,
       `<a href="#/biblioteca">${mid.length}</a>`) });
+
+    const ima = de('imagem');
+    if (ima.length) blocos.push({ cls: ima.length > 2 ? 'largo' : '', html: cartao(ic('media-image') + 'Imagens',
+      `<div class="mini-fotos">${ima.slice(0, 6).map((i) => `<button type="button" data-act="imagem-ver" data-id="${i.id}" aria-label="Ver ${esc(tituloItem(i))}">${imgPin(i)}</button>`).join('')}</div>`,
+      `<a href="#/imagens">${ima.length}</a>`) });
 
     const mus = de('musica');
     if (mus.length) blocos.push({ cls: '', html: cartao(ic('music-note') + 'Músicas',
@@ -1954,7 +2127,7 @@
       if (!r.ok || j.erro) throw new Error(j.erro || 'falha');
       if (j.nome && !i.tituloManual) i.titulo = j.nome;
       if (j.descricao && !i.descricao) i.descricao = j.descricao;
-      if (j.imagem) i.imagem = j.imagem;
+      if (j.imagem && !i.imagemManual) i.imagem = j.imagem;
       if (j.favicon) i.favicon = j.favicon;
       if (j.loja) i.loja = j.loja;
       if (j.estrelas != null) i.estrelas = j.estrelas;
@@ -2009,7 +2182,7 @@
   }
 
   /* ---------------- roteamento ---------------- */
-  const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
+  const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, imagens: renderImagens, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
     wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
   function rotaAtual() { return location.hash.replace(/^#\/?/, '').split('/'); }
   function render(focar) {
@@ -2062,6 +2235,9 @@
     if (sel && !sel.hidden && !sel.contains(e.target)) sel.hidden = true;
     const b = e.target.closest('[data-act]');
     if (!b || b.matches('select, input')) return;
+    // Clique no "⋯" (ou na área do menu) dentro de um cartão clicável só abre o menu; não aciona o cartão.
+    const menuDentro = e.target.closest('details.menu');
+    if (menuDentro && !menuDentro.contains(b)) return;
     const act = b.dataset.act, id = b.dataset.id, i = id && item(id);
     const fecharMenu = () => { const d = b.closest('details.menu'); if (d) d.removeAttribute('open'); };
     const passa = () => { salvar(); render(); };
@@ -2099,6 +2275,34 @@
       case 'player-anterior': { e.preventDefault(); const v = vizinha(-1); return v && tocar(v.id); }
       case 'player-proxima': { e.preventDefault(); const v = vizinha(1); return v && tocar(v.id); }
       case 'abrir-musica': e.preventDefault(); return abrirMusica();
+      case 'imagem-ver': e.preventDefault(); return abrirModal({ tipo: 'imagem-ver', id });
+      case 'imagem-nav': {
+        e.preventDefault();
+        const l = imagens(), n = l.findIndex((x) => x.id === (UI.modal && UI.modal.id));
+        if (n < 0 || !l.length) return;
+        UI.modal = { tipo: 'imagem-ver', id: l[(n + Number(b.dataset.v) + l.length) % l.length].id }; return render();
+      }
+      case 'imagem-grupo': fecharMenu(); return abrirModal({ tipo: 'imagem-grupo', id });
+      case 'imagem-excluir': { const x = item(id); if (!x) return; UI.modal = null; render(); return excluirItem(x); }
+      case 'abrir-origem': { fecharMenu(); const x = item(id); if (x && x.origem) window.open(x.origem, '_blank', 'noopener'); return; }
+      case 'img-grupo': e.preventDefault(); UI.grupoImagem = b.dataset.v; UI.pularColheita = true; return render();
+      case 'novo-grupo-imagem': e.preventDefault(); return abrirModal({ tipo: 'grupo-imagem' });
+      case 'renomear-grupo-imagem': e.preventDefault(); return abrirModal({ tipo: 'grupo-imagem', id: UI.grupoImagem });
+      case 'excluir-grupo-imagem': {
+        e.preventDefault();
+        const gr = grupoImagem(UI.grupoImagem); if (!gr) return;
+        if (!confirm(`Excluir o grupo “${gr.nome}”?\n\nAs imagens dele continuam guardadas, só ficam sem grupo.`)) return;
+        S.itens.forEach((x) => { if (x.tipo === 'imagem' && x.grupo === gr.id) x.grupo = ''; });
+        S.gruposImagem = S.gruposImagem.filter((x) => x.id !== gr.id); UI.grupoImagem = '';
+        salvar(); UI.pularColheita = true; return render();
+      }
+      case 'img-link-ok': {
+        e.preventDefault();
+        const campoL = b.closest('.envio').querySelector('input[data-act="img-link"]');
+        if (!campoL.value.trim()) return toast('Cole o link de uma imagem.');
+        const v = campoL.value; campoL.value = '';
+        return definirImagem(campoL.dataset.k, campoL.dataset.formato, v);
+      }
       case 'novo-grupo-musica': e.preventDefault(); return abrirModal({ tipo: 'grupo-musica' });
       case 'musica-grupo': fecharMenu(); return abrirModal({ tipo: 'musica-grupo', id });
       case 'tar-ok': e.preventDefault(); return alternarTarefa(b.dataset.id);
@@ -2241,7 +2445,7 @@
       }
       case 'sair': fecharMenu(); return sair();
       case 'foto-google': fecharMenu(); S.perfil.foto = conta().foto; return passa();
-      case 'foto-trocar': fecharMenu(); return document.getElementById('arquivo-foto').click();
+      case 'foto-trocar': fecharMenu(); delete UI.imagens['foto-perfil']; return abrirModal({ tipo: 'foto-perfil' });
       case 'foto-remover': fecharMenu(); S.perfil.foto = null; return passa();
       case 'humor-emoji': {
         const f = b.closest('form');
@@ -2298,9 +2502,7 @@
     if (act === 'img-escolher') {
       const f = t.files[0]; t.value = '';
       if (!f) return;
-      const k = t.dataset.k, fmt = t.dataset.formato;
-      return redimensionar(f, fmt === 'capa' ? 300 : 440, fmt === 'capa' ? 450 : 440)
-        .then((u) => { UI.imagens[k] = u; render(); }).catch(() => toast('Não consegui abrir essa imagem.'));
+      return definirImagem(t.dataset.k, t.dataset.formato, f);
     }
     if (act === 'ma-grupo') { UI.grupoMusica = t.value; UI.pularColheita = true; return pintarMiniApp(); }
     if (act === 'destino' && t.value === '__nova') { t.value = ''; return abrirModal({ tipo: 'colecao', voltar: UI.modal }); }
@@ -2375,6 +2577,25 @@
       else { const g = { id: uid('gmus'), nome }; S.gruposMusica.push(g); UI.grupoMusica = g.id; }
       UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
     }
+    if (tipo === 'grupo-imagem') {
+      const nome = (d.nome || '').trim();
+      if (!nome) return toast('Dê um nome ao grupo.');
+      S.gruposImagem = S.gruposImagem || [];
+      if (f.dataset.id) { const g = grupoImagem(f.dataset.id); if (g) g.nome = nome; }
+      else { const g = { id: uid('gimg'), nome }; S.gruposImagem.push(g); UI.grupoImagem = g.id; }
+      UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
+    }
+    if (tipo === 'imagem-grupo') {
+      const i = item(f.dataset.id);
+      if (i) { i.grupo = d.grupo || ''; i.editadoEm = agora(); }
+      UI.modal = null; ok('Movida.', 'folder'); return render();
+    }
+    if (tipo === 'foto-perfil') {
+      const u = UI.imagens['foto-perfil'];
+      if (u !== undefined) S.perfil.foto = u || null;
+      delete UI.imagens['foto-perfil'];
+      UI.modal = null; ok('Foto atualizada.', 'check-circle-solid'); return render();
+    }
     if (tipo === 'musica-grupo') {
       const i = item(f.dataset.id);
       if (i) { i.grupo = d.grupo || ''; i.editadoEm = agora(); }
@@ -2442,9 +2663,18 @@
             const p = d.preco === '' || d.preco === undefined ? null : parseFloat(d.preco);
             if (p !== i.preco) { i.preco = p; if (p != null) i.historicoPreco.push({ em: t, preco: p, manual: true }); }
             if (d.loja !== undefined) i.loja = d.loja.trim();
-            if (d.imagem !== undefined) i.imagem = d.imagem.trim();
+            if (img !== undefined) { i.imagem = img; i.imagemManual = !!img; }
           } else i.preco = null;
         }
+      } else if (alvo === 'imagem') {
+        const src = img !== undefined ? img : i.src;
+        if (!src) return toast('Escolha, cole ou arraste uma imagem.');
+        if (img !== undefined) { i.src = src; i.origem = UI.origens[k] || ''; }
+        if (d.titulo !== undefined) i.titulo = d.titulo.trim();
+        if (d.nota !== undefined) i.nota = d.nota.trim();
+        if (d.grupo !== undefined) i.grupo = d.grupo;
+        if (d.destino !== undefined) { i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : []; i.organizar = !d.destino; if (novo) S.destinoPadrao.imagem = d.destino; }
+        else if (novo) i.organizar = true;
       } else if (alvo === 'midia') {
         if (!d.titulo.trim()) return toast('Informe o nome.');
         Object.assign(i, { formato: d.formato === 'filme' ? 'filme' : 'livro', titulo: d.titulo.trim(), autor: (d.autor || '').trim(),
@@ -2483,7 +2713,11 @@
       }
       if (!novo) i.editadoEm = t;
       if (novo) S.itens.push(i);
-      if (!salvar() && i.capa) { delete i.capa; salvar(); toast('Salvei sem a capa: o armazenamento está cheio.'); }
+      if (!salvar()) {
+        if (alvo === 'imagem' && novo) { S.itens = S.itens.filter((x) => x !== i); return; }
+        if (i.capa) { delete i.capa; salvar(); toast('Salvei sem a capa: o armazenamento está cheio.'); }
+      }
+      delete UI.origens[k];
       limparRascunho(k); UI.modal = null; UI.colPadrao = null; UI.pularColheita = true;
       if (novo && (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo' || alvo === 'musica')) { render(); return capturar(i); }
       render();
@@ -2707,6 +2941,88 @@
     S.perfil.ordemDireita = ordem; salvar(); UI.pularColheita = true; render();
   });
   direita.addEventListener('dragend', () => direita.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')));
+
+  /* ---------------- imagem: colar, soltar e arrastar para grupo ---------------- */
+  const campoDeTexto = (el) => el && el.closest && el.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]');
+  document.addEventListener('paste', (e) => {
+    const dt = e.clipboardData;
+    if (!dt || UI.sessao.modo === 'deslogado') return;
+    const arq = arquivoDeImagem(dt);
+    const envio = UI.modal && modal.open ? modal.querySelector('[data-envio]') : null;
+    const campo = campoDeTexto(e.target);
+    if (envio) {
+      const k = envio.dataset.envio, fmt = envio.dataset.formato;
+      if (arq) { e.preventDefault(); return definirImagem(k, fmt, arq); }
+      if (campo && campo.dataset.act === 'img-link') {
+        setTimeout(() => { const v = campo.value.trim(); if (/^https?:\/\//i.test(v)) { campo.value = ''; definirImagem(k, fmt, v); } }, 0);
+        return;
+      }
+      const l = !campo && linkDeImagem(dt);
+      if (l) { e.preventDefault(); return definirImagem(k, fmt, l); }
+      return;
+    }
+    if (UI.modal || campo) return;
+    if (arq) { e.preventDefault(); return guardarImagemRapido(arq); }
+    const l = linkDeImagem(dt);
+    if (l && (EXT_IMAGEM.test(l) || rotaAtual()[0] === 'imagens')) { e.preventDefault(); guardarImagemRapido(l); }
+  });
+  const temArquivos = (e) => e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
+  document.addEventListener('dragover', (e) => {
+    if (!temArquivos(e)) return;
+    e.preventDefault();
+    document.querySelectorAll('.envio-alvo.sobre').forEach((x) => x.classList.remove('sobre'));
+    const z = e.target.closest && e.target.closest('[data-envio]');
+    if (z) { const a = z.querySelector('.envio-alvo'); if (a) a.classList.add('sobre'); }
+  });
+  document.addEventListener('dragleave', (e) => { if (!e.relatedTarget) document.querySelectorAll('.envio-alvo.sobre').forEach((x) => x.classList.remove('sobre')); });
+  document.addEventListener('drop', (e) => {
+    document.querySelectorAll('.envio-alvo.sobre').forEach((x) => x.classList.remove('sobre'));
+    if (!temArquivos(e)) return;
+    const arq = arquivoDeImagem(e.dataTransfer);
+    if (!arq) return;
+    e.preventDefault();
+    const z = e.target.closest && e.target.closest('[data-envio]');
+    if (z) return definirImagem(z.dataset.envio, z.dataset.formato, arq);
+    if (UI.modal) return;
+    [...e.dataTransfer.files].filter((x) => /^image\//.test(x.type)).forEach((x) => guardarImagemRapido(x));
+  });
+  let arrastandoImg = null;
+  document.addEventListener('dragstart', (e) => {
+    const p = e.target.closest && e.target.closest('[data-imagem]');
+    if (!p) return;
+    arrastandoImg = p.dataset.imagem; p.classList.add('arrastando'); e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', arrastandoImg); } catch (er) { /* ignora */ }
+  });
+  document.addEventListener('dragover', (e) => {
+    const a = arrastandoImg && e.target.closest && e.target.closest('[data-grupo-alvo]');
+    if (!a) return;
+    e.preventDefault();
+    document.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
+    a.classList.add('alvo-solta');
+  });
+  document.addEventListener('drop', (e) => {
+    const a = arrastandoImg && e.target.closest && e.target.closest('[data-grupo-alvo]');
+    if (!a) return;
+    e.preventDefault();
+    const i = item(arrastandoImg); arrastandoImg = null;
+    if (!i) return;
+    i.grupo = a.dataset.grupoAlvo === 'soltas' ? '' : a.dataset.grupoAlvo; i.editadoEm = agora();
+    salvar(); UI.pularColheita = true; render(); toast('Movida.', 'folder');
+  });
+  document.addEventListener('dragend', () => { arrastandoImg = null; document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')); });
+  /* No visualizador, as setas do teclado passam as imagens; no campo do link, Enter usa o link em vez de enviar o formulário. */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.dataset && e.target.dataset.act === 'img-link') {
+      e.preventDefault();
+      const v = e.target.value.trim(); if (!v) return;
+      e.target.value = ''; return definirImagem(e.target.dataset.k, e.target.dataset.formato, v);
+    }
+    if (UI.modal && UI.modal.tipo === 'imagem-ver' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !campoDeTexto(e.target)) {
+      e.preventDefault();
+      const l = imagens(), n = l.findIndex((x) => x.id === UI.modal.id);
+      if (n >= 0 && l.length > 1) { UI.modal = { tipo: 'imagem-ver', id: l[(n + (e.key === 'ArrowRight' ? 1 : -1) + l.length) % l.length].id }; render(); }
+    }
+  });
 
   /* ---------------- arrastar: notas e janelas ---------------- */
   let arrastando = null;

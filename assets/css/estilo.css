@@ -875,6 +875,45 @@ button, .btn { white-space: nowrap; }
 /* texto longo quebra em vez de empurrar a coluna */
 .post h3, .post p, .postit p, .postit h3, .link-dados, .tar-tit, .tar-desc, .ma-nome, .mini-txt, .musica-dados h3 { overflow-wrap: anywhere; }
 
+/* ---------- imagens: grade em colunas (estilo Pinterest), grupos, visualizador ---------- */
+.grupos-img { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 18px; }
+.chip-grupo { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--linha); background: var(--cartao); color: var(--tinta-2); font: inherit; font-size: 13.5px; cursor: pointer; transition: background .2s ease-out, color .2s ease-out, border-color .2s ease-out; }
+.chip-grupo em { font-style: normal; font-size: 12px; color: var(--tinta-3); }
+.chip-grupo:hover { background: var(--hover); }
+.chip-grupo[aria-pressed="true"] { background: var(--marca); border-color: var(--marca); color: var(--marca-texto); }
+.chip-grupo[aria-pressed="true"] em { color: inherit; opacity: .8; }
+.chip-grupo.alvo-solta { outline-offset: 2px; }
+.pin-grade { column-width: 230px; column-gap: 14px; }
+.pin { break-inside: avoid; margin: 0 0 14px; background: var(--cartao); border-radius: 18px; position: relative; display: block; }
+.pin.arrastando { opacity: .45; }
+.pin-img { display: block; width: 100%; padding: 0; border: 0; background: var(--cartao-2); cursor: zoom-in; border-radius: 18px; overflow: hidden; line-height: 0; }
+.pin-img img { width: 100%; height: auto; display: block; transition: opacity .2s ease-out; }
+.pin-img:hover img { opacity: .92; }
+.pin-quebrada { display: block; padding: 40px 12px; font-size: 13px; color: var(--tinta-3); text-align: center; line-height: 1.4; }
+.pin-pe { display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; min-height: 40px; }
+.pin-tit { flex: 1; min-width: 0; font-size: 13.5px; color: var(--tinta-2); overflow-wrap: anywhere; }
+.pin-acoes { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.dica-cola { margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.dica-cola .ico { width: 15px; height: 15px; }
+.imagem-post { display: flex; flex-direction: column; gap: 8px; }
+.imagem-post .pin-img { max-width: 420px; border-radius: 16px; }
+.mini-fotos { column-count: 3; column-gap: 8px; }
+.mini-fotos button { display: block; width: 100%; padding: 0; border: 0; margin: 0 0 8px; border-radius: 12px; overflow: hidden; background: var(--cartao-2); cursor: zoom-in; line-height: 0; break-inside: avoid; }
+.mini-fotos img { width: 100%; height: auto; display: block; }
+.modal-imagem { width: min(860px, calc(100vw - 32px)); }
+.img-palco { position: relative; display: grid; place-items: center; background: var(--cartao-2); border-radius: 18px; overflow: hidden; }
+.img-grande { max-width: 100%; max-height: calc(100vh - 300px); width: auto; height: auto; display: block; object-fit: contain; }
+.nav-img { position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; background: var(--cartao); border: 1px solid var(--linha); z-index: 1; }
+.nav-img.dir { left: auto; right: 10px; }
+.envio-lado { display: flex; flex-direction: column; gap: 10px; flex: 1 1 220px; min-width: 0; }
+.envio-alvo small { font-size: 12px; opacity: .8; }
+.envio-link { display: flex; gap: 8px; align-items: center; }
+.envio-link input { flex: 1; min-width: 0; }
+.previa-livre img { max-width: 100%; max-height: 240px; width: auto; height: auto; }
+.envio[data-envio] { align-items: flex-start; }
+:root[data-modo="escuro"] .chip-grupo[aria-pressed="true"] { background: var(--marca); }
+#atalho-add { z-index: 80; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
@@ -883,6 +922,10 @@ button, .btn { white-space: nowrap; }
   .grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 780px) {
+  .pin-grade { column-width: 150px; column-gap: 10px; }
+  .pin { margin-bottom: 10px; }
+  .envio-lado { flex-basis: 100%; }
+  .img-grande { max-height: calc(100vh - 340px); }
   .layout, .layout.sem-direita { grid-template-columns: 1fr; padding: 0 14px; gap: 18px; }
   .direita { grid-column: 1; }
   .nav-lateral { display: none; background: var(--cartao); border-radius: var(--r-g); padding: 10px; position: static; }
