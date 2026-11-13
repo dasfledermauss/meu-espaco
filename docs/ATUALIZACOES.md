@@ -8,6 +8,16 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.1 — 13/11/2026 · Imagens
+
+- Nova área Imagens: uma grade em colunas, estilo Pinterest, com cada imagem na proporção que tem.
+- Para guardar uma imagem: Ctrl + V cola a que você copiou, arraste um arquivo, escolha do computador ou use um link. Na tela de Imagens, colar guarda na hora.
+- Grupos de imagens: crie, renomeie e apague grupos, e arraste uma imagem sobre o nome do grupo para movê-la.
+- Clicar numa imagem abre ela grande, com setas para passar as próximas.
+- Todo campo de imagem do sistema agora aceita colar, arrastar e link: capa de livro, capa de pasta, foto do produto da wishlist e foto do perfil.
+- O atalho redondo de adicionar agora existe só dentro do modo trabalho, no canto de baixo à esquerda.
+- Correção: o menu “⋯” do post-it abria a edição em vez do menu, e por isso não dava para excluir. Agora abre o menu normalmente.
+
 ## 4.0 — 12/11/2026 · Modo trabalho
 
 - Shift + Espaço abre um quadro de tarefas por cima de tudo, para quando o assunto é só executar. Esc fecha.
