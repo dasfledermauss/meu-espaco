@@ -564,14 +564,15 @@ body.em-trabalho { overflow: hidden; }
 
 /* ---------- atalho de adicionar ---------- */
 #atalho-add { position: fixed; left: 20px; bottom: 20px; z-index: 65; }
-.atalho { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-.atalho-botao { width: 52px; height: 52px; border-radius: 50%; border: 0; background: var(--marca); color: var(--marca-texto); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s ease-out, background .2s ease-out; }
+.atalho { display: flex; flex-direction: column; align-items: flex-start; gap: 0; pointer-events: none; }
+.atalho-botao { width: 52px; height: 52px; border-radius: 50%; border: 0; background: var(--marca); color: var(--marca-texto); display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto; transition: transform .2s ease-out, background .2s ease-out; }
 .atalho-botao:hover { background: var(--marca-escura); }
 .atalho-botao .ico { width: 24px; height: 24px; }
-.atalho-tipos { display: flex; flex-direction: column-reverse; gap: 6px; padding-bottom: 2px;
+.atalho-tipos { display: flex; flex-direction: column-reverse; gap: 6px; padding-bottom: 10px;
   opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .18s ease-out, transform .18s ease-out; }
-.atalho:hover .atalho-tipos, .atalho.aberto .atalho-tipos, .atalho:focus-within .atalho-tipos { opacity: 1; transform: none; pointer-events: auto; }
-.atalho:hover .atalho-botao, .atalho.aberto .atalho-botao { transform: rotate(45deg); }
+/* abre só com o mouse sobre o botão de mais (ou sobre a lista já aberta), por toque ou pelo teclado */
+.atalho:has(.atalho-botao:hover) .atalho-tipos, .atalho:has(.atalho-tipos:hover) .atalho-tipos, .atalho.aberto .atalho-tipos, .atalho:has(:focus-visible) .atalho-tipos { opacity: 1; transform: none; pointer-events: auto; }
+.atalho:has(.atalho-botao:hover) .atalho-botao, .atalho:has(.atalho-tipos:hover) .atalho-botao, .atalho.aberto .atalho-botao { transform: rotate(45deg); }
 .atalho-tipos button { display: flex; align-items: center; gap: 9px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 999px; padding: 8px 14px 8px 11px; font: inherit; font-size: 13px; color: var(--tinta); cursor: pointer; white-space: nowrap; }
 .atalho-tipos button:hover { background: var(--marca-leve); color: var(--marca); }
 .atalho-tipos .ico { width: 16px; height: 16px; color: var(--tinta-3); }

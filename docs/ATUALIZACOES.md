@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.8 — 13/11/2026 · Adicionar abre só no símbolo
+
+- No modo trabalho, a lista de itens do botão de adicionar agora só abre ao passar o mouse sobre o símbolo de mais (antes abria também ao passar perto dele). No celular, abre com um toque.
+
 ## 5.7 — 13/11/2026 · Balão do pet mais legível
 
 - As falas do pet ficam bem mais tempo no balão (de 7 a 14 segundos, conforme o tamanho), e dá para clicar no balão para fazê-lo sumir.
