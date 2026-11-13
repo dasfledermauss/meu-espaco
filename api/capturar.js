@@ -66,7 +66,7 @@ function primeiro(v) {
 const ROBO = ['Seu navegador não é mais aceito', 'validateCaptcha', 'Digite os caracteres', 'Enter the characters you see',
   'To discuss automated access', 'Sorry, we just need to make sure you'];
 /** Títulos que as lojas devolvem quando barram o robô: não servem de nome de produto. */
-const TITULO_BLOQUEIO = /navegador n[ãa]o [ée] mais aceito|oops!|access denied|acesso negado|just a moment|attention required|captcha|robot check|are you a human|403 forbidden|enable javascript/i;
+const TITULO_BLOQUEIO = /^mercado libre$|^mercado livre$|navegador n[ãa]o [ée] mais aceito|oops!|access denied|acesso negado|just a moment|attention required|captcha|robot check|are you a human|403 forbidden|enable javascript/i;
 /** Shopee barra a leitura da página; nome e foto saem do próprio link (o endereço traz o nome e `image_ids`). */
 function shopee(url, r) {
   const u = new URL(url);
@@ -81,6 +81,37 @@ function shopee(url, r) {
   if (img && !r.imagem) r.imagem = 'https://down-br.img.susercontent.com/file/' + img;
   r.loja = 'Shopee';
   return a ? { loja: a[2], item: a[3] } : null;
+}
+/** Mercado Livre: o endereço traz o código (MLB…) e o nome; com o código, a API pública devolve foto e preço. */
+function mlLink(url) {
+  const u = new URL(url);
+  if (!/mercadoli[vb]re/.test(u.hostname)) return null;
+  let nome = null, codigo = null, produto = false;
+  let m = u.pathname.match(/\/(MLB)-?(\d+)-([^/]*?)(?:-_JM)?(?:\/|$)/i);
+  if (m) { codigo = 'MLB' + m[2]; nome = m[3]; }
+  else if ((m = u.pathname.match(/^\/([^/]+)\/(?:p|up)\/(MLB[U]?\d+)/i))) { codigo = m[2]; nome = m[1]; produto = true; }
+  else if ((m = u.pathname.match(/\/(?:p|up)\/(MLB[U]?\d+)/i))) { codigo = m[1]; produto = true; }
+  if (!codigo) return null;
+  if (nome) { try { nome = decodeURIComponent(nome); } catch (e) { /* mantém */ } nome = nome.replace(/-+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  return { codigo, nome, produto };
+}
+async function mlApi(info, r, sinal) {
+  const base = 'https://api.mercadolibre.com/';
+  const j = async (c) => { const x = await fetch(base + c, { headers: { Accept: 'application/json', 'User-Agent': CABECALHOS['User-Agent'] }, signal: sinal }); if (!x.ok) throw new Error(x.status + ''); return x.json(); };
+  try {
+    if (info.produto) {
+      const d = await j('products/' + info.codigo);
+      if (d.name && !r.nome) r.nome = d.name;
+      const f = d.pictures && d.pictures[0]; if (f && !r.imagem) r.imagem = f.url || f.secure_url;
+      const p = d.buy_box_winner && d.buy_box_winner.price; if (p && r.preco === null) r.preco = p;
+    } else {
+      const d = await j('items/' + info.codigo);
+      if (d.title && !r.nome) r.nome = d.title;
+      const f = d.pictures && d.pictures[0]; const img = (f && (f.secure_url || f.url)) || d.thumbnail; if (img && !r.imagem) r.imagem = img.replace(/^http:/, 'https:');
+      if (d.price != null && r.preco === null) r.preco = d.price;
+    }
+    r.moeda = r.moeda || 'BRL';
+  } catch (e) { /* API barrada: fica o que veio do endereço */ }
 }
 const bloqueado = (pagina) => pagina.length < 200000 && ROBO.some((m) => pagina.includes(m));
 
@@ -187,6 +218,9 @@ function extrair(pagina, url) {
   if (r.nome && TITULO_BLOQUEIO.test(r.nome)) r.nome = null;
   if (r.descricao && TITULO_BLOQUEIO.test(r.descricao)) r.descricao = null;
   shopee(url, r);
+  const ml = mlLink(url);
+  if (ml && ml.nome && !r.nome) r.nome = ml.nome;
+  if (ml && !m['og:site_name']) r.loja = 'Mercado Livre';
   const host = new URL(url).hostname;
   if (!r.favicon) r.favicon = new URL('/favicon.ico', url).href;
   r.loja = m['og:site_name'] || r.loja || host.replace(/^www\./, '');
@@ -236,6 +270,8 @@ export default async function handler(req, res) {
       } catch (e) { /* o que já temos basta */ }
     }
     // Shopee: tenta a API pública do item para completar preço e foto (pode ser barrada; então fica só o que veio do link).
+    const ml = mlLink(atual.url) || mlLink(alvo.href);
+    if (ml && faltaDado(r)) await mlApi(ml, r, corta.signal);
     const ids = shopee(atual.url, { nome: 'x', imagem: 'x' });
     if (ids && (r.preco === null || !r.imagem)) {
       try {
@@ -249,6 +285,15 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json(r);
   } catch (e) {
+    // Mercado Livre e Shopee às vezes recusam a leitura da página: ainda dá para montar o card pelo endereço e pela API.
+    if (mlLink(alvo.href) || shopee(alvo.href, { nome: 'x', imagem: 'x' })) {
+      try {
+        const r = extrair('<html></html>', alvo.href);
+        const ml = mlLink(alvo.href);
+        if (ml) await mlApi(ml, r, AbortSignal.timeout(8000));
+        if (r.nome || r.imagem) { res.setHeader('Cache-Control', 'no-store'); return res.status(200).json(r); }
+      } catch (e2) { /* cai no erro abaixo */ }
+    }
     return res.status(502).json({ erro: `a página não respondeu (${e.name === 'AbortError' ? 'demorou demais' : e.message})` });
   } finally { clearTimeout(tempo); }
 }
