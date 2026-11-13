@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.9',
+    data: '2026-11-13',
+    titulo: 'Currículo base limpo',
+    itens: [
+      'O modelo base do currículo que acompanhava o projeto foi esvaziado: nenhum dado pessoal vem mais pronto, só a estrutura em branco para quem for importar o seu.'
+    ]
+  },
+  {
     versao: '5.8',
     data: '2026-11-13',
     titulo: 'Adicionar abre só no símbolo',

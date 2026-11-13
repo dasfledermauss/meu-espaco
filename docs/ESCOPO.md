@@ -73,7 +73,7 @@ Exemplo ilustrativo de um arquivo aceito pela primeira versão. Os identificador
 {
   "versao": 1,
   "perfil": {
-    "nome": "Jackson Rubens",
+    "nome": "Seu Nome",
     "titulo": "Designer de produto"
   },
   "experiencias": [
