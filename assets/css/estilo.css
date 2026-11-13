@@ -1013,6 +1013,42 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .ver-linha > :last-child { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .ver-texto { font-size: 14.5px; line-height: 1.55; color: var(--tinta-2); white-space: pre-wrap; overflow-wrap: anywhere; }
 .ver-valor { font-size: 28px; font-weight: 600; }
+/* ---------- pet ---------- */
+.pet-cena { --ceu1: #bfe0f5; --ceu2: #eaf6fb; --chao: #86bd6a; --chao-alto: #9ccf80; --chao-baixo: #75ab5a; --nuvem: #fff; --astro: #f7d36a;
+  position: relative; height: 176px; margin-bottom: 18px; border-radius: var(--r-l, 22px); overflow: hidden; background: linear-gradient(var(--ceu1), var(--ceu2)); isolation: isolate; user-select: none; -webkit-user-select: none; cursor: pointer; }
+:root[data-modo="escuro"] .pet-cena { --ceu1: #141b33; --ceu2: #2a3760; --chao: #2f5a44; --chao-alto: #3b6c52; --chao-baixo: #264b39; --nuvem: #3a4772; --astro: #e9ecf5; }
+.pet-cena > * { position: absolute; }
+.pc-astro { right: 70px; top: 24px; width: 26px; height: 26px; background: var(--astro); box-shadow: 0 0 0 4px color-mix(in srgb, var(--astro) 35%, transparent); clip-path: polygon(30% 0, 70% 0, 70% 15%, 100% 15%, 100% 85%, 70% 85%, 70% 100%, 30% 100%, 30% 85%, 0 85%, 0 15%, 30% 15%); }
+.pc-estrelas { inset: 0; opacity: 0; background-image: radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent), radial-gradient(1.5px 1.5px at 34% 12%, #fff, transparent), radial-gradient(1.5px 1.5px at 58% 28%, #fff, transparent), radial-gradient(1.5px 1.5px at 76% 10%, #fff, transparent), radial-gradient(1.5px 1.5px at 90% 34%, #fff, transparent); }
+:root[data-modo="escuro"] .pc-estrelas { opacity: .9; }
+.pc-nuvem { height: 14px; width: 54px; background: var(--nuvem); top: 34px; box-shadow: 10px -8px 0 -1px var(--nuvem), 26px -8px 0 1px var(--nuvem), 38px 0 0 0 var(--nuvem); animation: nuvem 90s linear infinite; }
+.pc-nuvem.n1 { left: -80px; }
+.pc-nuvem.n2 { top: 62px; transform: scale(.7); left: -80px; animation-duration: 140s; animation-delay: -60s; opacity: .85; }
+@keyframes nuvem { to { transform: translateX(calc(100vw + 160px)); } }
+.pc-morros { left: 0; right: 0; bottom: 24px; background-repeat: repeat-x; background-size: auto 100%; image-rendering: pixelated; }
+.pc-morros.longe { height: 70px; background-image: var(--morros-claro); background-size: 480px 70px; }
+.pc-morros.perto { height: 46px; background-image: var(--morros-claro2); background-size: 480px 46px; }
+:root[data-modo="escuro"] .pc-morros.longe { background-image: var(--morros-escuro); }
+:root[data-modo="escuro"] .pc-morros.perto { background-image: var(--morros-escuro2); }
+.pc-chao { left: 0; right: 0; bottom: 0; height: 30px; background: var(--chao); border-top: 4px solid var(--chao-alto); box-shadow: inset 0 -8px 0 var(--chao-baixo); }
+.pc-arvore { left: 6%; bottom: 22px; width: 66px; height: auto; image-rendering: pixelated; }
+.pc-casinha { right: 5%; bottom: 20px; width: 84px; height: auto; image-rendering: pixelated; }
+.pc-flores { left: 38%; bottom: 20px; width: 150px; height: auto; opacity: .95; }
+.pet-cao { left: 0; bottom: 6px; background-image: url('../img/pet/cachorro.png'); background-repeat: no-repeat; image-rendering: pixelated; will-change: transform; z-index: 2; }
+.pet-balao { left: 0; bottom: 100px; z-index: 3; padding: 5px 10px; border-radius: 12px; background: #fff; color: #1b1f2a; font-size: 13px; font-weight: 700; letter-spacing: .02em; box-shadow: 0 2px 8px rgba(20, 28, 50, .18); pointer-events: none; white-space: nowrap; }
+.pet-balao::after { content: ''; position: absolute; left: 24px; bottom: -5px; width: 9px; height: 9px; background: #fff; transform: rotate(45deg); }
+.pet-balao[hidden] { display: none; }
+.pet-comida { left: 0; top: 0; width: 18px; height: 18px; z-index: 1; pointer-events: none; }
+.pet-comida i { position: absolute; width: 6px; height: 6px; background: #b0703c; box-shadow: inset -2px -2px 0 #8a5329; }
+.pet-comida i:nth-child(1) { left: 1px; top: 9px; } .pet-comida i:nth-child(2) { left: 7px; top: 5px; background: #c58650; } .pet-comida i:nth-child(3) { left: 11px; top: 11px; }
+.pet-som { right: 10px; top: 10px; z-index: 4; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .72); color: #2a3550; display: grid; place-items: center; cursor: pointer; transition: background .2s ease-out; }
+.pet-som:hover { background: rgba(255, 255, 255, .95); }
+.pet-som svg { width: 18px; height: 18px; }
+:root[data-modo="escuro"] .pet-som { background: rgba(20, 27, 51, .6); color: #dfe5f7; }
+.pet-dica { left: 14px; top: 12px; z-index: 4; font-size: 12px; color: #3a4a66; background: rgba(255, 255, 255, .6); padding: 4px 10px; border-radius: 999px; transition: opacity .4s ease-out; pointer-events: none; max-width: calc(100% - 100px); }
+:root[data-modo="escuro"] .pet-dica { color: #dfe5f7; background: rgba(20, 27, 51, .55); }
+.pet-dica.some { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .pc-nuvem { animation: none; left: 20%; } }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

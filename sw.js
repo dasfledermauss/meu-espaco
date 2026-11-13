@@ -20,7 +20,7 @@ const ESSENCIAIS = [
   'assets/css/estilo.css',
   'assets/js/config.js', 'assets/js/icones.js', 'assets/js/atualizacoes.js', 'assets/js/nuvem.js', 'assets/js/app.js', 'assets/js/pwa.js',
   'assets/fonts/lexend.woff2', 'assets/fonts/lexend-ext.woff2',
-  'assets/img/pwa/icone-192.png', 'assets/img/pwa/icone-512.png', 'assets/img/pwa/icone.svg', 'assets/img/foto-perfil.jpg'
+  'assets/img/pwa/icone-192.png', 'assets/img/pwa/icone-512.png', 'assets/img/pwa/icone.svg', 'assets/img/foto-perfil.jpg', 'assets/img/pet/cachorro.png'
 ];
 /* Bom ter, mas só carregados quando alguém abre um PDF: entram se der, sem derrubar a instalação. */
 const OPCIONAIS = ['assets/vendor/pdf.min.mjs', 'assets/vendor/pdf.worker.min.mjs', 'assets/img/pwa/icone-maskable-512.png'];
