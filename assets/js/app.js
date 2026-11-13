@@ -1060,6 +1060,12 @@
         '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>
       ${UI.listaAberta === i.id ? faixasHTML(i) : ''}`).join('');
   }
+  /** No mini app, leva a playlist aberta para o topo da lista, para ver os vídeos dela. */
+  function rolarListaAoTopo(id) {
+    const lista = document.getElementById('ma-lista'); if (!lista) return;
+    const linha = lista.querySelector(`.ma-faixa[data-oid="${id}"]`); if (!linha) return;
+    lista.scrollTo({ top: lista.scrollTop + linha.getBoundingClientRect().top - lista.getBoundingClientRect().top - 4, behavior: 'smooth' });
+  }
   function faixasHTML(i) {
     if (i.buscandoFaixas) return `<p class="ma-vazio">Lendo os vídeos da lista…</p>`;
     if (!i.faixas || !i.faixas.length) return `<p class="ma-vazio">${i.faixasErro ? esc(i.faixasErro) : 'Nenhum vídeo lido ainda.'} <button type="button" class="ma-de-novo" data-act="ma-faixas-recarregar" data-id="${i.id}">Tentar de novo</button></p>`;
@@ -2929,7 +2935,9 @@
         UI.listaAberta = mesmo ? '' : b.dataset.id;
         const alvo = item(b.dataset.id);
         if (!mesmo && alvo && !(alvo.faixas && alvo.faixas.length)) carregarFaixas(alvo.id);
-        UI.pularColheita = true; return render();
+        UI.pularColheita = true; render();
+        if (!mesmo) rolarListaAoTopo(b.dataset.id);
+        return;
       }
       case 'ma-faixas-recarregar': e.preventDefault(); return carregarFaixas(b.dataset.id);
       case 'player-fechar': e.preventDefault(); return fecharMusica();
