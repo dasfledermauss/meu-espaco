@@ -1072,18 +1072,21 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 @media (max-width: 640px) { .pet-dica { display: none; } .pet-botao span { display: none; } .pet-botao { padding: 0; justify-content: center; width: 36px; height: 36px; } }
 @media (prefers-reduced-motion: reduce) { .pc-nuvem { animation: none; left: 20%; } .pet-coco b, .pc-placa.sem-nome { animation: none; } }
 
-.pet-config { right: 10px; top: 52px; z-index: 6; width: 248px; max-width: calc(100% - 20px); padding: 12px; border-radius: 16px; background: var(--cartao); color: var(--tinta); box-shadow: 0 12px 32px rgba(20, 28, 50, .24); display: flex; flex-direction: column; gap: 8px; cursor: default; }
+.pet-config { inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 8px; background: rgba(16, 23, 49, .38); cursor: default; }
 .pet-config[hidden] { display: none; }
-.pet-config-tit { font-size: 12.5px; font-weight: 600; color: var(--tinta-3); }
-.pet-opcoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.pet-opcao { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; padding: 8px 4px 8px; border-radius: 12px; border: 1.5px solid var(--linha); background: var(--cartao-2); color: var(--tinta); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color .2s ease-out, background .2s ease-out; }
+.pet-config-card { width: min(470px, 100%); padding: 10px 12px 12px; border-radius: 16px; background: var(--cartao); color: var(--tinta); box-shadow: 0 12px 32px rgba(20, 28, 50, .32); display: flex; flex-direction: column; gap: 8px; }
+.pet-config-cab { display: flex; align-items: center; justify-content: space-between; }
+.pet-config-tit { font-size: 13px; font-weight: 600; color: var(--tinta-2); }
+.pet-config-cab .ico-btn { width: 28px; height: 28px; }
+.pet-opcoes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pet-opcao { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; padding: 8px 2px 6px; min-width: 0; border-radius: 12px; border: 1.5px solid var(--linha); background: var(--cartao-2); color: var(--tinta); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color .2s ease-out, background .2s ease-out, color .2s ease-out; }
 .pet-opcao:hover { background: var(--marca-leve); color: var(--marca); border-color: var(--marca); }
 .pet-opcao[aria-pressed="true"] { border-color: var(--marca); background: var(--marca-leve); color: var(--marca); }
 .pet-mini { display: block; background-repeat: no-repeat; image-rendering: pixelated; }
-.pet-linha { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 10px; border: 0; border-radius: 10px; background: var(--cartao-2); color: var(--tinta); font: inherit; font-size: 13px; cursor: pointer; text-align: left; }
+.pet-extras { display: flex; flex-wrap: wrap; gap: 6px; }
+.pet-linha { display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px; border: 0; border-radius: 999px; background: var(--cartao-2); color: var(--tinta); font: inherit; font-size: 12px; cursor: pointer; transition: background .2s ease-out, color .2s ease-out; }
 .pet-linha:hover { background: var(--marca-leve); color: var(--marca); }
-.pet-linha:hover b { color: var(--marca); }
-.pet-linha b { font-size: 11.5px; font-weight: 500; color: var(--tinta-3); }
+.pet-linha b { font-weight: 600; }
 /* vasilhas de comida e de água */
 .pc-pote { left: 5%; bottom: 20px; width: 40px; height: 20px; padding: 0; border: 0; background: none; cursor: pointer; z-index: 2; }
 .pc-pote.agua { left: calc(5% + 48px); }
@@ -1192,3 +1195,4 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
   .previa-doc { padding: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (max-width: 640px) { .pet-config-card { gap: 6px; padding: 8px 10px 10px; } .pet-linha { padding: 4px 9px; font-size: 11.5px; } .pet-opcao { padding: 6px 2px 5px; } }

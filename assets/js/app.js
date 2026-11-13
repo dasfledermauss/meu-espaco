@@ -1345,15 +1345,16 @@
       <div class="pet-cao" role="img" aria-label="${nome ? esc(nome) : petDef().nome}"></div><div class="pet-balao" hidden></div>
       <div class="pet-barra">
         <button type="button" class="pet-botao" data-act="pet-banho" title="Dar banho">${petIco('<path d="M12 3.5s6 6.1 6 10.2a6 6 0 0 1-12 0C6 9.6 12 3.5 12 3.5Z"/><path d="M9.5 14a2.6 2.6 0 0 0 2.2 2.4"/>')}<span>Banho</span></button>
-        <button type="button" class="pet-botao so-icone" data-act="pet-config" aria-label="Configurações do pet" aria-haspopup="true" title="Configurações do pet">
-          ${petIco('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>')}</button></div>
-      <div class="pet-config" ${UI.petConfig ? '' : 'hidden'}>
-        <p class="pet-config-tit">Escolha o seu pet</p>
+        <button type="button" class="pet-botao" data-act="pet-config" aria-haspopup="dialog" title="Escolher o pet e ajustes">
+          ${petIco('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>')}<span>Pets</span></button></div>
+      <div class="pet-config" ${UI.petConfig ? '' : 'hidden'} role="dialog" aria-label="Escolha o seu pet"><div class="pet-config-card">
+        <div class="pet-config-cab"><p class="pet-config-tit">Escolha o seu pet</p>${btnIco('pet-config', 'xmark', 'Fechar')}</div>
         <div class="pet-opcoes">${Object.entries(PET_TIPOS).map(([k, d]) => `<button type="button" class="pet-opcao" data-act="pet-escolher" data-tipo="${k}" aria-pressed="${(S.perfil.petTipo || 'salsicha') === k}">
-          <span class="pet-mini" style="width:${d.CW * 1.5}px;height:${d.CH * 1.5}px;background-image:url('${d.arq}');background-size:${d.CW * 6}px ${d.CH * 6}px"></span><span>${d.nome}</span></button>`).join('')}</div>
-        <button type="button" class="pet-linha" data-act="pet-som" aria-pressed="${som}"><span>Som do pet</span><b>${som ? 'Ligado' : 'Desligado'}</b></button>
-        <button type="button" class="pet-linha" data-act="pet-papo" aria-pressed="${!S.perfil.petCala}"><span>Conversa do pet</span><b>${S.perfil.petCala ? 'Desligada' : 'Ligada'}</b></button>
-        <button type="button" class="pet-linha" data-act="pet-alternar"><span>Esconder o pet</span><b>Voltar em Configurações</b></button></div>
+          <span class="pet-mini" style="width:${d.CW}px;height:${d.CH}px;background-image:url('${d.arq}');background-size:${d.CW * 4}px ${d.CH * 4}px"></span><span>${d.nome}</span></button>`).join('')}</div>
+        <div class="pet-extras">
+          <button type="button" class="pet-linha" data-act="pet-som" aria-pressed="${som}">Som: <b>${som ? 'ligado' : 'desligado'}</b></button>
+          <button type="button" class="pet-linha" data-act="pet-papo" aria-pressed="${!S.perfil.petCala}">Conversa: <b>${S.perfil.petCala ? 'desligada' : 'ligada'}</b></button>
+          <button type="button" class="pet-linha" data-act="pet-alternar" title="Para voltar, use Configurações">Esconder</button></div></div></div>
       <p class="pet-dica ${PET.interagiu ? 'some' : ''}">Clique no chão para jogar a bolinha, nele para ouvir um latido, nas vasilhas para encher e na casinha para dar um nome</p></section>`;
   };
   let petAudio = null;
@@ -1627,7 +1628,7 @@
     const cena = e.target.closest && e.target.closest('#pet-cena');
     if (!cena) return;
     const painel = cena.querySelector('.pet-config');
-    if (painel && !painel.hidden && !e.target.closest('.pet-config, [data-act="pet-config"]')) { painel.hidden = true; UI.petConfig = false; return; }
+    if (painel && !painel.hidden && !e.target.closest('.pet-config-card, [data-act="pet-config"]')) { painel.hidden = true; UI.petConfig = false; return; }
     const coco = e.target.closest('.pet-coco');
     if (coco) { const c = PET.cocos.find((x) => x.el === coco); if (c) petLimpar(c, coco, cena); return; }
     if (e.target.closest('button, [data-act]')) return;

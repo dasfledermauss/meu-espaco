@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.6',
+    data: '2026-11-13',
+    titulo: 'Escolha de pets em popup',
+    itens: [
+      'A escolha do pet agora abre como um popup no centro do cenário, com um card para cada pet (salsicha, pinscher, frajola e shollie), em vez de ficar escondida numa engrenagem.',
+      'O botão do cenário agora se chama Pets, para ficar fácil de achar. Som, conversa e esconder ficam no mesmo popup.'
+    ]
+  },
+  {
     versao: '5.5',
     data: '2026-11-13',
     titulo: 'O pet conversa com você',

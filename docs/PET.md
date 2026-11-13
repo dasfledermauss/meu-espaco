@@ -7,7 +7,7 @@ Um pet em pixel art no alto do Início, acima de "O que você quer guardar?".
 - **Parado:** quadros de respiração; de tempos em tempos senta e volta a ficar de pé.
 - **Clique nele:** late (balão "AU! AU!", pulinho e som sintetizado, sem arquivo de áudio).
 - **Clique no chão:** joga a bolinha ali (cai do alto); ele corre atrás e chuta de um lado para o outro.
-- **Pets:** salsicha, pinscher, frajola e shollie, escolhidos pela engrenagem do cenário (`perfil.petTipo`). Cada um tem folha própria, tamanho de célula e voz (`PET_TIPOS`).
+- **Pets:** salsicha, pinscher, frajola e shollie, escolhidos no botão **Pets** do cenário (popup com um card por pet) (`perfil.petTipo`). Cada um tem folha própria, tamanho de célula e voz (`PET_TIPOS`).
 - **Som:** botão no canto do cenário ou Configurações → Cachorrinho. **Esconder** também fica em Configurações. Ficam em `perfil.petMudo` e `perfil.petOculto`.
 - Respeita "reduzir movimento" do sistema: sem nuvens andando, sem sentar sozinho.
 
