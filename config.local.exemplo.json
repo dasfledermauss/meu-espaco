@@ -1,5 +1,7 @@
 {
   "GOOGLE_CLIENT_ID": "796153463308-gl5uikl4gedb49vgpl9h7ffcvq2tmm6o.apps.googleusercontent.com",
   "EMAILS_PERMITIDOS": "seu-email@gmail.com",
-  "SESSAO_SEGREDO": "troque-por-um-texto-aleatorio-longo"
+  "SESSAO_SEGREDO": "troque-por-um-texto-aleatorio-longo",
+  "ML_CLIENT_ID": "opcional: ID do app no Mercado Livre Developers",
+  "ML_CLIENT_SECRET": "opcional: chave secreta do app"
 }

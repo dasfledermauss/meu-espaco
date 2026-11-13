@@ -50,6 +50,8 @@ def _config_local():
 LOCAL = _config_local()
 CLIENT_ID = LOCAL.get("GOOGLE_CLIENT_ID") or os.environ.get("GOOGLE_CLIENT_ID", "")
 PERMITIDOS = [e.strip().lower() for e in (LOCAL.get("EMAILS_PERMITIDOS") or os.environ.get("EMAILS_PERMITIDOS", "")).split(",") if e.strip()]
+ML_ID = LOCAL.get("ML_CLIENT_ID") or os.environ.get("ML_CLIENT_ID", "")
+ML_SECRET = LOCAL.get("ML_CLIENT_SECRET") or os.environ.get("ML_CLIENT_SECRET", "")
 SEGREDO = LOCAL.get("SESSAO_SEGREDO") or os.environ.get("SESSAO_SEGREDO") or secrets.token_hex(32)
 DIAS = 30
 CABECALHOS = {
@@ -257,9 +259,35 @@ def ml_link(url):
     return {"codigo": codigo, "nome": nome, "produto": produto}
 
 
+_ml_token = {"valor": "", "ate": 0}
+
+
+def ml_token():
+    """Token do aplicativo (client_credentials), guardado até perto de vencer."""
+    if not (ML_ID and ML_SECRET):
+        return ""
+    if _ml_token["valor"] and time.time() < _ml_token["ate"]:
+        return _ml_token["valor"]
+    corpo = ("grant_type=client_credentials&client_id=" + quote(ML_ID, safe="") + "&client_secret=" + quote(ML_SECRET, safe="")).encode()
+    req = Request("https://api.mercadolibre.com/oauth/token", data=corpo, method="POST",
+                  headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"})
+    try:
+        with urlopen(req, timeout=10) as x:
+            d = json.loads(x.read(64 * 1024).decode("utf-8"))
+        _ml_token["valor"] = d.get("access_token", "")
+        _ml_token["ate"] = time.time() + max(60, int(d.get("expires_in", 3600)) - 300)
+    except Exception:
+        _ml_token["valor"] = ""
+    return _ml_token["valor"]
+
+
 def ml_api(info, r):
     def j(c):
-        req = Request("https://api.mercadolibre.com/" + c, headers={"Accept": "application/json", "User-Agent": CABECALHOS["User-Agent"]})
+        cab = {"Accept": "application/json", "User-Agent": CABECALHOS["User-Agent"]}
+        t = ml_token()
+        if t:
+            cab["Authorization"] = "Bearer " + t
+        req = Request("https://api.mercadolibre.com/" + c, headers=cab)
         with urlopen(req, timeout=10) as x:
             return json.loads(x.read(2 * 1024 * 1024).decode("utf-8"))
     try:

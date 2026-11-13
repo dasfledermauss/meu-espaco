@@ -86,3 +86,16 @@ Corrigir à mão (nome, preço, foto, loja) é opcional, em Editar. Um nome corr
 - Colar um link de página que só tem título e imagem: o cartão aparece com “Faltou: preço”.
 - Atualizar o preço depois de uma mudança na loja e ver a variação no cartão e o histórico na ficha.
 - Marcar como comprado, aceitar o registro do gasto e conferir o valor em Gastos.
+
+
+## Mercado Livre: foto e preço automáticos
+
+O Mercado Livre bloqueia a leitura da página, então foto e preço vêm da API oficial dele. É preciso um aplicativo gratuito:
+
+1. Entre em developers.mercadolivre.com.br com sua conta e escolha **Criar aplicação**.
+2. Dê um nome, marque o uso como consulta de dados públicos e salve.
+3. Copie o **App ID** e a **Chave secreta**.
+4. No `config.local.json`, acrescente `"ML_CLIENT_ID": "<App ID>"` e `"ML_CLIENT_SECRET": "<chave>"` (veja `config.local.exemplo.json`). No Vercel, crie as duas variáveis de ambiente com esses nomes.
+5. Reinicie o `servidor.py` e use Atualizar preço nos cards.
+
+Sem as chaves, só o nome sai do link; foto e preço ficam para preencher em Corrigir dados.

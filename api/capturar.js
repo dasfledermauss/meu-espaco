@@ -97,9 +97,25 @@ function mlLink(url) {
   if (nome) { try { nome = decodeURIComponent(nome); } catch (e) { /* mantém */ } nome = nome.replace(/-+/g, ' ').replace(/\s+/g, ' ').trim(); }
   return { codigo, nome, produto };
 }
+let mlToken = { valor: '', ate: 0 };
+/** Token do aplicativo (ML_CLIENT_ID / ML_CLIENT_SECRET nas variáveis do Vercel). */
+async function mlTokenApp(sinal) {
+  const id = process.env.ML_CLIENT_ID, segredo = process.env.ML_CLIENT_SECRET;
+  if (!id || !segredo) return '';
+  if (mlToken.valor && Date.now() < mlToken.ate) return mlToken.valor;
+  try {
+    const x = await fetch('https://api.mercadolibre.com/oauth/token', { method: 'POST', signal: sinal,
+      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ grant_type: 'client_credentials', client_id: id, client_secret: segredo }) });
+    const d = await x.json();
+    mlToken = { valor: d.access_token || '', ate: Date.now() + Math.max(60, (d.expires_in || 3600) - 300) * 1000 };
+  } catch (e) { mlToken.valor = ''; }
+  return mlToken.valor;
+}
 async function mlApi(info, r, sinal) {
   const base = 'https://api.mercadolibre.com/';
-  const j = async (c) => { const x = await fetch(base + c, { headers: { Accept: 'application/json', 'User-Agent': CABECALHOS['User-Agent'] }, signal: sinal }); if (!x.ok) throw new Error(x.status + ''); return x.json(); };
+  const token = await mlTokenApp(sinal);
+  const j = async (c) => { const x = await fetch(base + c, { headers: { Accept: 'application/json', 'User-Agent': CABECALHOS['User-Agent'], ...(token ? { Authorization: 'Bearer ' + token } : {}) }, signal: sinal }); if (!x.ok) throw new Error(x.status + ''); return x.json(); };
   try {
     if (info.produto) {
       const d = await j('products/' + info.codigo);
