@@ -949,6 +949,22 @@ kbd { font: inherit; font-size: 12.5px; font-weight: 500; padding: 4px 9px; bord
 .onb-rodape-dica { margin-top: 6px; }
 @media (prefers-reduced-motion: reduce) { .onb-corpo.entra { animation: none; } }
 
+/* ---------- listinha "Para começar" ---------- */
+.passos { padding: 18px 20px 14px; margin-bottom: 18px; }
+.passos header { display: flex; align-items: baseline; gap: 10px; }
+.passos header .espaco { flex: 1; }
+.passos header .btn-txt { font-size: 13px; }
+.passos h2 { font-size: 16px; font-weight: 600; }
+.passos-barra { height: 4px; border-radius: 4px; background: var(--campo); margin: 12px 0 8px; overflow: hidden; }
+.passos-barra i { display: block; height: 100%; background: var(--marca); border-radius: 4px; transition: width .3s ease-out; }
+.passos ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 12px; }
+.passos li button { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; padding: 8px 8px; border-radius: 10px; background: none; color: var(--tinta-2); font: inherit; font-size: 14px; text-align: left; cursor: pointer; transition: background .2s ease-out; }
+.passos li button:hover { background: var(--hover); }
+.passos li button .ico { width: 20px; height: 20px; flex: none; color: var(--tinta-3); }
+.passos li button.feito { color: var(--tinta-3); }
+.passos li button.feito span { text-decoration: line-through; }
+.passos li button.feito .ico { color: var(--marca); }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
@@ -957,6 +973,7 @@ kbd { font: inherit; font-size: 12.5px; font-weight: 500; padding: 4px 9px; bord
   .grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 780px) {
+  .passos ul { grid-template-columns: 1fr; }
   .onb-topo, .onb-barra { padding-left: 20px; padding-right: 20px; }
   .onb-corpo { padding: 26px 20px 22px; min-height: 0; }
   .onb-corpo h2 { font-size: 24px; }

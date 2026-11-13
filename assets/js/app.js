@@ -216,6 +216,8 @@
     if (st.destinoPadrao.imagem === undefined) st.destinoPadrao.imagem = '';
     st.gruposMusica = st.gruposMusica || [];
     st.gruposImagem = st.gruposImagem || [];
+    // Quem já tinha registros não precisa da listinha de começo.
+    if (st.perfil.passosFim === undefined) st.perfil.passosFim = (st.itens || []).length > 0;
     (st.itens || []).forEach((i, k) => { if (i.tipo === 'musica' && i.ordem === undefined) i.ordem = k; });
     st.lembretes = st.lembretes || []; st.pastas = st.pastas || []; st.colecoes = st.colecoes || [];
     st.perfil.corCustom = st.perfil.corCustom || '';
@@ -912,6 +914,7 @@
   function alternarTrabalho(ligado) {
     UI.modoTrabalho = ligado === undefined ? !UI.modoTrabalho : ligado;
     document.body.classList.toggle('em-trabalho', !!UI.modoTrabalho);
+    if (UI.modoTrabalho) { S.perfil.passos = S.perfil.passos || {}; if (!S.perfil.passos.trabalho) { S.perfil.passos.trabalho = true; salvar(); } }
     UI.pularColheita = true; render();
   }
   function renderTrabalho() {
@@ -1228,7 +1231,7 @@
         <p class="onb-sub">Que tal guardar a primeira coisa agora? Escolha uma:</p>
         <div class="onb-primeiro">${[['nota', 'Uma nota', 'journal-page'], ['tarefa', 'Uma tarefa', 'list'], ['imagem', 'Uma imagem', 'media-image'], ['link', 'Um link', 'link']].map(([t, nm, i], k) =>
           `<button type="button" class="${k === 0 ? 'btn-1' : 'btn-2'}" data-act="onb-criar" data-t="${t}">${ic(i)}${nm}</button>`).join('')}</div>
-        <p class="meta onb-rodape-dica">Prefere explorar sozinho? Tudo bem, o menu da esquerda leva a cada área.</p>`
+        <p class="meta onb-rodape-dica">No Início fica uma listinha “Para começar” com outras ideias; ela risca sozinha. Prefere explorar? O menu da esquerda leva a cada área.</p>`
     ][n]();
     const ultimo = n === ONB_PASSOS - 1;
     return `<div class="modal modal-onb" role="document" aria-labelledby="onb-tit">
@@ -1549,7 +1552,24 @@
     ordem.forEach((d, n) => { if (n) h += `<p class="secao-tit">${rotuloDia(d)}</p>`; h += blocosFeed(dias[d], { hora: true }); });
     return h;
   }
-  const renderInicio = () => { main.innerHTML = faixaLembrete() + compositor() + `<div class="feed">${conteudoFeed()}</div>`; };
+  /* Listinha "Para começar": aparece no Início de um espaço novo, risca sozinha e some quando acaba ou é dispensada. */
+  const PASSOS = () => [
+    ['nota', 'Guardar uma nota', () => doTipo('nota').length > 0, 'data-act="criar" data-t="nota"'],
+    ['tarefa', 'Criar uma tarefa', () => doTipo('tarefa').length > 0, 'data-act="criar" data-t="tarefa"'],
+    ['imagem', 'Colar uma imagem (Ctrl + V)', () => doTipo('imagem').length > 0, 'data-act="criar" data-t="imagem"'],
+    ['link', 'Guardar um link', () => doTipo('link').length > 0, 'data-act="criar" data-t="link"'],
+    ['foto', 'Pôr uma foto no perfil', () => !!S.perfil.foto, 'data-act="foto-trocar"'],
+    ['trabalho', 'Abrir o modo trabalho (Shift + Espaço)', () => !!(S.perfil.passos || {}).trabalho, 'data-act="trabalho"']];
+  function primeirosPassosHTML() {
+    if (S.perfil.passosFim) return '';
+    const l = PASSOS(), feitos = l.filter((x) => x[2]()).length;
+    if (feitos === l.length) return '';
+    return `<section class="cartao passos" aria-label="Para começar">
+      <header><h2>Para começar</h2><span class="meta">${feitos} de ${l.length}</span><span class="espaco"></span>${btn('passos-dispensar', 'Dispensar', '', 'btn-txt')}</header>
+      <div class="passos-barra" role="progressbar" aria-valuemin="0" aria-valuemax="${l.length}" aria-valuenow="${feitos}"><i style="width:${Math.round(feitos / l.length * 100)}%"></i></div>
+      <ul>${l.map(([k, t, f, a]) => `<li><button type="button" class="${f() ? 'feito' : ''}" ${a}>${ic(f() ? 'check-circle-solid' : 'check-circle')}<span>${t}</span></button></li>`).join('')}</ul></section>`;
+  }
+  const renderInicio = () => { main.innerHTML = faixaLembrete() + compositor() + primeirosPassosHTML() + `<div class="feed">${conteudoFeed()}</div>`; };
 
   /* ---------------- Mural ---------------- */
   function renderMural() {
@@ -2317,6 +2337,7 @@
       case 'trabalho': e.preventDefault(); return alternarTrabalho();
       case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
       case 'atalho': e.preventDefault(); UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
+      case 'passos-dispensar': e.preventDefault(); S.perfil.passosFim = true; return passa();
       case 'onb-prox': e.preventDefault(); if (UI.onb.passo === 0) onboardingSalvaNome(); UI.onb.passo = Math.min(ONB_PASSOS - 1, UI.onb.passo + 1); UI.onb.entra = true; UI.pularColheita = true; return render();
       case 'onb-voltar': e.preventDefault(); UI.onb.passo = Math.max(0, UI.onb.passo - 1); UI.onb.entra = true; UI.pularColheita = true; return render();
       case 'onb-pular': case 'onb-fim': e.preventDefault(); onboardingSalvaNome(); return encerrarOnboarding();
