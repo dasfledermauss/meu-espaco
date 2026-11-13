@@ -15,7 +15,7 @@ Um pet em pixel art no alto do Início, acima de "O que você quer guardar?".
 
 A cada 50 a 90 segundos (primeira fala uns 6 a 11 s depois de abrir), só com a janela visível, sem janela aberta e com o pet parado, sentado ou andando, ele solta uma frase no balão. Assuntos, com pesos: o que você guardou nas últimas 36 h, tarefas feitas, lembretes e tarefas de hoje ou atrasados, o tempo (se a cidade da previsão estiver definida), fim de semana, bom dia/boa tarde/boa noite, elogios e carinho. Ao voltar depois de mais de 2 h (guardado em `localStorage` `meuEspaco.petVisto`), diz que sentiu falta.
 
-As frases ficam em `assets/js/pet-frases.js`: é só acrescentar linhas nas listas. Marcadores: `{t}` título, `{n}` número, `{nome}` seu primeiro nome (escreva no fim da frase). Desligar: engrenagem do cenário → Conversa do pet (`perfil.petCala`).
+O balão dura de 7 a 14 s (3 s + 1,1 s por palavra), quebra em no máximo 3 palavras por linha e some ao clicar nele. As frases ficam em `assets/js/pet-frases.js`: é só acrescentar linhas nas listas. Marcadores: `{t}` título, `{n}` número, `{nome}` seu primeiro nome (escreva no fim da frase). Desligar: engrenagem do cenário → Conversa do pet (`perfil.petCala`).
 
 ## Cuidados
 

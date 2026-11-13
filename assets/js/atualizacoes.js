@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.7',
+    data: '2026-11-13',
+    titulo: 'Balão do pet mais legível',
+    itens: [
+      'As falas do pet ficam bem mais tempo no balão (de 7 a 14 segundos, conforme o tamanho), e dá para clicar no balão para fazê-lo sumir.',
+      'O balão tem no máximo três palavras por linha, e o cenário ficou um pouco mais alto para caber.'
+    ]
+  },
+  {
     versao: '5.6',
     data: '2026-11-13',
     titulo: 'Escolha de pets em popup',
