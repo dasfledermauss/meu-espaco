@@ -42,7 +42,7 @@ meu-espaco/
 └── docs/
     ├── ESCOPO.md  OUTRAS_FEATURES.md  DIRECAO_VISUAL_MVP.md
     ├── BIBLIOTECA_E_WISHLIST.md  ESTUDOS.md  TAREFAS.md  LOGIN.md
-    ├── SINCRONIZACAO.md  IMAGENS.md  MUSICAS.md  ATUALIZACOES.md  README-PROMPT.md
+    ├── SINCRONIZACAO.md  ONBOARDING.md  IMAGENS.md  MUSICAS.md  ATUALIZACOES.md  README-PROMPT.md
     └── historico/          capturas de cada versão, feitas antes de mudar
 ```
 
@@ -57,6 +57,7 @@ meu-espaco/
 - **Biblioteca:** livros e filmes com capa, situação, estrelas, **página atual com progresso** e **anotações** separadas da opinião, em prateleiras.
 - **Estudos:** pastas com capa e artigos; PDF abre em **janela dentro do site**, e o trecho selecionado vira anotação pelo botão direito.
 - **Links:** grade de três colunas, com favoritos e fila de leitura.
+- **Boas-vindas:** espaço novo abre um onboarding de cinco passos (nome, o que cabe, cor e aparência, atalhos, primeiro registro). Ver `docs/ONBOARDING.md`.
 - **Imagens:** grade em colunas (estilo Pinterest) com grupos; entra por Ctrl + V, arrastar, arquivo ou link, e todo campo de imagem do sistema aceita as mesmas formas. Ver `docs/IMAGENS.md`.
 - **Músicas:** o disco ao lado do perfil abre um mini app no canto — lista, grupos, tocar, anterior/próxima, modo MP3 na cor do tema e os vídeos de uma playlist. Ver `docs/MUSICAS.md`.
 - **Coleções em bento:** clicar numa coleção mostra tudo que está nela — tarefas, notas, links, livros, músicas, desejos, estudos e gastos — em blocos de tamanhos diferentes.
