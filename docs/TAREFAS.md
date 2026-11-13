@@ -61,3 +61,7 @@ No Início, o cartão **Tarefas** da coluna direita traz a barra de progresso co
 - Concluir o lembrete pela faixa e conferir que a tarefa ficou riscada.
 - Trocar entre as três visões sem perder o que foi marcado.
 - Ver o resumo da direita mudar de “0 de 3” para “1 de 3” ao riscar uma tarefa.
+
+## Abrir uma tarefa
+
+Clicar no card (título, descrição ou etiquetas), na tela Tarefas ou no modo trabalho, abre a janela da tarefa: descrição completa, situação, prazo, coleção e **comentários**, com campo para comentar na hora. O círculo marca como feita sem abrir.

@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v4.8 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.7 mais o cachorrinho com cenário no alto do Início. | — |
+| v4.9 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.8 mais janela da tarefa com comentários. | — |
+| v4.8 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.7 mais o cachorrinho com cenário no alto do Início. | — |
 | v4.7 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.6 mais arrastar com o item na mão e botão Adicionar no rodapé. | — |
 | v4.6 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.5 mais instalação, modo offline, atalhos do ícone e compartilhamento. | — |
 | v4.1 | sem captura ainda; registrar aqui antes da próxima mudança | A v3 mais a área Tarefas (três visões), o resumo de tarefas na coluna direita e o popup de novidades. | — |

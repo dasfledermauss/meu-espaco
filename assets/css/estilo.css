@@ -1049,6 +1049,10 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 :root[data-modo="escuro"] .pet-dica { color: #dfe5f7; background: rgba(20, 27, 51, .55); }
 .pet-dica.some { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .pc-nuvem { animation: none; left: 20%; } }
+.tar-corpo[data-act] { cursor: pointer; }
+.tar-coment { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.tar-coment .secao-tit { margin: 0 0 2px; }
+.tar-meta .ico { width: 13px; height: 13px; margin-right: 4px; vertical-align: -2px; }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

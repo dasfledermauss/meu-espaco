@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.9 — 13/11/2026 · Tarefas com descrição e comentários
+
+- Clicar numa tarefa (no card todo, não só no título) abre a janela dela, com descrição, situação, prazo e comentários, tanto na tela Tarefas quanto no modo trabalho.
+- Dá para comentar direto na janela da tarefa, e o card mostra quantos comentários ela tem.
+
 ## 4.8 — 13/11/2026 · Um cachorrinho no Início
 
 - Um cachorrinho em pixel art mora no alto do Início, num cenário com árvore, casinha, morros e nuvens (de noite, com lua e estrelas no tema escuro). Ele fica parado e, de vez em quando, senta.
