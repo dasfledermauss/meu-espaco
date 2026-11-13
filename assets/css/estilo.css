@@ -87,6 +87,7 @@ img { max-width: 100%; }
 .menu { position: relative; }
 .menu > summary { list-style: none; cursor: pointer; }
 .menu > summary::-webkit-details-marker { display: none; }
+.menu > summary.ico-btn { display: flex; align-items: center; justify-content: center; }
 .menu-corpo { position: absolute; right: 0; max-width: calc(100vw - 24px); top: calc(100% + 8px); background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-m); padding: 6px; min-width: 232px; z-index: 40; display: flex; flex-direction: column; gap: 2px; }
 .menu-corpo.esq { right: auto; left: 0; }
 .menu-corpo button, .menu-corpo a { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; padding: 9px 12px; border-radius: 10px; background: none; border: 0; font: inherit; font-size: 14px; color: var(--tinta); text-align: left; cursor: pointer; }

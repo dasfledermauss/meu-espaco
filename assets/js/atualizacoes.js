@@ -10,6 +10,16 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.14',
+    data: '2026-11-13',
+    titulo: 'Pontinhos centralizados e captura Mercado Livre',
+    itens: [
+      'Os três pontinhos de todos os menus agora ficam com o ícone no centro do círculo, sem o círculo cortado no canto do card.',
+      'Mercado Livre: quando a loja barra a leitura, o nome sai do endereço e a foto e o preço vêm da API pública deles; o título genérico “Mercado Libre” não vira mais nome.',
+      'Shopee e Mercado Livre não dão mais erro quando a página é recusada: o card sai com o que o link traz. Use o botão de recapturar nos cards antigos.'
+    ]
+  },
+  {
     versao: '5.13',
     data: '2026-11-13',
     titulo: 'Colar link cria o card e Shopee',
