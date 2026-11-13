@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.3',
+    data: '2026-11-13',
+    titulo: 'Marcar como lido ou assistido',
+    itens: [
+      'Na Biblioteca, cada livro e filme ganhou um botão para marcar como lido ou assistido (e desmarcar), direto na capa.',
+      'Também dá para excluir pela capa ou pela página do item, com confirmação antes.'
+    ]
+  },
+  {
     versao: '5.2',
     data: '2026-11-13',
     titulo: 'Ajustes nas vasilhas e no banho',

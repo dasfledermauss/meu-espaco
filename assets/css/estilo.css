@@ -1096,6 +1096,12 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 @keyframes cai-pote { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(24px); } }
 .pc-pote:hover .pote-borda, .pc-pote:focus-visible .pote-borda { filter: brightness(1.12); }
 .pc-pote:focus-visible { outline: 2px solid #26314d; outline-offset: 3px; }
+.volume-caixa { position: relative; }
+.volume-acoes { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; opacity: 0; transition: opacity .2s ease-out; }
+.volume-caixa:hover .volume-acoes, .volume-caixa:focus-within .volume-acoes { opacity: 1; }
+.volume-acoes .ico-btn { width: 32px; height: 32px; background: rgba(250, 247, 240, .94); box-shadow: 0 1px 4px rgba(0, 0, 0, .25); }
+.volume-acoes .ico-btn:hover { background: #fff; }
+@media (hover: none) { .volume-acoes { opacity: 1; } }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
