@@ -2820,6 +2820,8 @@
     wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
   function rotaAtual() { return location.hash.replace(/^#\/?/, '').split('/'); }
   function render(focar) {
+    // durante um arraste o DOM não pode ser recriado (sincronização, carregamentos): deixa para depois
+    if (UI.arrastando) { UI.renderPendente = true; return; }
     if (!UI.pularColheita) colherRascunhos();
     UI.pularColheita = false;
     const [r, id] = rotaAtual();
@@ -3620,7 +3622,7 @@
     }
     function iniciar() {
       if (!s || s.ativo) return;
-      s.ativo = true; clearTimeout(s.timer);
+      s.ativo = true; UI.arrastando = true; clearTimeout(s.timer);
       const it = s.it, r = it.getBoundingClientRect();
       s.dx = s.x - r.left; s.dy = s.y - r.top; s.proximo = it.nextSibling; s.ordemIni = irmaos(s.c, s.g).map((x) => x.dataset.oid).join();
       const f = it.cloneNode(true);
@@ -3640,8 +3642,10 @@
       s.f.style.transform = `translate(${px - s.ox}px, ${py - s.oy}px) rotate(${s.tilt.toFixed(2)}deg)`;
       // quem está sob o ponteiro abre espaço: o item pega o lugar dele
       const cs = irmaos(s.c, s.g), agora = performance.now();
-      const alvo = cs.find((x) => x !== s.it && dentro(x.getBoundingClientRect(), s.x, s.y));
-      if (alvo && agora - s.ultTroca > 90) {
+      // só troca depois que a troca anterior assentou e se o ponteiro não está sobre a própria vaga (evita o vaivém)
+      const sobreVaga = dentro(s.it.getBoundingClientRect(), s.x, s.y);
+      const alvo = !sobreVaga && agora - s.ultTroca > 230 ? cs.find((x) => x !== s.it && dentro(x.getBoundingClientRect(), s.x, s.y)) : null;
+      if (alvo) {
         s.ultTroca = agora;
         animarTroca(cs, () => s.c.insertBefore(s.it, cs.indexOf(s.it) < cs.indexOf(alvo) ? alvo.nextSibling : alvo));
       }
@@ -3654,6 +3658,7 @@
       if (!s) return;
       const sessao = s; s = null; clearTimeout(sessao.timer); cancelAnimationFrame(sessao.raf);
       if (!sessao.ativo) return;
+      UI.arrastando = false;
       document.body.classList.remove('arrastando-ord');
       sessao.c.querySelectorAll('.ma-faixas, .ma-vazio').forEach((x) => { x.style.display = ''; });
       if (cancelar) sessao.c.insertBefore(sessao.it, sessao.proximo);
@@ -3665,6 +3670,8 @@
       suprimirClique = true; setTimeout(() => { suprimirClique = false; }, 60);
       const ids = irmaos(sessao.c, sessao.g).map((x) => x.dataset.oid);
       if (!cancelar && ids.join() !== sessao.ordemIni) { SALVAR_ORDEM[sessao.g](ids); salvar(); UI.pularColheita = true; render(); }
+      else if (UI.renderPendente) { UI.pularColheita = true; render(); }
+      UI.renderPendente = false;
     }
     let suprimirClique = false;
     document.addEventListener('click', (e) => { if (suprimirClique) { e.stopPropagation(); e.preventDefault(); } }, true);

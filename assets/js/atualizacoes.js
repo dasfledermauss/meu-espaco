@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.12',
+    data: '2026-11-13',
+    titulo: 'Arrastar sem piscar',
+    itens: [
+      'Arrastar post-its e itens ficou mais estável: a troca de lugar só acontece depois que a anterior assenta e quando o ponteiro sai da vaga, o que evita os cards ficarem sobrepostos e piscando.',
+      'Enquanto você arrasta, a tela não é redesenhada por nada em segundo plano (sincronização, carregamentos); ela só atualiza quando você solta.'
+    ]
+  },
+  {
     versao: '5.11',
     data: '2026-11-13',
     titulo: 'Comentários maiores e playlist em foco',
