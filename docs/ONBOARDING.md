@@ -19,6 +19,10 @@ Cinco passos curtos para quem abre o espaço pela primeira vez. Tom amigável, u
 | 4 | Atalhos que poupam tempo | Ctrl+V (cola imagem), Ctrl+K (busca), Shift+Espaço (modo trabalho). |
 | 5 | Tudo pronto | Usa o nome; botões para criar a primeira nota, tarefa, imagem ou link, ou “Explorar sozinho”. |
 
+## Listinha “Para começar”
+
+Cartão leve no Início, abaixo do bloco de guardar, só em espaço novo (quem já tinha registros não vê). Seis itens que **se riscam sozinhos**: guardar uma nota, criar uma tarefa, colar uma imagem, guardar um link, pôr foto no perfil, abrir o modo trabalho. Clicar num item faz a ação. Some quando todos estão feitos ou em **Dispensar** (`perfil.passosFim`).
+
 ## Hierarquia
 
 Contagem “Passo n de 5” e barra segmentada no topo; ícone em círculo, título grande, uma frase de apoio e só então o conteúdo; uma ação principal por passo (Continuar), com Voltar e Pular discretos. O conteúdo entra com um fade curto, que respeita “reduzir movimento”.
