@@ -10,6 +10,16 @@ Um pet em pixel art no alto do Início, acima de "O que você quer guardar?".
 - **Som:** botão no canto do cenário ou Configurações → Cachorrinho. **Esconder** também fica em Configurações. Ficam em `perfil.petMudo` e `perfil.petOculto`.
 - Respeita "reduzir movimento" do sistema: sem nuvens andando, sem sentar sozinho.
 
+## Cuidados
+
+- **Comida:** botão "Comida" (duas porções em lugares aleatórios) ou clique no chão. Depois de comer ele faz **cocô** (de 7 a 14 s depois, no máximo 3 no chão). Clique no cocô para limpar.
+- **Banho:** botão "Banho". Ele vai ao meio do cenário, fica sentado entre bolhas e se sacode.
+- **Nome:** clique na plaquinha da casinha (ou na casinha) e escolha até 14 letras. Fica em `perfil.petNome`.
+
+## Fases do dia
+
+Pela hora do aparelho: amanhecer 5h–8h, manhã 8h–12h, tarde 12h–17h, entardecer 17h–19h, noite 19h–5h. Cada fase tem céu, chão, morros, nuvens e astro em `PET_FASES` (`app.js`); a posição do sol e da lua fica no `estilo.css` por `data-fase`. Para testar uma fase: `__meuEspaco.pet.forcar = 'noite'` no console.
+
 ## Peças
 
 | O quê | Onde |
