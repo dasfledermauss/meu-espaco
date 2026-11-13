@@ -1260,6 +1260,128 @@
     }
   }
 
+  /* ---------------- pet ----------------
+     Um cachorrinho em pixel art no alto do Início. Fica parado (às vezes senta); clicar nele faz latir;
+     clicar no chão derruba comidinha, ele vai até ela e come. A folha de sprites tem 4 poses × 4 quadros
+     (linha 0 parado, 1 sentado, 2 andando, 3 abaixado comendo), todas olhando para a direita.
+     O estado vive aqui fora porque a tela é redesenhada a toda hora; o laço só mexe no que está na página. */
+  const PET = { CW: 63, CH: 40, ESC: 2, x: null, dir: 1, estado: 'parado', tEstado: 0, rel: 0, comidas: [], falaAte: 0, pulo: 0, espera: 6, alvo: null, id: 0, sentou: false };
+  const PET_LINHA = { parado: 0, sentado: 1, andando: 2, comendo: 3, latindo: 1 };
+  const PET_FPS = { parado: 4, sentado: 3, andando: 9, comendo: 6, latindo: 9 };
+  const petReduz = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /** Morros em degraus (pixel art): uma coluna de retângulos por posição. */
+  const petMorros = (alturas, cor) => "url('data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${alturas.length} 14" shape-rendering="crispEdges">${alturas.map((h, k) => `<rect x="${k}" y="${14 - h}" width="1" height="${h}" fill="${cor}"/>`).join('')}</svg>`) + "')";
+  const PET_ONDA = (n, base, amp, fase) => Array.from({ length: n }, (_, k) => Math.round(base + amp * Math.sin((k + fase) / n * Math.PI * 4)));
+  const PET_ARVORE = `<svg class="pc-arvore" viewBox="0 0 24 34" shape-rendering="crispEdges" aria-hidden="true"><rect x="10" y="22" width="4" height="12" fill="#7b5738"/><rect x="11" y="22" width="1" height="12" fill="#946b45"/>
+    <rect x="6" y="14" width="12" height="10" fill="#3f8a4d"/><rect x="3" y="16" width="18" height="6" fill="#3f8a4d"/><rect x="8" y="6" width="8" height="10" fill="#4a9a58"/><rect x="5" y="9" width="14" height="5" fill="#4a9a58"/><rect x="9" y="2" width="6" height="6" fill="#58a866"/>
+    <rect x="8" y="10" width="2" height="2" fill="#6dbb78"/><rect x="14" y="17" width="2" height="2" fill="#6dbb78"/><rect x="5" y="19" width="2" height="2" fill="#337a41"/></svg>`;
+  const PET_CASINHA = `<svg class="pc-casinha" viewBox="0 0 30 26" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="12" width="24" height="14" fill="#c9884f"/><rect x="3" y="12" width="24" height="2" fill="#dba06a"/>
+    <rect x="12" y="1" width="6" height="2" fill="#a2442f"/><rect x="9" y="3" width="12" height="2" fill="#a2442f"/><rect x="6" y="5" width="18" height="2" fill="#a2442f"/><rect x="3" y="7" width="24" height="2" fill="#b24f37"/><rect x="1" y="9" width="28" height="3" fill="#b24f37"/>
+    <rect x="11" y="15" width="8" height="11" fill="#3a2a22"/><rect x="12" y="14" width="6" height="1" fill="#3a2a22"/><rect x="5" y="22" width="2" height="4" fill="#b87a44"/></svg>`;
+  const PET_FLORES = `<svg class="pc-flores" viewBox="0 0 60 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="3" width="2" height="2" fill="#f4c94a"/><rect x="6" y="5" width="1" height="3" fill="#4a9a58"/><rect x="22" y="2" width="2" height="2" fill="#f08a9a"/><rect x="23" y="4" width="1" height="4" fill="#4a9a58"/>
+    <rect x="41" y="3" width="2" height="2" fill="#fff"/><rect x="42" y="5" width="1" height="3" fill="#4a9a58"/><rect x="54" y="2" width="2" height="2" fill="#f4c94a"/><rect x="55" y="4" width="1" height="4" fill="#4a9a58"/></svg>`;
+  const petHTML = () => {
+    if (S.perfil.petOculto) return '';
+    const som = !S.perfil.petMudo;
+    return `<section class="pet-cena" id="pet-cena" aria-label="Seu cachorrinho. Clique nele para ouvir um latido; clique no chão para dar comida."
+        style="--morros-claro:${petMorros(PET_ONDA(120, 7, 3, 0), '#b9d8b0')};--morros-claro2:${petMorros(PET_ONDA(120, 5, 2, 30), '#9fcb8f')};--morros-escuro:${petMorros(PET_ONDA(120, 7, 3, 0), '#223b3a')};--morros-escuro2:${petMorros(PET_ONDA(120, 5, 2, 30), '#1c3231')}">
+      <div class="pc-astro"></div><div class="pc-estrelas"></div><div class="pc-nuvem n1"></div><div class="pc-nuvem n2"></div>
+      <div class="pc-morros longe"></div><div class="pc-morros perto"></div>
+      ${PET_ARVORE}${PET_CASINHA}<div class="pc-chao"></div>${PET_FLORES}
+      <div class="pet-cao" role="img" aria-label="Cachorro"></div><div class="pet-balao" hidden></div>
+      <button type="button" class="pet-som" data-act="pet-som" aria-pressed="${som}" aria-label="${som ? 'Silenciar o latido' : 'Ligar o latido'}" title="${som ? 'Silenciar o latido' : 'Ligar o latido'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/>${som ? '<path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/>' : '<path d="m16 9.5 5 5m0-5-5 5"/>'}</svg></button>
+      <p class="pet-dica ${PET.interagiu ? 'some' : ''}">Clique no chão para dar comida · clique nele para ouvir um latido</p></section>`;
+  };
+  let petAudio = null;
+  function petLatido() {
+    if (S.perfil.petMudo) return;
+    try {
+      petAudio = petAudio || new (window.AudioContext || window.webkitAudioContext)();
+      if (petAudio.state === 'suspended') petAudio.resume();
+      const t0 = petAudio.currentTime;
+      [0, .17].forEach((d) => {
+        const o = petAudio.createOscillator(), g = petAudio.createGain(), f = petAudio.createBiquadFilter();
+        o.type = 'sawtooth'; o.frequency.setValueAtTime(560, t0 + d); o.frequency.exponentialRampToValueAtTime(220, t0 + d + .11);
+        f.type = 'lowpass'; f.frequency.value = 1500;
+        g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(.16, t0 + d + .015); g.gain.exponentialRampToValueAtTime(.0001, t0 + d + .13);
+        o.connect(f); f.connect(g); g.connect(petAudio.destination); o.start(t0 + d); o.stop(t0 + d + .14);
+      });
+    } catch (e) { /* sem áudio: só o balão */ }
+  }
+  function petFalar(txt, seg) {
+    PET.fala = txt; PET.falaAte = performance.now() + seg * 1000;
+  }
+  function petLatir() {
+    PET.interagiu = true; PET.estado = 'latindo'; PET.tEstado = 0; PET.alvo = null; PET.pulo = 1;
+    petFalar('AU! AU!', 1); petLatido();
+  }
+  function petComida(x, cena) {
+    PET.interagiu = true;
+    if (PET.comidas.length >= 6) return;
+    PET.comidas.push({ id: ++PET.id, x: Math.max(14, Math.min(cena.clientWidth - 14, x)), y: -8, vy: 0, pouso: false, quicou: false, el: null });
+  }
+  function petQuadro(t) {
+    requestAnimationFrame(petQuadro);
+    const cena = document.getElementById('pet-cena');
+    if (!cena || document.hidden) { PET.ant = 0; return; }
+    const dt = PET.ant ? Math.min(.05, (t - PET.ant) / 1000) : 0; PET.ant = t;
+    const L = cena.clientWidth, solo = cena.clientHeight - 26, larg = PET.CW * PET.ESC;
+    if (PET.x === null) PET.x = L * .55;
+    PET.x = Math.max(larg / 2, Math.min(L - larg / 2, PET.x));
+    // comidinhas: caem, quicam uma vez e ficam
+    PET.comidas.forEach((f) => {
+      if (!f.pouso) { f.vy += 900 * dt; f.y += f.vy * dt; if (f.y >= solo) { f.y = solo; if (!f.quicou && f.vy > 160) { f.vy = -f.vy * .32; f.quicou = true; } else { f.pouso = true; f.vy = 0; } } }
+      if (!f.el || !f.el.isConnected) { f.el = document.createElement('div'); f.el.className = 'pet-comida'; f.el.innerHTML = '<i></i><i></i><i></i>'; cena.appendChild(f.el); }
+      f.el.style.transform = `translate(${f.x - 9}px, ${f.y - 9}px)`;
+    });
+    // o que o cão faz agora
+    const reduz = petReduz();
+    if (PET.estado === 'comendo') {
+      PET.tEstado += dt;
+      if (PET.tEstado > 1.9) { const a = PET.alvo; if (a) { if (a.el) a.el.remove(); PET.comidas = PET.comidas.filter((c) => c !== a); } PET.alvo = null; PET.estado = 'parado'; PET.tEstado = 0; PET.espera = 5 + Math.random() * 6; petFalar('♥', .9); }
+    } else if (PET.estado === 'latindo') {
+      PET.tEstado += dt; PET.pulo = Math.max(0, 1 - PET.tEstado / .9);
+      if (PET.tEstado > .95) { PET.estado = 'parado'; PET.tEstado = 0; PET.pulo = 0; PET.espera = 4; }
+    } else {
+      const pousadas = PET.comidas.filter((f) => f.pouso);
+      if (pousadas.length) {
+        const a = pousadas.reduce((m, f) => Math.abs(f.x - PET.x) < Math.abs(m.x - PET.x) ? f : m);
+        if (PET.alvo !== a) { PET.alvo = a; PET.dir = a.x >= PET.x ? 1 : -1; }
+        const meta = Math.max(larg / 2, Math.min(L - larg / 2, a.x - PET.dir * larg * .4)), d = meta - PET.x;
+        if (Math.abs(d) > 3) { PET.estado = 'andando'; PET.x += Math.sign(d) * Math.min(Math.abs(d), 96 * dt); }
+        else { PET.estado = 'comendo'; PET.tEstado = 0; PET.rel = 0; }
+      } else {
+        PET.alvo = null;
+        if (PET.estado === 'andando') { PET.estado = 'parado'; PET.espera = 5 + Math.random() * 5; }
+        PET.espera -= dt;
+        if (PET.estado === 'parado' && PET.espera <= 0 && !reduz) { PET.estado = 'sentado'; PET.espera = 3 + Math.random() * 3; }
+        else if (PET.estado === 'sentado' && PET.espera <= 0) { PET.estado = 'parado'; PET.espera = 7 + Math.random() * 7; }
+      }
+    }
+    // desenho
+    const cao = cena.querySelector('.pet-cao'), balao = cena.querySelector('.pet-balao');
+    if (!cao) return;
+    PET.rel += dt;
+    const fps = reduz && PET.estado === 'parado' ? 0 : PET_FPS[PET.estado], q = fps ? Math.floor(PET.rel * fps) % 4 : 0;
+    const ew = PET.CW * PET.ESC, eh = PET.CH * PET.ESC;
+    cao.style.cssText = `width:${ew}px;height:${eh}px;background-size:${ew * 4}px ${eh * 4}px;background-position:${-q * ew}px ${-PET_LINHA[PET.estado] * eh}px;transform:translate(${PET.x - ew / 2}px, ${-Math.round(Math.sin(PET.pulo * Math.PI * 3) * 10 * PET.pulo)}px) scaleX(${PET.dir})`;
+    if (balao) {
+      const fala = performance.now() < PET.falaAte;
+      balao.hidden = !fala;
+      if (fala) { balao.textContent = PET.fala; balao.style.transform = `translate(${PET.x - 28}px, 0)`; }
+    }
+    const dica = cena.querySelector('.pet-dica'); if (dica && PET.interagiu) dica.classList.add('some');
+  }
+  requestAnimationFrame(petQuadro);
+  document.addEventListener('click', (e) => {
+    const cena = e.target.closest && e.target.closest('#pet-cena');
+    if (!cena || e.target.closest('button, [data-act]')) return;
+    if (e.target.closest('.pet-cao')) return petLatir();
+    petComida(e.clientX - cena.getBoundingClientRect().left, cena);
+  });
+  { const folha = new Image(); folha.src = 'assets/img/pet/cachorro.png'; }
+
   /* ---------------- onboarding ----------------
      Cinco passos curtos para quem chega: nome, o que dá para guardar, aparência, atalhos e o primeiro registro.
      Fica guardado como visto no navegador; dá para rever pelo menu da foto de perfil. */
@@ -1647,7 +1769,7 @@
       <div class="passos-barra" role="progressbar" aria-valuemin="0" aria-valuemax="${l.length}" aria-valuenow="${feitos}"><i style="width:${Math.round(feitos / l.length * 100)}%"></i></div>
       <ul>${l.map(([k, t, f, a]) => `<li><button type="button" class="${f() ? 'feito' : ''}" ${a}>${ic(f() ? 'check-circle-solid' : 'check-circle')}<span>${t}</span></button></li>`).join('')}</ul></section>`;
   }
-  const renderInicio = () => { main.innerHTML = faixaLembrete() + compositor() + primeirosPassosHTML() + `<div class="feed">${conteudoFeed()}</div>`; };
+  const renderInicio = () => { main.innerHTML = faixaLembrete() + petHTML() + compositor() + primeirosPassosHTML() + `<div class="feed">${conteudoFeed()}</div>`; };
 
   /* ---------------- Mural ---------------- */
   function renderMural() {
@@ -2037,6 +2159,10 @@
       ${UI.sessao.viaFirebase ? cartao(ic('priority-high') + 'Sessão do site', `
         <p class="meta">Você está entrando pela conta do Google guardada no navegador. A sessão do site em si caiu, o que costuma significar que falta definir <code>SESSAO_SEGREDO</code> nas variáveis de ambiente do servidor.</p>
         <p class="meta" style="margin-top:8px">Nada se perde por causa disso: seus registros continuam guardados e sincronizados.</p>`) : ''}
+      ${cartao(ic('heart') + 'Cachorrinho', `
+        <p class="meta">Ele fica no alto do Início. Clique nele para ouvir um latido; clique no chão para dar comida.</p>
+        <div class="acoes-form" style="margin-top:14px">${btn('pet-alternar', ic(S.perfil.petOculto ? 'eye' : 'eye-solid') + (S.perfil.petOculto ? 'Mostrar o cachorrinho' : 'Esconder o cachorrinho'), '', 'btn-f')}
+          ${btn('pet-som', S.perfil.petMudo ? 'Ligar o latido' : 'Silenciar o latido', '', 'btn-f')}</div>`)}
       ${cartao(ic('download') + 'Aplicativo', `
         <p class="meta">${PWA_().instalado ? 'Você está usando o Meu Espaço como aplicativo.' : 'Instale para abrir em janela própria, com ícone na tela inicial e funcionando sem internet.'}</p>
         <p class="meta" style="margin-top:8px">${'serviceWorker' in navigator && navigator.serviceWorker.controller ? 'Modo offline pronto: o app abre mesmo sem conexão.' : 'Modo offline: prepara-se na primeira visita ao site publicado (https).'}</p>
@@ -2427,6 +2553,8 @@
       case 'trabalho': e.preventDefault(); return alternarTrabalho();
       case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
       case 'atalho': e.preventDefault(); UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
+      case 'pet-som': e.preventDefault(); S.perfil.petMudo = !S.perfil.petMudo; salvar(); UI.pularColheita = true; render(); if (!S.perfil.petMudo) petLatido(); return;
+      case 'pet-alternar': e.preventDefault(); S.perfil.petOculto = !S.perfil.petOculto; salvar(); UI.pularColheita = true; return render();
       case 'pwa-instalar': {
         e.preventDefault(); fecharMenu();
         const P = PWA_();

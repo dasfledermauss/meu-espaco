@@ -8,6 +8,12 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.8 — 13/11/2026 · Um cachorrinho no Início
+
+- Um cachorrinho em pixel art mora no alto do Início, num cenário com árvore, casinha, morros e nuvens (de noite, com lua e estrelas no tema escuro). Ele fica parado e, de vez em quando, senta.
+- Clique nele e ele late (balão “AU! AU!” e som). Clique no chão e cai comidinha: ele vai andando até ela, abaixa e come.
+- O botão de som no cenário silencia o latido. Em Configurações → Cachorrinho dá para esconder o pet.
+
 ## 4.7 — 13/11/2026 · Visualização, arrastar com a mão, playlists e Mercado Livre
 
 - Clicar numa nota ou num cartão (livro, desejo, música, gasto…) abre uma visualização para ler, sem entrar na edição. Lá ficam Editar e Abrir página.

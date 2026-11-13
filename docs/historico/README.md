@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v4.7 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.6 mais arrastar com o item na mão e botão Adicionar no rodapé. | — |
+| v4.8 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.7 mais o cachorrinho com cenário no alto do Início. | — |
+| v4.7 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.6 mais arrastar com o item na mão e botão Adicionar no rodapé. | — |
 | v4.6 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.5 mais instalação, modo offline, atalhos do ícone e compartilhamento. | — |
 | v4.1 | sem captura ainda; registrar aqui antes da próxima mudança | A v3 mais a área Tarefas (três visões), o resumo de tarefas na coluna direita e o popup de novidades. | — |
 | v3 | `2026-11-12_v3-soft-ui/` | Estética leve: fundo claro, cartões brancos sem borda nem sombra, Lexend, selos neutros, mais respiro. Criar virou barra de tipos + janela com campos progressivos. Rascunho automático, prévia de imagem, ações enxutas com menu “⋯”, comentar e editar no próprio post. Nova área Estudos com pastas e leitor de PDF em janelas. Links em grade de 3 colunas, notas reordenáveis, lembretes em cards, perfil com emoji e cor personalizada, backup em Configurações. | Faltava um lugar para o que precisa ser feito: entrou a área Tarefas, com resumo na coluna da direita. |
