@@ -8,8 +8,9 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
-## 5.14 — 13/11/2026 · Pontinhos centralizados e captura Mercado Livre
+## 5.14 — 13/11/2026 · Selecionar em lote, pontinhos e captura Mercado Livre
 
+- Selecionar em lote: o botão Selecionar (Início, Mural, Biblioteca, Links, Wishlist, coleções) deixa marcar vários cards de uma vez e então mover para uma coleção, marcar como comprado (Wishlist) ou excluir tudo junto.
 - Os três pontinhos de todos os menus agora ficam com o ícone no centro do círculo, sem o círculo cortado no canto do card.
 - Mercado Livre: quando a loja barra a leitura, o nome sai do endereço e a foto e o preço vêm da API pública deles; o título genérico “Mercado Libre” não vira mais nome.
 - Shopee e Mercado Livre não dão mais erro quando a página é recusada: o card sai com o que o link traz. Use o botão de recapturar nos cards antigos.
