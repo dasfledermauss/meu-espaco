@@ -553,7 +553,7 @@
   }
   function formulario(t, it) {
     const k = it ? 'editar:' + it.id : 'criar:' + t;
-    const v = it || {};
+    const v = it || (UI.modal && UI.modal.valores) || {};
     const c = construtor(k, v);
     if (t === 'nota') {
       const md = (RASC[k] && RASC[k].modo) || v.modo || 'texto';
@@ -744,6 +744,15 @@
         <footer class="modal-pe">${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-f')}
           <span class="espaco"></span>${btn('modal-fechar', 'Fechar', '', 'btn-f')}
           <a class="btn btn-1" href="#/tarefas" data-act="modal-fechar">${ic('list')}Ver em Tarefas</a></footer></div>`;
+    }
+    if (m.tipo === 'instalar-ios') {
+      return `<div class="modal"><header class="modal-cab">${ic('download')}<h2>Instalar no iPhone ou iPad</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><ol class="passos-ios">
+          <li><strong>Abra no Safari.</strong><span>Outros navegadores do iPhone não instalam aplicativos.</span></li>
+          <li><strong>Toque em Compartilhar</strong><span>O ícone de quadrado com seta para cima, na barra do Safari.</span></li>
+          <li><strong>Escolha “Adicionar à Tela de Início”</strong><span>Role a lista se não aparecer de primeira.</span></li>
+          <li><strong>Toque em Adicionar</strong><span>O Meu Espaço vira um ícone, abre em tela cheia e funciona sem internet.</span></li></ol></div>
+        <footer class="modal-pe"><span class="espaco"></span><button class="btn-1" type="button" data-act="modal-fechar">Entendi</button></footer></div>`;
     }
     if (m.tipo === 'onboarding') return onboardingHTML();
     if (m.tipo === 'novidades') {
@@ -1187,6 +1196,45 @@
     S.lembretes.push(novo); i.lembreteId = novo.id;
   }
 
+  /* ---------------- aplicativo (PWA) ----------------
+     pwa.js fala com o navegador (service worker, convite de instalação); aqui ficam os botões, os avisos e o que
+     chega de fora: atalhos do ícone (#/novo/nota) e conteúdo compartilhado por outros apps (?titulo=&texto=&url=). */
+  const PWA_ = () => window.PWA || { instalado: false, instalavel: false, ios: false };
+  const podeInstalar = () => { const P = PWA_(); return !P.instalado && (P.instalavel || P.ios); };
+  let pwaAtualizacao = false, pwaDepois = false;
+  function pintarAvisoPwa() {
+    const el = document.getElementById('aviso-pwa');
+    if (!el) return;
+    if (pwaAtualizacao && !pwaDepois) {
+      el.innerHTML = `${ic('refresh')}<span>Há uma versão nova do Meu Espaço.</span><button type="button" class="aviso-btn" data-act="pwa-atualizar">Atualizar</button><button type="button" class="aviso-x" data-act="pwa-depois" aria-label="Agora não">${ic('xmark')}</button>`;
+      el.hidden = false;
+    } else if (!navigator.onLine) {
+      el.innerHTML = `${ic('priority-high')}<span>Sem conexão. O que você guardar fica neste aparelho e sincroniza quando voltar.</span>`;
+      el.hidden = false;
+    } else { el.hidden = true; el.innerHTML = ''; }
+  }
+  window.addEventListener('pwa:atualizacao', () => { pwaAtualizacao = true; pintarAvisoPwa(); });
+  window.addEventListener('pwa:mudou', () => { if (!S) return; renderTopo(); if ((rotaAtual()[0] || '') === 'config') { UI.pularColheita = true; render(); } });
+  window.addEventListener('pwa:instalado', () => toast('Meu Espaço instalado.', 'check-circle-solid'));
+  window.addEventListener('offline', pintarAvisoPwa);
+  window.addEventListener('online', () => { pintarAvisoPwa(); toast('Conexão de volta.', 'check-circle-solid'); try { if (typeof agendarSync === 'function') agendarSync(); } catch (e) { /* ignora */ } });
+  function tratarEntrada() {
+    const q = new URLSearchParams(location.search), [r, t] = rotaAtual();
+    if (q.has('url') || q.has('texto') || q.has('titulo')) {
+      const titulo = (q.get('titulo') || '').trim(), texto = (q.get('texto') || '').trim();
+      const achou = ((q.get('url') || '').trim()) || ((texto.match(/https?:\/\/\S+/) || [''])[0]);
+      history.replaceState(null, '', location.pathname + '#/inicio');
+      if (achou) { delete RASC['criar:link']; return abrirModal({ tipo: 'criar', t: 'link', valores: { url: achou, titulo: titulo && titulo !== achou ? titulo : '' } }); }
+      delete RASC['criar:nota']; return abrirModal({ tipo: 'criar', t: 'nota', valores: { titulo, texto } });
+    }
+    if (r === 'novo') {
+      history.replaceState(null, '', location.pathname + location.search + '#/inicio');
+      if (t === 'trabalho') return alternarTrabalho(true);
+      if (TIPOS_CRIAR.some((x) => x[0] === t)) return abrirModal({ tipo: 'criar', t });
+      render();
+    }
+  }
+
   /* ---------------- onboarding ----------------
      Cinco passos curtos para quem chega: nome, o que dá para guardar, aparência, atalhos e o primeiro registro.
      Fica guardado como visto no navegador; dá para rever pelo menu da foto de perfil. */
@@ -1435,6 +1483,7 @@
         <hr>
         <a href="#/perfil">${ic('user')}<span>Editar perfil</span></a>
         <a href="#/config">${ic('settings')}<span>Configurações e backup</span></a>
+        ${podeInstalar() ? `<button type="button" data-act="pwa-instalar">${ic('download')}<span>Instalar o app</span></button>` : ''}
         <button type="button" data-act="onboarding">${ic('home-simple')}<span>Primeiros passos</span></button>
         <button type="button" data-act="novidades">${ic('page-star')}<span>O que há de novo</span>${temNovidade() ? '<em class="novid-selo">novo</em>' : ''}</button>
         <div class="menu-modo"><span>${ic(modoAtual() === 'escuro' ? 'half-moon' : 'sun-light')}Aparência</span>
@@ -1963,6 +2012,12 @@
       ${UI.sessao.viaFirebase ? cartao(ic('priority-high') + 'Sessão do site', `
         <p class="meta">Você está entrando pela conta do Google guardada no navegador. A sessão do site em si caiu, o que costuma significar que falta definir <code>SESSAO_SEGREDO</code> nas variáveis de ambiente do servidor.</p>
         <p class="meta" style="margin-top:8px">Nada se perde por causa disso: seus registros continuam guardados e sincronizados.</p>`) : ''}
+      ${cartao(ic('download') + 'Aplicativo', `
+        <p class="meta">${PWA_().instalado ? 'Você está usando o Meu Espaço como aplicativo.' : 'Instale para abrir em janela própria, com ícone na tela inicial e funcionando sem internet.'}</p>
+        <p class="meta" style="margin-top:8px">${'serviceWorker' in navigator && navigator.serviceWorker.controller ? 'Modo offline pronto: o app abre mesmo sem conexão.' : 'Modo offline: prepara-se na primeira visita ao site publicado (https).'}</p>
+        ${!PWA_().instalado && !podeInstalar() ? '<p class="meta" style="margin-top:8px">No Chrome ou Edge, procure o ícone de instalar na barra de endereço, ou o menu do navegador → Instalar app.</p>' : ''}
+        <div class="acoes-form" style="margin-top:14px">${podeInstalar() ? btn('pwa-instalar', ic('download') + 'Instalar o app', '', 'btn-1') : ''}${btn('pwa-procurar', ic('refresh') + 'Procurar atualização', '', 'btn-f')}</div>
+        <p class="meta" style="margin-top:12px">Versão ${esc(versaoNova())}</p>`)}
       ${cartao(ic('refresh') + 'Sincronização', `
         <p class="meta" id="estado-nuvem">${textoNuvem()}</p>
         ${UI.nuvem.estado === 'ligada' || UI.nuvem.estado === 'enviando'
@@ -2271,6 +2326,11 @@
       raiz.style.setProperty('--marca-leve', mistura(cor, escuro ? 0 : 255, escuro ? .78 : .88));
       raiz.style.setProperty('--marca-texto', claroDemais(cor) ? '#101319' : '#fff');
     } else { ['--marca', '--marca-escura', '--marca-leve', '--marca-texto'].forEach((k) => raiz.style.removeProperty(k)); }
+    // A barra do sistema (celular e janela instalada) acompanha o fundo do tema atual.
+    requestAnimationFrame(() => {
+      const fundo = getComputedStyle(raiz).getPropertyValue('--fundo').trim();
+      if (/^#[0-9a-f]{6}$/i.test(fundo)) document.querySelectorAll('meta[name="theme-color"]').forEach((x) => { x.removeAttribute('media'); x.content = fundo; });
+    });
   }
 
   /* ---------------- roteamento ---------------- */
@@ -2293,6 +2353,7 @@
     if (focar) main.focus({ preventScroll: true });
   }
   window.addEventListener('hashchange', () => {
+    if (rotaAtual()[0] === 'novo') return tratarEntrada();
     colherRascunhos();
     UI.cvEdit = null; UI.cvAdd = null; UI.adiando = null; UI.comentando = null; UI.erroCV = ''; UI.temaPrevia = null; UI.corPrevia = null;
     if (rotaAtual()[0] !== 'inicio' && !UI.buscando) UI.busca = '';
@@ -2341,6 +2402,23 @@
       case 'trabalho': e.preventDefault(); return alternarTrabalho();
       case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
       case 'atalho': e.preventDefault(); UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
+      case 'pwa-instalar': {
+        e.preventDefault(); fecharMenu();
+        const P = PWA_();
+        if (P.instalavel) return P.instalar().then((r) => { if (r === 'accepted') toast('Instalando…', 'download'); });
+        if (P.ios) return abrirModal({ tipo: 'instalar-ios' });
+        return toast('Use o ícone de instalar na barra de endereço, ou o menu do navegador → Instalar app.');
+      }
+      case 'pwa-atualizar': e.preventDefault(); toast('Atualizando…', 'refresh'); return PWA_().aplicarAtualizacao();
+      case 'pwa-depois': e.preventDefault(); pwaDepois = true; return pintarAvisoPwa();
+      case 'pwa-procurar': {
+        e.preventDefault();
+        const P = PWA_();
+        if (!P.registro) return toast('O modo offline funciona no site publicado (https) ou em localhost.');
+        toast('Procurando atualização…', 'refresh');
+        P.procurarAtualizacao();
+        return setTimeout(() => { if (P.atualizacaoPronta) { pwaAtualizacao = true; pwaDepois = false; pintarAvisoPwa(); toast('Há uma versão nova. Toque em Atualizar.'); } else toast('Você já está na versão mais nova.', 'check-circle-solid'); }, 2600);
+      }
       case 'passos-dispensar': e.preventDefault(); S.perfil.passosFim = true; return passa();
       case 'onb-prox': e.preventDefault(); if (UI.onb.passo === 0) onboardingSalvaNome(); UI.onb.passo = Math.min(ONB_PASSOS - 1, UI.onb.passo + 1); UI.onb.entra = true; UI.pularColheita = true; return render();
       case 'onb-voltar': e.preventDefault(); UI.onb.passo = Math.max(0, UI.onb.passo - 1); UI.onb.entra = true; UI.pularColheita = true; return render();
@@ -3428,13 +3506,16 @@
     if (UI.sessao.modo === 'deslogado') { renderEntrada(); return; }
     render();
     // Espaço recém-criado já começa em dia: o popup é para quem volta e encontra o sistema mudado.
-    if (novo && !onboardingVisto()) abrirOnboarding();
+    const veioDeFora = rotaAtual()[0] === 'novo' || /[?&](url|texto|titulo)=/.test(location.search);
+    if (veioDeFora) { UI.pularColheita = true; tratarEntrada(); if (novo) marcarNovidadesVistas(); pintarAvisoPwa(); }
+    else if (novo && !onboardingVisto()) abrirOnboarding();
     else if (temNovidade()) { if (novo) marcarNovidadesVistas(); else abrirModal({ tipo: 'novidades' }); }
     if (temNuvem) {
       if (doFirebase) await ligarNuvem();
       else if (UI.nuvem.estado !== 'erro') { UI.nuvem.estado = 'desligada'; pintarNuvem(); }
       else pintarNuvem();
     }
+    pintarAvisoPwa();
     window.__meuEspaco = { get estado() { return S; }, get ui() { return UI; } };
   })();
 })();

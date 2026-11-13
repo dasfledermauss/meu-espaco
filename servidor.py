@@ -339,6 +339,8 @@ def permitido(email):
 
 
 class Manipulador(SimpleHTTPRequestHandler):
+    extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".webmanifest": "application/manifest+json", ".mjs": "text/javascript"}
+
     def responder(self, codigo, corpo, extras=()):
         dados = json.dumps(corpo, ensure_ascii=False).encode("utf-8")
         self.send_response(codigo)
