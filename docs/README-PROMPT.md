@@ -13,7 +13,7 @@ Construa uma versão navegável do **Meu Espaço**, meu portal pessoal privado. 
 | `docs/ESCOPO.md` | Mecânica do feed, áreas permanentes, currículo, importação e critérios de aceite. |
 | `docs/OUTRAS_FEATURES.md` | Perfil, humor, visão por dia, lembretes, coleções pessoais e redescoberta. |
 | `docs/DIRECAO_VISUAL_MVP.md` | Direção visual vigente. Use a organização funcional das telas anteriores com a aparência de portal retrô deste documento. |
-| `data/curriculo.json` | Fonte inicial do currículo e primeiro caso real para o importador. Inspecione as chaves, níveis, textos, datas e listas presentes. |
+| `data/curriculo.json` | Modelo em branco do currículo (só a estrutura), para o importador. Inspecione as chaves, níveis, textos, datas e listas presentes. |
 | `data/links-pessoal.json` | Conteúdo inicial da coleção **Pessoal**. |
 | `data/links-trabalho.json` | Conteúdo inicial da coleção **Trabalho**. |
 | `assets/img/foto-perfil.jpg` | Foto inicial do perfil. Use o arquivo local, com recorte proporcional. |

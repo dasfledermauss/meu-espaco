@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.8 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.7 com o botão de adicionar do modo trabalho abrindo só sobre o símbolo. | — |
+| v5.9 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.8 com o currículo base em branco (sem mudança visual). | — |
+| v5.8 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.7 com o botão de adicionar do modo trabalho abrindo só sobre o símbolo. | — |
 | v5.7 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.6 com o cenário de 212 px e balões de fala maiores. | — |
 | v5.6 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.5 com a escolha de pets em popup no centro do cenário. | — |
 | v5.5 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.4 mais balão de conversa do pet e o pet shollie. | — |
