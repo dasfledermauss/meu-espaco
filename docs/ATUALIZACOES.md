@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.10 — 13/11/2026 · Playlists no mini app
+
+- No mini app de música, a lista agora rola de verdade: antes, ao abrir uma playlist com muitos vídeos, só os primeiros apareciam e o resto ficava cortado.
+- Ao abrir uma playlist, ela sobe para o topo da lista para você ver os vídeos dela, e o mini app ficou um pouco mais alto.
+
 ## 5.9 — 13/11/2026 · Currículo base limpo
 
 - O modelo base do currículo que acompanhava o projeto foi esvaziado: nenhum dado pessoal vem mais pronto, só a estrutura em branco para quem for importar o seu.

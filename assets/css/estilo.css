@@ -581,7 +581,7 @@ body.em-trabalho { overflow: hidden; }
 
 /* mini app de música, preso no canto */
 #player { position: fixed; right: 20px; bottom: 20px; z-index: 75; max-width: calc(100vw - 40px); }
-.mini-app { width: 340px; max-width: 100%; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-m); overflow: hidden; display: flex; flex-direction: column; max-height: min(70vh, 560px); }
+.mini-app { width: 340px; max-width: 100%; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-m); overflow: hidden; display: flex; flex-direction: column; max-height: min(84vh, 700px); }
 .ma-cab { display: flex; align-items: center; gap: 2px; padding: 8px 8px 8px 10px; border-bottom: 1px solid var(--linha); }
 .ma-capa { width: 38px; height: 38px; flex: none; background: var(--campo); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-right: 8px; }
 .ma-capa img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -597,7 +597,8 @@ body.em-trabalho { overflow: hidden; }
 .ma-barra { display: flex; align-items: center; gap: 6px; padding: 10px; border-bottom: 1px solid var(--linha); }
 .ma-grupo { flex: 1; min-width: 0; height: 34px; padding: 0 10px; font-size: 13px; }
 .ma-barra .btn { padding: 8px 10px; font-size: 12.5px; }
-.ma-lista { overflow: auto; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+.ma-lista { overflow: auto; flex: 1 1 auto; min-height: 0; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+.ma-lista > * { flex-shrink: 0; }
 .ma-faixa { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 4px; border-radius: 10px; cursor: grab; }
 .ma-faixa:hover { background: var(--hover-2); }
 .ma-faixa.tocando { background: var(--marca-leve); }

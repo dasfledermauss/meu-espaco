@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.10',
+    data: '2026-11-13',
+    titulo: 'Playlists no mini app',
+    itens: [
+      'No mini app de música, a lista agora rola de verdade: antes, ao abrir uma playlist com muitos vídeos, só os primeiros apareciam e o resto ficava cortado.',
+      'Ao abrir uma playlist, ela sobe para o topo da lista para você ver os vídeos dela, e o mini app ficou um pouco mais alto.'
+    ]
+  },
+  {
     versao: '5.9',
     data: '2026-11-13',
     titulo: 'Currículo base limpo',
