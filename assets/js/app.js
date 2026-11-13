@@ -540,6 +540,22 @@
     }).catch(() => toast('Não consegui abrir essa imagem.'));
   }
 
+  /** Ctrl+V de um endereço nas páginas Links e Wishlist: cria o card direto e busca a prévia. */
+  function guardarLinkRapido(texto, tipo) {
+    let url = texto.trim(); if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    try { new URL(url); } catch (e) { return toast('Esse endereço não parece válido.'); }
+    const ja = S.itens.find((x) => x.tipo === tipo && x.url === url);
+    if (ja) { toast('Isso já está guardado.'); return; }
+    const t = agora(), col = tipo === 'link' && UI.colSel && UI.colSel !== 'todas' && UI.colSel !== 'soltos' && colecao(UI.colSel) ? [{ id: UI.colSel, grupo: '' }] : [];
+    const i = { id: uid(tipo.slice(0, 3)), tipo, url, colecoes: col, comentarios: [], favorito: false, criadoEm: t };
+    if (tipo === 'link') Object.assign(i, { lerDepois: false, favicon: '', organizar: !col.length, titulo: url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 70) });
+    else Object.assign(i, { moeda: 'BRL', historicoPreco: [], comprado: false, preco: null });
+    S.itens.push(i);
+    if (!salvar()) { S.itens.pop(); return; }
+    UI.pularColheita = true; render(); toast('Link guardado.', 'check-circle-solid');
+    return capturar(i, true);
+  }
+
   /* ---------------- formulários de criação e edição ---------------- */
   const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['tarefa', 'Tarefa', 'list'], ['imagem', 'Imagem', 'media-image'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
     ['artigo', 'Artigo de estudo', 'page'], ['musica', 'Música', 'music-note'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
@@ -3718,6 +3734,11 @@
       return;
     }
     if (UI.modal || campo) return;
+    const pagina = rotaAtual()[0], tipoLink = pagina === 'wishlist' ? 'desejo' : pagina === 'links' ? 'link' : '';
+    if (tipoLink && !arq) {
+      const linhas = (dt.getData('text/plain') || '').split(/\s+/).filter((x) => x && ehURL(x)).slice(0, 10);
+      if (linhas.length) { e.preventDefault(); linhas.forEach((u) => guardarLinkRapido(u, tipoLink)); return; }
+    }
     if (arq) { e.preventDefault(); return guardarImagemRapido(arq); }
     const l = linkDeImagem(dt);
     if (l && (EXT_IMAGEM.test(l) || rotaAtual()[0] === 'imagens')) { e.preventDefault(); guardarImagemRapido(l); }

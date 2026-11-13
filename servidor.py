@@ -145,7 +145,7 @@ def primeiro(v):
     return v
 
 
-ROBO = ("validateCaptcha", "Digite os caracteres", "Enter the characters you see",
+ROBO = ("Seu navegador não é mais aceito", "validateCaptcha", "Digite os caracteres", "Enter the characters you see",
         "To discuss automated access", "Sorry, we just need to make sure you")
 
 
@@ -207,6 +207,26 @@ def faixas_do_feed(xml):
         if v:
             achados.append({"video": v.group(1), "titulo": html.unescape(t.group(1)).strip() if t else "Sem nome"})
     return achados
+
+
+TITULO_BLOQUEIO = re.compile(r"navegador n[ãa]o [ée] mais aceito|oops!|access denied|acesso negado|just a moment|attention required|captcha|robot check|are you a human|403 forbidden|enable javascript", re.I)
+
+
+def shopee(url, r):
+    """Shopee barra a leitura da página: nome e foto saem do próprio link (traz o nome e image_ids)."""
+    u = urlparse(url)
+    if not re.search(r"(^|\.)shopee\.", u.hostname or ""):
+        return None
+    a = re.match(r"^/(.+)-i\.(\d+)\.(\d+)", u.path)
+    if a:
+        nome = re.sub(r"\s+", " ", re.sub(r"-+", " ", unquote(a.group(1)))).strip()
+        if nome and (not r["nome"] or TITULO_BLOQUEIO.search(r["nome"])):
+            r["nome"] = nome
+    img = (parse_qs(u.query).get("image_ids") or [""])[0].split(",")[0].strip()
+    if img and not r["imagem"]:
+        r["imagem"] = "https://down-br.img.susercontent.com/file/" + img
+    r["loja"] = "Shopee"
+    return (a.group(2), a.group(3)) if a else None
 
 
 def bloqueado(pagina):
@@ -304,7 +324,7 @@ def capturar_pagina(url):
             pagina, final = baixar(url, CABECALHOS_PREVIA)
         except Exception:
             pass
-        if bloqueado(pagina):
+        if bloqueado(pagina) and not re.search(r"(^|\.)shopee\.", urlparse(url).hostname or ""):
             raise PermissionError("bloqueio")
     r = extrair(pagina, final)
     for _ in range(2):  # página de passagem: segue até a do produto
@@ -388,6 +408,11 @@ def extrair(pagina, url):
         href = re.search(r'href=["\']([^"\']+)', icone.group(0), flags=re.I)
         if href:
             r["favicon"] = urljoin(url, html.unescape(href.group(1)))
+    if r["nome"] and TITULO_BLOQUEIO.search(str(r["nome"])):
+        r["nome"] = None
+    if r["descricao"] and TITULO_BLOQUEIO.search(str(r["descricao"])):
+        r["descricao"] = None
+    shopee(url, r)
     host = urlparse(url).hostname or ""
     if not r["favicon"] and host:
         r["favicon"] = f"{urlparse(url).scheme}://{host}/favicon.ico"

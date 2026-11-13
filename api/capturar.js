@@ -63,8 +63,25 @@ function primeiro(v) {
   return v;
 }
 
-const ROBO = ['validateCaptcha', 'Digite os caracteres', 'Enter the characters you see',
+const ROBO = ['Seu navegador não é mais aceito', 'validateCaptcha', 'Digite os caracteres', 'Enter the characters you see',
   'To discuss automated access', 'Sorry, we just need to make sure you'];
+/** Títulos que as lojas devolvem quando barram o robô: não servem de nome de produto. */
+const TITULO_BLOQUEIO = /navegador n[ãa]o [ée] mais aceito|oops!|access denied|acesso negado|just a moment|attention required|captcha|robot check|are you a human|403 forbidden|enable javascript/i;
+/** Shopee barra a leitura da página; nome e foto saem do próprio link (o endereço traz o nome e `image_ids`). */
+function shopee(url, r) {
+  const u = new URL(url);
+  if (!/(^|\.)shopee\./.test(u.hostname)) return null;
+  const a = u.pathname.match(/^\/(.+)-i\.(\d+)\.(\d+)/);
+  if (a) {
+    let nome = a[1]; try { nome = decodeURIComponent(nome); } catch (e) { /* mantém */ }
+    nome = nome.replace(/-+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (nome && (!r.nome || TITULO_BLOQUEIO.test(r.nome))) r.nome = nome;
+  }
+  const img = (u.searchParams.get('image_ids') || '').split(',')[0].trim();
+  if (img && !r.imagem) r.imagem = 'https://down-br.img.susercontent.com/file/' + img;
+  r.loja = 'Shopee';
+  return a ? { loja: a[2], item: a[3] } : null;
+}
 const bloqueado = (pagina) => pagina.length < 200000 && ROBO.some((m) => pagina.includes(m));
 
 /* A Amazon não publica dados estruturados de produto; é preciso ler a própria página. */
@@ -167,6 +184,9 @@ function extrair(pagina, url) {
   }
   const icone = pagina.match(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*>/i);
   if (icone) { const h = icone[0].match(/href=["']([^"']+)/i); if (h) r.favicon = new URL(desescapar(h[1]), url).href; }
+  if (r.nome && TITULO_BLOQUEIO.test(r.nome)) r.nome = null;
+  if (r.descricao && TITULO_BLOQUEIO.test(r.descricao)) r.descricao = null;
+  shopee(url, r);
   const host = new URL(url).hostname;
   if (!r.favicon) r.favicon = new URL('/favicon.ico', url).href;
   r.loja = m['og:site_name'] || r.loja || host.replace(/^www\./, '');
@@ -198,7 +218,7 @@ export default async function handler(req, res) {
     let atual = await baixar(alvo.href, CABECALHOS, corta.signal);
     if (bloqueado(atual.pagina)) {
       try { atual = await baixar(alvo.href, CABECALHOS_PREVIA, corta.signal); } catch (e) { /* segue com o bloqueio */ }
-      if (bloqueado(atual.pagina)) return res.status(502).json({ erro: 'a loja bloqueou a leitura automática desta página' });
+      if (bloqueado(atual.pagina) && !/(^|\.)shopee\./.test(alvo.hostname)) return res.status(502).json({ erro: 'a loja bloqueou a leitura automática desta página' });
     }
     let r = extrair(atual.pagina, atual.url);
     // Página de passagem (link curto, "compartilhar"): segue até a do produto, no máximo duas vezes.
@@ -214,6 +234,17 @@ export default async function handler(req, res) {
         const r2 = extrair(alt.pagina, alt.url);
         r = mesclar(r, r2);
       } catch (e) { /* o que já temos basta */ }
+    }
+    // Shopee: tenta a API pública do item para completar preço e foto (pode ser barrada; então fica só o que veio do link).
+    const ids = shopee(atual.url, { nome: 'x', imagem: 'x' });
+    if (ids && (r.preco === null || !r.imagem)) {
+      try {
+        const api = await fetch(`https://${new URL(atual.url).hostname}/api/v4/item/get?itemid=${ids.item}&shopid=${ids.loja}`, { headers: { ...CABECALHOS, Referer: atual.url, 'x-api-source': 'pc' }, signal: corta.signal });
+        const j = await api.json(), d = j && j.data;
+        if (d && d.price) { r.preco = r.preco ?? Math.round(d.price / 1000) / 100; r.moeda = r.moeda || 'BRL'; }
+        if (d && d.image && !r.imagem) r.imagem = 'https://down-br.img.susercontent.com/file/' + d.image;
+        if (d && d.item_rating && r.estrelas === null) r.estrelas = Math.round(d.item_rating.rating_star * 10) / 10;
+      } catch (e) { /* sem a API: segue */ }
     }
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json(r);
