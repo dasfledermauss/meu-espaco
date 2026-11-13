@@ -272,7 +272,9 @@ export default async function handler(req, res) {
       } catch (e) { /* o que já temos basta */ }
     }
     // Shopee: tenta a API pública do item para completar preço e foto (pode ser barrada; então fica só o que veio do link).
-    const ml = mlLink(atual.url) || mlLink(alvo.href);
+    const ml = mlLink(alvo.href) || mlLink(atual.url);
+    if (ml && ml.nome && (!r.nome || TITULO_BLOQUEIO.test(r.nome))) r.nome = ml.nome;
+    if (ml) r.loja = 'Mercado Livre';
     if (ml && faltaDado(r)) await mlApi(ml, r, corta.signal);
     const ids = shopee(atual.url, { nome: 'x', imagem: 'x' });
     if (ids && (r.preco === null || !r.imagem)) {

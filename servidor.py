@@ -386,7 +386,11 @@ def capturar_pagina(url):
             raise
         r = extrair("<html></html>", url)
         final = url
-    ml = ml_link(final) or ml_link(url)
+    ml = ml_link(url) or ml_link(final)
+    if ml and ml["nome"] and (not r.get("nome") or TITULO_BLOQUEIO.search(str(r["nome"]))):
+        r["nome"] = ml["nome"]
+    if ml:
+        r["loja"] = "Mercado Livre"
     if ml and falta_dado(r):
         ml_api(ml, r)
     if not r.get("nome") and not r.get("imagem"):
