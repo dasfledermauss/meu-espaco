@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.0 — 13/11/2026 · Cuidados com o cachorrinho
+
+- O cenário do cachorrinho agora acompanha a hora do seu aparelho, em cinco fases: amanhecer, manhã, tarde, entardecer e noite, cada uma com céu, chão, morros, nuvens e sol ou lua próprios.
+- Depois de comer, ele faz cocô. O cocô fica no chão (com moscas) até você clicar nele para limpar.
+- A casinha ganhou uma plaquinha: clique nela para escolher o nome do cachorrinho.
+- Novos botões no cenário: Comida (derruba duas porções) e Banho (ele vai ao meio, ensaboa com bolhas e se sacode).
+
 ## 4.9 — 13/11/2026 · Tarefas com descrição e comentários
 
 - Clicar numa tarefa (no card todo, não só no título) abre a janela dela, com descrição, situação, prazo e comentários, tanto na tela Tarefas quanto no modo trabalho.

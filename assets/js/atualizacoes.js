@@ -10,6 +10,17 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.0',
+    data: '2026-11-13',
+    titulo: 'Cuidados com o cachorrinho',
+    itens: [
+      'O cenário do cachorrinho agora acompanha a hora do seu aparelho, em cinco fases: amanhecer, manhã, tarde, entardecer e noite, cada uma com céu, chão, morros, nuvens e sol ou lua próprios.',
+      'Depois de comer, ele faz cocô. O cocô fica no chão (com moscas) até você clicar nele para limpar.',
+      'A casinha ganhou uma plaquinha: clique nela para escolher o nome do cachorrinho.',
+      'Novos botões no cenário: Comida (derruba duas porções) e Banho (ele vai ao meio, ensaboa com bolhas e se sacode).'
+    ]
+  },
+  {
     versao: '4.9',
     data: '2026-11-13',
     titulo: 'Tarefas com descrição e comentários',
