@@ -14,6 +14,7 @@ window.ATUALIZACOES = [
     data: '2026-11-13',
     titulo: 'Selecionar em lote, pontinhos e captura Mercado Livre',
     itens: [
+      'Mercado Livre com foto e preço automáticos: crie um app grátis em developers.mercadolivre.com.br e ponha ML_CLIENT_ID e ML_CLIENT_SECRET no config.local.json (ou nas variáveis do Vercel). Passo a passo em docs/BIBLIOTECA_E_WISHLIST.md.',
       'Selecionar em lote: o botão Selecionar (Início, Mural, Biblioteca, Links, Wishlist, coleções) deixa marcar vários cards de uma vez e então mover para uma coleção, marcar como comprado (Wishlist) ou excluir tudo junto.',
       'Os três pontinhos de todos os menus agora ficam com o ícone no centro do círculo, sem o círculo cortado no canto do card.',
       'Mercado Livre: quando a loja barra a leitura, o nome sai do endereço e a foto e o preço vêm da API pública deles; o título genérico “Mercado Libre” não vira mais nome.',
