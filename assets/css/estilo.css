@@ -1140,6 +1140,17 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .ma-faixas-cheia { margin: 0; border-left: 0; }
 .ma-faixas-cheia .ma-sub-faixa { padding: 8px 8px; border-radius: 8px; font-size: 13px; }
 .mini-app.em-lista .ma-barra { display: none; }
+/* ---------- seleção em lote ---------- */
+.sel-modo { position: relative; cursor: pointer; transition: box-shadow .18s ease-out; }
+.sel-modo.sel-marcada { box-shadow: 0 0 0 2px var(--tinta); }
+.sel-caixa { position: absolute; top: 12px; left: 12px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; background: var(--cartao); border: 2px solid var(--tinta-3); display: grid; place-items: center; color: transparent; }
+.sel-caixa .ico { width: 14px; height: 14px; }
+.sel-marcada .sel-caixa { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+.barra-sel { position: sticky; bottom: 16px; z-index: 40; margin: 18px auto 0; width: fit-content; max-width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px 10px 18px; background: var(--cartao); border-radius: 999px; box-shadow: 0 8px 28px rgba(20,24,40,.18); }
+.barra-sel strong { font-size: 14px; margin-right: 4px; }
+.barra-sel button[disabled] { opacity: .45; pointer-events: none; }
+.barra-sel .perigo { color: var(--perigo); }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

@@ -702,6 +702,14 @@
         <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
     }
+    if (m.tipo === 'mover-lote') {
+      const n = (UI.sel || []).length;
+      return `<form class="modal" method="dialog" data-form="mover-lote">
+        <header class="modal-cab">${ic('folder')}<h2>Mover ${n} ${n === 1 ? 'item' : 'itens'}</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="form">${campo('f-colecao', 'Para a coleção', selectHTML('f-colecao', 'colecao', [['', 'Sem coleção (A organizar)'], ...S.colecoes.map((c) => [c.id, c.nome])], ''))}</div></div>
+        <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
+          <button class="btn-1" type="submit">${ic('check')}Mover</button></footer></form>`;
+    }
     if (m.tipo === 'imagem-grupo') {
       const i = item(m.id);
       if (!i) return '';
@@ -2191,6 +2199,41 @@
   }
 
   /* ---------------- Links ---------------- */
+  /* ---------------- Seleção em lote (Wishlist e Links) ---------------- */
+  const selAtiva = () => Array.isArray(UI.sel) && UI.selRota === rotaAtual()[0];
+  const selBtn = () => selAtiva() ? btnTxt('sel-sair', 'xmark', 'Cancelar seleção') : btnTxt('sel-ligar', 'check-circle', 'Selecionar');
+  const SEL_ROTAS = ['inicio', 'mural', 'tarefas', 'imagens', 'biblioteca', 'links', 'wishlist', 'colecao'];
+  const SEL_CARTOES = '.produto[data-id], .post[data-id], .postit[data-id], .pin[data-imagem], .volume-caixa, .tar-cartao';
+  const idCartao = (c) => {
+    const l = c.querySelector('a[href^="#/item/"]'), d = c.querySelector('[data-id]');
+    return c.dataset.id || c.dataset.imagem || (l && l.getAttribute('href').slice(7)) || (d && d.dataset.id) || '';
+  };
+  const cartoesSel = () => [...main.querySelectorAll(SEL_CARTOES)].filter((c) => item(idCartao(c)));
+  function alternarSel(id) { const k = UI.sel.indexOf(id); if (k < 0) UI.sel.push(id); else UI.sel.splice(k, 1); render(); }
+  function prepararSelecao(rota) {
+    if (!SEL_ROTAS.includes(rota)) return;
+    if (!cartoesSel().length && !selAtiva()) return;
+    const cab = main.querySelector('.pagina-cab .ferramentas') || main.querySelector('.pagina-cab');
+    if (cab) cab.insertAdjacentHTML('afterbegin', selBtn());
+    else main.insertAdjacentHTML('afterbegin', `<div class="ferramentas" style="justify-content:flex-end">${selBtn()}</div>`);
+    aplicarSelecao();
+  }
+  function aplicarSelecao() {
+    if (!selAtiva()) return;
+    UI.sel = UI.sel.filter((id) => item(id));
+    cartoesSel().forEach((c) => {
+      c.classList.add('sel-modo'); c.classList.toggle('sel-marcada', UI.sel.includes(idCartao(c)));
+      c.insertAdjacentHTML('afterbegin', `<span class="sel-caixa" aria-hidden="true">${ic('check')}</span>`);
+    });
+    const n = UI.sel.length, rota = rotaAtual()[0], vazio = !n;
+    main.insertAdjacentHTML('beforeend', `<div class="barra-sel" role="toolbar" aria-label="Ações em lote"><strong>${n} selecionado${n === 1 ? '' : 's'}</strong>
+      ${btn('sel-todos', 'Todos', '', 'btn-f')}
+      ${rota === 'wishlist' ? btn('sel-comprar', ic('check-circle') + (UI.wlFiltro === 'comprados' ? 'Voltar para Quero' : 'Marcar comprado'), vazio ? 'disabled' : '', 'btn-f') : ''}
+      ${btn('sel-mover', ic('folder') + 'Mover', vazio ? 'disabled' : '', 'btn-f')}
+      ${btn('sel-excluir', ic('trash') + 'Excluir', vazio ? 'disabled' : '', 'btn-f perigo')}
+      ${btnIco('sel-sair', 'xmark', 'Cancelar seleção')}</div>`);
+  }
+
   function renderLinks() {
     const c = UI.colSel;
     const nome = c === 'todas' ? 'Links' : c === 'soltos' ? 'A organizar' : (colecao(c) || {}).nome;
@@ -2844,7 +2887,7 @@
     const rota = r === 'item' ? 'item' : (ROTAS[r] ? r : 'inicio');
     aplicarTema();
     renderTopo(); renderDisco(); renderNav(rota); renderDireita(rota);
-    if (rota === 'item') renderFicha(id); else ROTAS[rota]();
+    if (rota === 'item') renderFicha(id); else { ROTAS[rota](); prepararSelecao(rota); }
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
     renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho();
@@ -2853,6 +2896,7 @@
     if (focar) main.focus({ preventScroll: true });
   }
   window.addEventListener('hashchange', () => {
+    UI.sel = null;
     if (rotaAtual()[0] === 'novo') return tratarEntrada();
     colherRascunhos();
     UI.cvEdit = null; UI.cvAdd = null; UI.adiando = null; UI.comentando = null; UI.erroCV = ''; UI.temaPrevia = null; UI.corPrevia = null;
@@ -2878,6 +2922,10 @@
     document.querySelectorAll('details.menu[open]').forEach((d) => { if (!d.contains(e.target)) d.removeAttribute('open'); });
     const sel = document.getElementById('menu-selecao');
     if (sel && !sel.hidden && !sel.contains(e.target)) sel.hidden = true;
+    if (selAtiva() && main.contains(e.target) && !e.target.closest('.barra-sel, details.menu')) {
+      const cartao = e.target.closest(SEL_CARTOES);
+      if (cartao && item(idCartao(cartao))) { e.preventDefault(); e.stopPropagation(); return alternarSel(idCartao(cartao)); }
+    }
     const cartaoLink = e.target.closest('a[href^="#/item/"]');
     if (cartaoLink && !cartaoLink.dataset.act && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0 && rotaAtual()[0] !== 'item') {
       const alvoId = cartaoLink.getAttribute('href').slice(7), it = item(alvoId);
@@ -2896,6 +2944,22 @@
     const passa = () => { salvar(); render(); };
     if (b.tagName === 'A' && ['criar', 'abrir-pasta', 'abrir-artigo', 'nova-colecao', 'col-ir'].includes(act)) e.preventDefault();
     switch (act) {
+      case 'sel-ligar': UI.sel = []; UI.selRota = rotaAtual()[0]; return render();
+      case 'sel-sair': UI.sel = null; return render();
+      case 'sel-todos': { const todos = cartoesSel().map(idCartao); UI.sel = UI.sel.length === todos.length ? [] : todos; return render(); }
+      case 'sel-mover': return UI.sel.length ? abrirModal({ tipo: 'mover-lote' }) : undefined;
+      case 'sel-comprar': {
+        const alvo = UI.wlFiltro !== 'comprados';
+        UI.sel.map(item).filter(Boolean).forEach((x) => { x.comprado = alvo; if (alvo) x.compradoEm = agora(); else delete x.compradoEm; x.editadoEm = agora(); });
+        toast(UI.sel.length + (alvo ? ' marcado(s) como comprado.' : ' voltou(aram) para Quero.')); UI.sel = []; return passa();
+      }
+      case 'sel-excluir': {
+        const n = UI.sel.length; if (!n || !confirm(`Excluir ${n} ${n === 1 ? 'item' : 'itens'}?\n\nSaem do feed, da busca e das coleções.`)) return;
+        const ids = new Set(UI.sel);
+        S.itens = S.itens.filter((x) => !ids.has(x.id));
+        S.lembretes.forEach((l) => { if (ids.has(l.itemId)) l.itemId = null; });
+        UI.sel = []; toast(n + ' excluído(s).'); return passa();
+      }
       case 'criar': return abrirModal({ tipo: 'criar', t: b.dataset.t });
       case 'trocar-tipo': return abrirModal({ tipo: 'tipo' });
       case 'modal-fechar': e.preventDefault(); return fecharModal();
@@ -3299,6 +3363,11 @@
       if (f.dataset.id) { const g = grupoImagem(f.dataset.id); if (g) g.nome = nome; }
       else { const g = { id: uid('gimg'), nome }; S.gruposImagem.push(g); UI.grupoImagem = g.id; }
       UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
+    }
+    if (tipo === 'mover-lote') {
+      const ids = UI.sel || [];
+      ids.map(item).filter(Boolean).forEach((x) => { x.colecoes = d.colecao ? [{ id: d.colecao, grupo: '' }] : []; x.organizar = !x.colecoes.length; x.editadoEm = agora(); });
+      UI.sel = []; UI.modal = null; ok(ids.length + ' movido(s).', 'folder'); return render();
     }
     if (tipo === 'imagem-grupo') {
       const i = item(f.dataset.id);
