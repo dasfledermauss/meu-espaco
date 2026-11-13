@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '4.3',
+    data: '2026-11-13',
+    titulo: 'Menu do perfil no celular',
+    itens: [
+      'Correção no celular: o humor do dia, no menu da foto, aparecia como uma coluna gigante de emojis com o campo espremido. Agora os emojis ficam em linha, o botão de salvar tem cor e o menu rola se a tela for baixa.'
+    ]
+  },
+  {
     versao: '4.2',
     data: '2026-11-13',
     titulo: 'Boas-vindas',

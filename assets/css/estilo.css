@@ -965,6 +965,16 @@ kbd { font: inherit; font-size: 12.5px; font-weight: 500; padding: 4px 9px; bord
 .passos li button.feito span { text-decoration: line-through; }
 .passos li button.feito .ico { color: var(--marca); }
 
+/* ---------- humor dentro do menu do perfil ---------- */
+.menu-corpo .humor-rapido .emojis { display: flex; flex-wrap: wrap; gap: 4px; }
+.menu-corpo .humor-rapido .emoji-op { width: 36px; height: 36px; padding: 0; justify-content: center; font-size: 18px; line-height: 1; flex: none; border-radius: 10px; }
+.menu-corpo .humor-rapido .emoji-op[aria-pressed="true"] { background: var(--marca-leve); outline: 2px solid var(--marca); }
+.menu-corpo .humor-linha .btn-1 { width: auto; height: 36px; padding: 0 14px; justify-content: center; background: var(--marca); color: var(--marca-texto); }
+.menu-corpo .humor-linha .btn-1 .ico { color: inherit; }
+.menu-corpo .humor-linha .btn-1:hover { background: var(--marca-escura); }
+.menu-corpo .humor-linha input { width: auto; }
+#topo-perfil .menu-corpo { max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
