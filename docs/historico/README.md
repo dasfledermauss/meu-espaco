@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.0 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.9 mais as cinco fases do dia, cocô, nome na casinha, banho e comida. | — |
+| v5.1 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.0 mais três pets, bolinha e vasilhas de comida e água. | — |
+| v5.0 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.9 mais as cinco fases do dia, cocô, nome na casinha, banho e comida. | — |
 | v4.9 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.8 mais janela da tarefa com comentários. | — |
 | v4.8 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.7 mais o cachorrinho com cenário no alto do Início. | — |
 | v4.7 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v4.6 mais arrastar com o item na mão e botão Adicionar no rodapé. | — |

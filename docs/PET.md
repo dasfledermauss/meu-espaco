@@ -6,13 +6,14 @@ Um pet em pixel art no alto do Início, acima de "O que você quer guardar?".
 
 - **Parado:** quadros de respiração; de tempos em tempos senta e volta a ficar de pé.
 - **Clique nele:** late (balão "AU! AU!", pulinho e som sintetizado, sem arquivo de áudio).
-- **Clique no chão:** cai comida (até 6 de uma vez). Ele anda até a mais próxima, abaixa e come; depois aparece um coração.
+- **Clique no chão:** joga a bolinha ali (cai do alto); ele corre atrás e chuta de um lado para o outro. Também dá para usar o botão **Brincar**.
+- **Pets:** salsicha, pinscher e frajola, escolhidos pela engrenagem do cenário (`perfil.petTipo`). Cada um tem folha própria, tamanho de célula e voz (`PET_TIPOS`).
 - **Som:** botão no canto do cenário ou Configurações → Cachorrinho. **Esconder** também fica em Configurações. Ficam em `perfil.petMudo` e `perfil.petOculto`.
 - Respeita "reduzir movimento" do sistema: sem nuvens andando, sem sentar sozinho.
 
 ## Cuidados
 
-- **Comida:** botão "Comida" (duas porções em lugares aleatórios) ou clique no chão. Depois de comer ele faz **cocô** (de 7 a 14 s depois, no máximo 3 no chão). Clique no cocô para limpar.
+- **Vasilhas:** comida (esvazia em 10 h) e água (6 h), à esquerda do cenário. O nível segue o horário real e fica em `perfil.petPote` (momento do último enchimento). Clique na vasilha para encher. Ele visita sozinho as que não estão cheias, e avisa "Fome!" ou "Sede!" quando vazias. Depois de comer ele faz **cocô** (de 7 a 14 s depois, no máximo 3 no chão). Clique no cocô para limpar.
 - **Banho:** botão "Banho". Ele vai ao meio do cenário, fica sentado entre bolhas e se sacode.
 - **Nome:** clique na plaquinha da casinha (ou na casinha) e escolha até 14 letras. Fica em `perfil.petNome`.
 
@@ -24,9 +25,9 @@ Pela hora do aparelho: amanhecer 5h–8h, manhã 8h–12h, tarde 12h–17h, enta
 
 | O quê | Onde |
 |---|---|
-| Folha de sprites 4×4 (célula 63×40) | `assets/img/pet/cachorro.png`. Linhas: 0 parado, 1 sentado, 2 andando, 3 abaixado. Todos olham para a direita (o lado contrário é espelhado por CSS). |
+| Folhas de sprites 4×4 (salsicha 63×40, pinscher 45×43, frajola 51×38) | `assets/img/pet/salsicha.png`, `pinscher.png`, `frajola.png`. Linhas: 0 parado, 1 sentado, 2 andando, 3 abaixado. Todos olham para a direita (o lado contrário é espelhado por CSS). |
 | Cenário | HTML/CSS e SVG em degraus dentro de `petHTML()` (`app.js`) e bloco "pet" do `estilo.css`; versão noturna no tema escuro. |
-| Lógica | Bloco "pet" do `app.js`: um laço `requestAnimationFrame` que só trabalha quando `#pet-cena` está na página. O estado (posição, comidas) fica fora do DOM porque a tela é redesenhada a toda hora. |
+| Lógica | Bloco "pet" do `app.js`: um laço `requestAnimationFrame` que só trabalha quando `#pet-cena` está na página. O estado (posição, bolinha, cocôs) fica fora do DOM porque a tela é redesenhada a toda hora. |
 
 ## Trocar o cachorro
 

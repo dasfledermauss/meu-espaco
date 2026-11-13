@@ -8,6 +8,14 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.1 — 13/11/2026 · Três pets, bolinha e vasilhas
+
+- Agora são três pets para escolher: salsicha, pinscher e gato frajola. Troque pela engrenagem dentro do cenário; cada um tem a sua voz.
+- Novo botão Brincar: ele corre atrás de uma bolinha, chutando de um lado para o outro.
+- Clicar no chão agora joga a bolinha naquele ponto, e ele vai brincar. O botão Comida saiu.
+- Duas vasilhas, de comida e de água: o nível desce com as horas e você enche clicando nelas. Ele vai comer e beber sozinho, e avisa quando está com fome ou sede.
+- Os botões do cenário ficaram mais legíveis ao passar o mouse.
+
 ## 5.0 — 13/11/2026 · Cuidados com o cachorrinho
 
 - O cenário do cachorrinho agora acompanha a hora do seu aparelho, em cinco fases: amanhecer, manhã, tarde, entardecer e noite, cada uma com céu, chão, morros, nuvens e sol ou lua próprios.
