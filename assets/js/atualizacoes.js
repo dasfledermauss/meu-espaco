@@ -10,6 +10,18 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '4.7',
+    data: '2026-11-13',
+    titulo: 'Visualização, arrastar com a mão, playlists e Mercado Livre',
+    itens: [
+      'Clicar numa nota ou num cartão (livro, desejo, música, gasto…) abre uma visualização para ler, sem entrar na edição. Lá ficam Editar e Abrir página.',
+      'Arrastar ficou mais natural: o item fica na sua mão, segue o ponteiro (um pouco inclinado) e os outros abrem espaço na hora, sem o contorno pontilhado. Vale para post-its do Mural, faixas do mini app, áreas do menu e blocos da direita. No celular, segure um instante para pegar; Esc cancela.',
+      'No modo trabalho, o botão Adicionar fica no canto de baixo e as opções sobem a partir dele.',
+      'A lista de vídeos de uma playlist agora aparece também na tela Músicas (botão ao lado do play) e mostra “Tentar de novo” quando a leitura falha. A leitura entende o novo formato de páginas do YouTube e usa o feed da lista como reserva.',
+      'Captura de links do Mercado Livre mais completa: segue links curtos e páginas de compartilhar até o produto, lê nome, foto e preço do próprio HTML e tenta de novo como o WhatsApp faz quando a loja devolve pouco.'
+    ]
+  },
+  {
     versao: '4.6',
     data: '2026-11-13',
     titulo: 'Aplicativo instalável (PWA)',

@@ -745,6 +745,38 @@
           <span class="espaco"></span>${btn('modal-fechar', 'Fechar', '', 'btn-f')}
           <a class="btn btn-1" href="#/tarefas" data-act="modal-fechar">${ic('list')}Ver em Tarefas</a></footer></div>`;
     }
+    if (m.tipo === 'item-ver') {
+      const i = item(m.id);
+      if (!i) return '';
+      const col = (i.colecoes || []).map((c) => esc((colecao(c.id) || {}).nome || '')).filter(Boolean).join(', ');
+      const p = progresso(i);
+      let corpo = '';
+      if (i.tipo === 'nota') corpo = `<div class="postit ${corNota(i)} lido">${i.modo === 'lista' ? listaCheckHTML(i) : `<p>${esc(i.texto || '')}</p>`}</div>`;
+      else if (i.tipo === 'link' || i.tipo === 'artigo') corpo = `${i.imagem ? `<img class="ver-capa" src="${esc(i.imagem)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+        <p class="fonte">${i.favicon ? `<img src="${esc(i.favicon)}" alt="" onerror="this.remove()">` : ic('link')}<a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(dominio(i.url))}</a> ${ic('open-new-window')}</p>
+        ${i.descricao ? `<p class="ver-texto">${esc(i.descricao)}</p>` : ''}${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}`;
+      else if (i.tipo === 'midia') corpo = `<div class="ver-linha">${capaHTML(i)}<div>
+        <p class="meta">${[i.autor, i.ano].filter(Boolean).map(esc).join(' · ')}</p>${estrelasHTML(i.estrelas)}
+        <p class="tags"><span class="tag">${esc(STATUS[i.formato][i.status])}</span>${(i.generos || []).map((g) => `<span class="tag">${esc(g)}</span>`).join('')}</p>
+        ${p !== null ? `<p class="progresso"><span class="barra"><i style="width:${p}%"></i></span> ${unidade(i)} ${i.paginaAtual} de ${i.paginas} · ${p}%</p>` : ''}</div></div>
+        ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}${(i.anotacoes || []).length ? `<p class="meta">${i.anotacoes.length} anotação${i.anotacoes.length > 1 ? 'es' : ''}</p>` : ''}`;
+      else if (i.tipo === 'desejo') corpo = `<div class="ver-linha">${fotoProduto(i)}<div><p class="fonte">${ic('shop')}${esc(i.loja || dominio(i.url))}</p><p>${precoHTML(i)}</p>${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ')' : '')}${i.comprado ? '<p class="tag">Comprado</p>' : ''}</div></div>
+        ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}`;
+      else if (i.tipo === 'musica') corpo = `<div class="ver-linha"><button type="button" class="musica-capa p" data-act="tocar" data-id="${i.id}" aria-label="Tocar">${capaYT(i) ? `<img src="${esc(capaYT(i))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : `<span class="capa-ph">${ic('playlist')}</span>`}<span class="play">${ic('play-solid')}</span></button>
+        <div><p class="meta">${[i.artista, i.listaYT && !i.video ? 'playlist' : ''].filter(Boolean).map(esc).join(' · ') || 'YouTube'}</p></div></div>`;
+      else if (i.tipo === 'gasto') corpo = `<p class="ver-valor">${brl(i.valor)}</p><p class="meta">${[i.categoria, 'despesa de ' + fmtDiaCurto(i.dataGasto)].filter(Boolean).map(esc).join(' · ')}</p>`;
+      else corpo = `<p class="ver-texto">${esc(i.nota || i.descricao || '')}</p>`;
+      const pagina = ['midia', 'desejo', 'musica', 'gasto', 'link', 'artigo'].includes(i.tipo);
+      return `<div class="modal modal-ver"><header class="modal-cab">${ic(icoTipo(i))}
+          <h2>${esc(i.tipo === 'gasto' ? 'Gasto' : tituloItem(i))}</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo">${corpo}
+          <dl class="ficha-dados"><div><dt>Tipo</dt><dd>${esc(TIPOS[i.tipo][0])}</dd></div>
+            ${col ? `<div><dt>Coleção</dt><dd>${col}</dd></div>` : ''}
+            <div><dt>Guardado em</dt><dd>${fmtDiaCurto(dataLocal(i.criadoEm))}</dd></div></dl></div>
+        <footer class="modal-pe">${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-f')}
+          <span class="espaco"></span>${pagina ? `<a class="btn btn-f" href="#/item/${i.id}" data-act="modal-fechar">${ic('open-new-window')}Abrir página</a>` : ''}
+          ${btn('modal-fechar', 'Fechar', '', 'btn-1')}</footer></div>`;
+    }
     if (m.tipo === 'instalar-ios') {
       return `<div class="modal"><header class="modal-cab">${ic('download')}<h2>Instalar no iPhone ou iPad</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
         <div class="modal-corpo"><ol class="passos-ios">
@@ -867,15 +899,6 @@
     const g = UI.grupoMusica || '';
     return musicas().filter((i) => !g || (g === 'soltas' ? !i.grupo : i.grupo === g));
   };
-  function reordenarMusicas(de, para) {
-    const lista = musicas();
-    const a = lista.find((x) => x.id === de), b = lista.find((x) => x.id === para);
-    if (!a || !b) return;
-    const sem = lista.filter((x) => x.id !== de);
-    sem.splice(sem.indexOf(b), 0, a);
-    sem.forEach((x, n) => { x.ordem = n; });
-    salvar(); UI.pularColheita = true; render();
-  }
   function vizinha(passo) {
     const lista = musicasDoGrupo();
     if (!lista.length) return null;
@@ -896,8 +919,8 @@
   async function carregarFaixas(id) {
     const i = item(id);
     if (!i || !i.listaYT || i.buscandoFaixas) return;
-    if (!UI.servidor) return toast('Ligue o servidor para ver os vídeos da lista.');
-    i.buscandoFaixas = true; pintarMiniApp();
+    if (!UI.servidor) { i.faixasErro = 'Ligue o servidor (ou use o site publicado) para ler os vídeos da lista.'; UI.pularColheita = true; return render(); }
+    i.buscandoFaixas = true; delete i.faixasErro; UI.pularColheita = true; render();
     try {
       const r = await fetch('api/playlist?lista=' + encodeURIComponent(i.listaYT), { cache: 'no-store' });
       const d = await r.json();
@@ -905,7 +928,7 @@
       i.faixas = d.faixas; i.faixasEm = agora();
       salvar();
     } catch (e) {
-      toast('Não consegui ler os vídeos dessa lista.');
+      i.faixasErro = 'Não consegui ler os vídeos dessa lista agora.';
     }
     i.buscandoFaixas = false; UI.pularColheita = true; render();
   }
@@ -1004,7 +1027,7 @@
   function listaMiniApp() {
     const lista = musicasDoGrupo();
     if (!lista.length) return `<p class="nada" style="padding:14px 16px">Nada neste grupo ainda.</p>`;
-    return lista.map((i) => `<div class="ma-faixa ${UI.tocando === i.id ? 'tocando' : ''}" draggable="true" data-musica="${i.id}">
+    return lista.map((i) => `<div class="ma-faixa ${UI.tocando === i.id ? 'tocando' : ''}" data-ordena="musicas" data-oid="${i.id}">
       <button type="button" class="ma-tocar" data-act="tocar" data-id="${i.id}" aria-label="Tocar ${esc(tituloItem(i))}">
         ${ic(UI.tocando === i.id && !UI.pausado ? 'pause' : 'play-solid')}</button>
       <span class="ma-nome">${esc(tituloItem(i))}${i.listaYT ? ` <em class="ma-selo">${ic('playlist')}lista</em>` : ''}</span>
@@ -1017,7 +1040,7 @@
   }
   function faixasHTML(i) {
     if (i.buscandoFaixas) return `<p class="ma-vazio">Lendo os vídeos da lista…</p>`;
-    if (!i.faixas || !i.faixas.length) return `<p class="ma-vazio">Nenhum vídeo lido ainda.</p>`;
+    if (!i.faixas || !i.faixas.length) return `<p class="ma-vazio">${i.faixasErro ? esc(i.faixasErro) : 'Nenhum vídeo lido ainda.'} <button type="button" class="ma-de-novo" data-act="ma-faixas-recarregar" data-id="${i.id}">Tentar de novo</button></p>`;
     const atual = videoAtual(i);
     return `<div class="ma-faixas">${i.faixas.map((f, n) => `<button type="button" class="ma-sub-faixa ${atual === f.video ? 'tocando' : ''}"
       data-act="tocar-video" data-id="${i.id}" data-video="${esc(f.video)}">
@@ -1102,11 +1125,13 @@
         <div class="musica-dados"><h3><a href="#/item/${i.id}">${esc(tituloItem(i))}</a></h3>
           <p class="meta">${[i.artista, i.listaYT && !i.video ? 'playlist' : (i.listaYT ? 'na playlist' : '')].filter(Boolean).map(esc).join(' · ') || 'YouTube'}</p>
           <div class="musica-acoes">${btnIco('tocar', UI.tocando === i.id ? 'pause' : 'play', UI.tocando === i.id ? 'Parar' : 'Tocar', `data-id="${i.id}"`)}
+            ${i.listaYT ? btnIco('ma-faixas', UI.listaAberta === i.id ? 'nav-arrow-up' : 'playlist', UI.listaAberta === i.id ? 'Esconder os vídeos' : 'Ver os vídeos da lista', `data-id="${i.id}"`) : ''}
             ${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorita', 'Favoritar', 'estrela')}
             ${btnIco('abrir-fora', 'open-new-window', 'Abrir no YouTube', `data-id="${i.id}"`)}
             ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
               { act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' },
-              '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></div></article>`;
+              '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>
+          ${UI.listaAberta === i.id ? faixasHTML(i) : ''}</div></article>`;
     };
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('music-note')}Músicas</h1>
         <div class="ferramentas">${btn('criar', ic('plus') + 'Guardar música', 'data-t="musica"', 'btn-1')}</div></header>
@@ -1387,8 +1412,8 @@
   function corpoPost(i) {
     if (i.tipo === 'nota') {
       const cab = i.titulo ? `<h3>${esc(i.titulo)}</h3>` : '';
-      if (i.modo === 'lista') return `<div class="postit ${corNota(i)} abre" data-act="editar-item" data-id="${i.id}" role="button" tabindex="0">${cab}${listaCheckHTML(i)}</div>`;
-      return `<div class="postit ${corNota(i)} abre" data-act="editar-item" data-id="${i.id}" role="button" tabindex="0">${cab}
+      if (i.modo === 'lista') return `<div class="postit ${corNota(i)} abre" data-act="ver-item" data-id="${i.id}" role="button" tabindex="0">${cab}${listaCheckHTML(i)}</div>`;
+      return `<div class="postit ${corNota(i)} abre" data-act="ver-item" data-id="${i.id}" role="button" tabindex="0">${cab}
         <p>${esc(corta(i.texto, 420))}</p></div>`;
     }
     if (i.tipo === 'tarefa') return linhaTarefa(i);
@@ -1507,7 +1532,7 @@
   function renderNav(rota) {
     const nv = vencidos().length;
     navLateral.innerHTML = `<h2 class="sr-only">Navegação</h2>
-      <div class="nav-areas">${areasOrdenadas().map(([r, n, icone, q]) => `<a href="#/${r}" draggable="true" data-area="${r}" ${rota === r ? 'aria-current="page"' : ''}>${icAtivo(icone, rota === r)}<span>${n}</span>${q ? `<em class="pino ${r === 'lembretes' && nv ? 'alerta' : ''}">${q}</em>` : ''}</a>`).join('')}</div>
+      <div class="nav-areas">${areasOrdenadas().map(([r, n, icone, q]) => `<a href="#/${r}" draggable="false" data-ordena="areas" data-oid="${r}" data-area="${r}" ${rota === r ? 'aria-current="page"' : ''}>${icAtivo(icone, rota === r)}<span>${n}</span>${q ? `<em class="pino ${r === 'lembretes' && nv ? 'alerta' : ''}">${q}</em>` : ''}</a>`).join('')}</div>
       <p class="nav-sep">Coleções</p>
       ${S.colecoes.map((c) => `<a class="sub" href="#/colecao/${c.id}" ${rota === 'colecao' && rotaAtual()[1] === c.id ? 'aria-current="true"' : ''}><span>${esc(c.nome)}</span><em class="pino">${S.itens.filter((i) => i.colecoes.some((x) => x.id === c.id)).length}</em></a>`).join('')}
       <a class="sub" href="#/colecao/soltos" ${rota === 'colecao' && rotaAtual()[1] === 'soltos' ? 'aria-current="true"' : ''}><span>A organizar</span><em class="pino">${S.itens.filter((i) => !i.colecoes.length).length}</em></a>
@@ -1551,7 +1576,7 @@
 
     const vivos = ordemDireita().filter((n) => blocos[n]);
     if (!vivos.length) { direita.innerHTML = cartao('Seu espaço', '<p class="meta">Tarefas, lembretes, leituras, favoritos e a vitrine aparecem aqui conforme você guarda coisas.</p>', '', 'fino'); return; }
-    direita.innerHTML = vivos.map((n) => `<div class="bloco-dir" draggable="true" data-bloco="${n}">
+    direita.innerHTML = vivos.map((n) => `<div class="bloco-dir" data-ordena="blocos" data-oid="${n}" data-bloco="${n}">
       <span class="pegar" title="Arraste para reordenar" aria-hidden="true">${ic('drag')}</span>${blocos[n]}</div>`).join('');
   }
 
@@ -1629,8 +1654,8 @@
     let ns = doTipo('nota').slice().sort((a, b) => (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0) || (a.ordem ?? 0) - (b.ordem ?? 0) || b.criadoEm.localeCompare(a.criadoEm));
     if (UI.muralCol === 'soltos') ns = ns.filter((i) => !i.colecoes.length);
     else if (UI.muralCol !== 'todas') ns = ns.filter((i) => i.colecoes.some((c) => c.id === UI.muralCol));
-    const nota = (i) => `<article class="postit ${corNota(i)} arrastavel abre" draggable="true" data-id="${i.id}" data-arrasta
-        data-act="editar-item" tabindex="0" role="button" aria-label="Editar ${esc(corta(i.titulo || i.texto || 'nota', 50))}">
+    const nota = (i) => `<article class="postit ${corNota(i)} arrastavel abre" data-ordena="notas" data-oid="${i.id}" data-id="${i.id}"
+        data-act="ver-item" tabindex="0" role="button" aria-label="Abrir ${esc(corta(i.titulo || i.texto || 'nota', 50))}">
       ${i.titulo ? `<h3>${esc(i.titulo)}</h3>` : ''}
       ${i.modo === 'lista' ? listaCheckHTML(i) : `<p>${esc(corta(i.texto, 240))}</p>`}
       <footer><time>${i.fixado ? ic('pin-solid') + ' ' : ''}${fmtDiaCurto(dataLocal(i.criadoEm))}</time>
@@ -1855,7 +1880,7 @@
 
     // Cada nota é um post-it solto, no mesmo tamanho do Mural; sem cartão agrupando.
     de('nota').sort((x, y) => (y.fixado ? 1 : 0) - (x.fixado ? 1 : 0) || (x.ordem ?? 0) - (y.ordem ?? 0) || y.criadoEm.localeCompare(x.criadoEm)).forEach((i) => blocos.push({ cls: 'solta',
-      html: `<article class="postit ${corNota(i)} abre solto" data-act="editar-item" data-id="${i.id}" tabindex="0" role="button" aria-label="Editar ${esc(corta(i.titulo || i.texto || 'nota', 50))}">
+      html: `<article class="postit ${corNota(i)} abre solto" data-act="ver-item" data-id="${i.id}" tabindex="0" role="button" aria-label="Abrir ${esc(corta(i.titulo || i.texto || 'nota', 50))}">
         ${i.titulo ? `<h3>${esc(i.titulo)}</h3>` : ''}${i.modo === 'lista' ? listaCheckHTML(i) : `<p>${esc(corta(i.texto, 240))}</p>`}
         <footer><time>${i.fixado ? ic('pin-solid') + ' ' : ''}${fmtDiaCurto(dataLocal(i.criadoEm))}</time></footer></article>` }));
 
@@ -2373,19 +2398,19 @@
     if (rotaAtual()[0] === 'item') location.hash = '#/' + ({ nota: 'mural', midia: 'biblioteca', desejo: 'wishlist', gasto: 'gastos', link: 'links', artigo: 'estudos' }[i.tipo] || 'inicio');
     else render();
   }
-  function reordenarNotas(origem, destino) {
-    const lista = doTipo('nota').slice().sort((a, b) => (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0) || (a.ordem ?? 0) - (b.ordem ?? 0) || b.criadoEm.localeCompare(a.criadoEm));
-    const de = lista.findIndex((x) => x.id === origem), para = lista.findIndex((x) => x.id === destino);
-    if (de < 0 || para < 0 || de === para) return;
-    lista.splice(para, 0, lista.splice(de, 1)[0]);
-    lista.forEach((x, k) => (x.ordem = k));
-    salvar(); render();
-  }
 
   document.addEventListener('click', (e) => {
     document.querySelectorAll('details.menu[open]').forEach((d) => { if (!d.contains(e.target)) d.removeAttribute('open'); });
     const sel = document.getElementById('menu-selecao');
     if (sel && !sel.hidden && !sel.contains(e.target)) sel.hidden = true;
+    const cartaoLink = e.target.closest('a[href^="#/item/"]');
+    if (cartaoLink && !cartaoLink.dataset.act && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0 && rotaAtual()[0] !== 'item') {
+      const alvoId = cartaoLink.getAttribute('href').slice(7), it = item(alvoId);
+      if (it) {
+        e.preventDefault();
+        return abrirModal(it.tipo === 'tarefa' ? { tipo: 'tarefa-ver', id: alvoId } : it.tipo === 'imagem' ? { tipo: 'imagem-ver', id: alvoId } : { tipo: 'item-ver', id: alvoId });
+      }
+    }
     const b = e.target.closest('[data-act]');
     if (!b || b.matches('select, input')) return;
     // Clique no "⋯" (ou na área do menu) dentro de um cartão clicável só abre o menu; não aciona o cartão.
@@ -2429,6 +2454,7 @@
       case 'onboarding': e.preventDefault(); fecharMenu(); return abrirOnboarding();
       case 'novidades': e.preventDefault(); UI.novidPagina = undefined; return abrirModal({ tipo: 'novidades' });
       case 'novid-ir': e.preventDefault(); UI.novidPagina = +b.dataset.n; UI.pularColheita = true; return render();
+      case 'ver-item': { e.preventDefault(); return abrirModal({ tipo: 'item-ver', id }); }
       case 'tarefa-ver': e.preventDefault(); return abrirModal({ tipo: 'tarefa-ver', id: b.dataset.id });
       case 'criar-em': e.preventDefault(); UI.colPadrao = b.dataset.col === 'soltos' ? '' : b.dataset.col; return abrirModal({ tipo: 'tipo' });
       case 'tocar': e.preventDefault(); return tocar(b.dataset.id);
@@ -2438,9 +2464,10 @@
         const mesmo = UI.listaAberta === b.dataset.id;
         UI.listaAberta = mesmo ? '' : b.dataset.id;
         const alvo = item(b.dataset.id);
-        if (!mesmo && alvo && !alvo.faixas) carregarFaixas(alvo.id);
-        return pintarMiniApp();
+        if (!mesmo && alvo && !(alvo.faixas && alvo.faixas.length)) carregarFaixas(alvo.id);
+        UI.pularColheita = true; return render();
       }
+      case 'ma-faixas-recarregar': e.preventDefault(); return carregarFaixas(b.dataset.id);
       case 'player-fechar': e.preventDefault(); return fecharMusica();
       case 'player-abrir': {
         e.preventDefault();
@@ -3041,90 +3068,117 @@
     e.preventDefault(); n.click();
   });
 
-  /* ---------------- arrastar: faixas do mini app ---------------- */
-  let faixaArrastada = null;
-  const caixaPlayer = document.getElementById('player');
-  if (caixaPlayer) {
-    caixaPlayer.addEventListener('dragstart', (e) => {
-      const n = e.target.closest('[data-musica]');
-      if (!n) return;
-      faixaArrastada = n.dataset.musica; n.classList.add('arrastando');
-      e.dataTransfer.effectAllowed = 'move';
-      try { e.dataTransfer.setData('text/plain', faixaArrastada); } catch (er) { /* ignora */ }
-    });
-    caixaPlayer.addEventListener('dragover', (e) => {
-      const n = e.target.closest && e.target.closest('[data-musica]');
-      if (!faixaArrastada || !n) return;
-      e.preventDefault();
-      caixaPlayer.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
-      if (n.dataset.musica !== faixaArrastada) n.classList.add('alvo-solta');
-    });
-    caixaPlayer.addEventListener('drop', (e) => {
-      const n = e.target.closest && e.target.closest('[data-musica]');
-      if (!faixaArrastada || !n) return;
-      e.preventDefault();
-      const de = faixaArrastada; faixaArrastada = null;
-      if (n.dataset.musica !== de) reordenarMusicas(de, n.dataset.musica);
-    });
-    caixaPlayer.addEventListener('dragend', () => caixaPlayer.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')));
+  /* ---------------- arrastar para reordenar ----------------
+     O item fica "na mão": segue o ponteiro, levemente inclinado, e os outros abrem espaço na hora.
+     Vale para post-its, faixas do mini app, áreas do menu e blocos da direita (data-ordena="grupo" + data-oid="id").
+     No toque, segure um instante para pegar (assim a tela ainda rola). Esc cancela. */
+  const SALVAR_ORDEM = {
+    notas(ids) { reordenarPorValores(ids); },
+    musicas(ids) { reordenarPorValores(ids); },
+    areas(ids) { S.perfil.ordemNav = ids.concat(areasOrdenadas().map((a) => a[0]).filter((r) => !ids.includes(r))); },
+    blocos(ids) { S.perfil.ordemDireita = ids.concat(ordemDireita().filter((x) => !ids.includes(x))); }
+  };
+  /** Redistribui os valores de "ordem" já usados entre os itens, na nova sequência (o resto da lista não muda de lugar). */
+  function reordenarPorValores(ids) {
+    const l = ids.map(item).filter(Boolean);
+    const v = l.map((x) => x.ordem ?? 0).sort((a, b) => a - b);
+    const unico = v.every((x, k) => !k || x > v[k - 1]);
+    l.forEach((x, k) => { x.ordem = unico ? v[k] : v[0] + k; });
   }
-
-  /* ---------------- arrastar: áreas do menu da esquerda ---------------- */
-  let areaArrastada = null;
-  navLateral.addEventListener('dragstart', (e) => {
-    const n = e.target.closest('[data-area]');
-    if (!n) return;
-    areaArrastada = n.dataset.area; n.classList.add('arrastando');
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', areaArrastada); } catch (er) { /* ignora */ }
-  });
-  navLateral.addEventListener('dragover', (e) => {
-    const n = e.target.closest && e.target.closest('[data-area]');
-    if (!areaArrastada || !n) return;
-    e.preventDefault();
-    navLateral.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
-    if (n.dataset.area !== areaArrastada) n.classList.add('alvo-solta');
-  });
-  navLateral.addEventListener('drop', (e) => {
-    const n = e.target.closest && e.target.closest('[data-area]');
-    if (!areaArrastada || !n) return;
-    e.preventDefault();
-    const de = areaArrastada; areaArrastada = null;
-    if (n.dataset.area === de) return;
-    const ordem = areasOrdenadas().map((a) => a[0]).filter((r) => r !== de);
-    ordem.splice(ordem.indexOf(n.dataset.area), 0, de);
-    S.perfil.ordemNav = ordem; salvar(); UI.pularColheita = true; render();
-  });
-  navLateral.addEventListener('dragend', () => navLateral.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')));
-
-  /* ---------------- arrastar: blocos da coluna da direita ---------------- */
-  let blocoArrastado = null;
-  direita.addEventListener('dragstart', (e) => {
-    const n = e.target.closest('[data-bloco]');
-    if (!n) return;
-    blocoArrastado = n.dataset.bloco; n.classList.add('arrastando');
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', blocoArrastado); } catch (er) { /* ignora */ }
-  });
-  direita.addEventListener('dragover', (e) => {
-    const n = e.target.closest && e.target.closest('[data-bloco]');
-    if (!blocoArrastado || !n) return;
-    e.preventDefault();
-    direita.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
-    if (n.dataset.bloco !== blocoArrastado) n.classList.add('alvo-solta');
-  });
-  direita.addEventListener('drop', (e) => {
-    const n = e.target.closest && e.target.closest('[data-bloco]');
-    if (!blocoArrastado || !n) return;
-    e.preventDefault();
-    const de = blocoArrastado; blocoArrastado = null;
-    if (n.dataset.bloco === de) return;
-    const ordem = ordemDireita().filter((x) => x !== de);
-    ordem.splice(ordem.indexOf(n.dataset.bloco), 0, de);
-    S.perfil.ordemDireita = ordem; salvar(); UI.pularColheita = true; render();
-  });
-  direita.addEventListener('dragend', () => direita.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')));
-
+  (function ordenarArrastando() {
+    let s = null;
+    const IGNORA = 'button, input, select, textarea, summary, details.menu, label, [data-nodrag]';
+    const irmaos = (c, g) => [...c.children].filter((x) => x.dataset && x.dataset.ordena === g);
+    const dentro = (r, x, y) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    /** Muda o DOM e anima cada irmão do lugar antigo para o novo (técnica FLIP). */
+    function animarTroca(els, mudar) {
+      const antes = new Map(els.map((x) => [x, x.getBoundingClientRect()]));
+      els.forEach((x) => { x.style.transition = 'none'; x.style.transform = ''; });
+      mudar();
+      els.forEach((x) => {
+        const a = antes.get(x), d = x.getBoundingClientRect(), dx = a.left - d.left, dy = a.top - d.top;
+        if (!dx && !dy) return;
+        x.style.transform = `translate(${dx}px, ${dy}px)`; x.getBoundingClientRect();
+        x.style.transition = 'transform .2s ease-out'; x.style.transform = '';
+      });
+    }
+    function rolavel(el) {
+      for (let n = el; n && n !== document.body; n = n.parentElement) { const o = getComputedStyle(n).overflowY; if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight) return n; }
+      return null;
+    }
+    function iniciar() {
+      if (!s || s.ativo) return;
+      s.ativo = true; clearTimeout(s.timer);
+      const it = s.it, r = it.getBoundingClientRect();
+      s.dx = s.x - r.left; s.dy = s.y - r.top; s.proximo = it.nextSibling; s.ordemIni = irmaos(s.c, s.g).map((x) => x.dataset.oid).join();
+      const f = it.cloneNode(true);
+      f.removeAttribute('data-ordena'); f.removeAttribute('data-act'); f.removeAttribute('id'); f.classList.add('fantasma');
+      f.style.cssText = `width:${r.width}px;height:${r.height}px;transform:translate(0,0)`;
+      s.c.appendChild(f);
+      const base = f.getBoundingClientRect(); s.ox = base.left; s.oy = base.top; s.f = f;
+      s.c.querySelectorAll('.ma-faixas, .ma-vazio').forEach((x) => { x.style.display = 'none'; });
+      it.classList.add('vaga'); document.body.classList.add('arrastando-ord');
+      s.rolar = rolavel(s.c); s.tilt = 0; s.pxAnt = s.x; s.ultTroca = 0;
+      const volta = () => { if (!s || !s.ativo) return; quadro(); s.raf = requestAnimationFrame(volta); };
+      s.raf = requestAnimationFrame(volta);
+    }
+    function quadro() {
+      const px = s.x - s.dx, py = s.y - s.dy;
+      s.tilt += (Math.max(-6, Math.min(6, (px - s.pxAnt) * .6)) - s.tilt) * .2; s.pxAnt = px;
+      s.f.style.transform = `translate(${px - s.ox}px, ${py - s.oy}px) rotate(${s.tilt.toFixed(2)}deg)`;
+      // quem está sob o ponteiro abre espaço: o item pega o lugar dele
+      const cs = irmaos(s.c, s.g), agora = performance.now();
+      const alvo = cs.find((x) => x !== s.it && dentro(x.getBoundingClientRect(), s.x, s.y));
+      if (alvo && agora - s.ultTroca > 90) {
+        s.ultTroca = agora;
+        animarTroca(cs, () => s.c.insertBefore(s.it, cs.indexOf(s.it) < cs.indexOf(alvo) ? alvo.nextSibling : alvo));
+      }
+      // perto da borda: rola a tela (ou a lista) junto
+      const area = s.rolar ? s.rolar.getBoundingClientRect() : { top: 0, bottom: innerHeight };
+      const passo = s.y < area.top + 56 ? -14 : s.y > area.bottom - 56 ? 14 : 0;
+      if (passo) (s.rolar || window).scrollBy(0, passo);
+    }
+    function encerrar(cancelar) {
+      if (!s) return;
+      const sessao = s; s = null; clearTimeout(sessao.timer); cancelAnimationFrame(sessao.raf);
+      if (!sessao.ativo) return;
+      document.body.classList.remove('arrastando-ord');
+      sessao.c.querySelectorAll('.ma-faixas, .ma-vazio').forEach((x) => { x.style.display = ''; });
+      if (cancelar) sessao.c.insertBefore(sessao.it, sessao.proximo);
+      const alvo = sessao.it.getBoundingClientRect(), f = sessao.f;
+      f.style.transition = 'transform .18s ease-out, box-shadow .18s ease-out';
+      f.style.transform = `translate(${alvo.left - sessao.ox}px, ${alvo.top - sessao.oy}px) rotate(0deg)`; f.style.boxShadow = 'none';
+      setTimeout(() => { f.remove(); sessao.it.classList.remove('vaga'); }, 190);
+      sessao.it.style.transition = ''; irmaos(sessao.c, sessao.g).forEach((x) => { x.style.transition = ''; x.style.transform = ''; });
+      suprimirClique = true; setTimeout(() => { suprimirClique = false; }, 60);
+      const ids = irmaos(sessao.c, sessao.g).map((x) => x.dataset.oid);
+      if (!cancelar && ids.join() !== sessao.ordemIni) { SALVAR_ORDEM[sessao.g](ids); salvar(); UI.pularColheita = true; render(); }
+    }
+    let suprimirClique = false;
+    document.addEventListener('click', (e) => { if (suprimirClique) { e.stopPropagation(); e.preventDefault(); } }, true);
+    document.addEventListener('dragstart', (e) => { if (e.target.closest && e.target.closest('[data-ordena]')) e.preventDefault(); });
+    document.addEventListener('contextmenu', (e) => { if (s && s.toque) e.preventDefault(); });
+    document.addEventListener('touchmove', (e) => { if (s && s.ativo) e.preventDefault(); }, { passive: false });
+    document.addEventListener('pointerdown', (e) => {
+      if (s || (e.pointerType === 'mouse' && e.button !== 0) || !SALVAR_ORDEM || UI.modal) return;
+      const it = e.target.closest && e.target.closest('[data-ordena]');
+      if (!it || !SALVAR_ORDEM[it.dataset.ordena]) return;
+      const interno = e.target.closest(IGNORA);
+      if (interno && it.contains(interno) && interno !== it) return;
+      s = { it, g: it.dataset.ordena, c: it.parentElement, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, id: e.pointerId, toque: e.pointerType !== 'mouse', ativo: false };
+      if (s.toque) s.timer = setTimeout(iniciar, 280);
+    });
+    document.addEventListener('pointermove', (e) => {
+      if (!s || e.pointerId !== s.id) return;
+      s.x = e.clientX; s.y = e.clientY;
+      if (s.ativo) return;
+      const d = Math.hypot(s.x - s.x0, s.y - s.y0);
+      if (s.toque) { if (d > 9) { clearTimeout(s.timer); s = null; } } else if (d > 5) iniciar();
+    });
+    document.addEventListener('pointerup', (e) => { if (s && e.pointerId === s.id) encerrar(false); });
+    document.addEventListener('pointercancel', (e) => { if (s && e.pointerId === s.id) encerrar(true); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && s && s.ativo) { e.stopPropagation(); encerrar(true); } }, true);
+  })();
   /* ---------------- imagem: colar, soltar e arrastar para grupo ---------------- */
   const campoDeTexto = (el) => el && el.closest && el.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]');
   document.addEventListener('paste', (e) => {
@@ -3208,31 +3262,7 @@
     }
   });
 
-  /* ---------------- arrastar: notas e janelas ---------------- */
-  let arrastando = null;
-  document.addEventListener('dragstart', (e) => {
-    const n = e.target.closest('[data-arrasta]');
-    if (!n) return;
-    arrastando = n.dataset.id; n.classList.add('arrastando');
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', arrastando); } catch (er) { /* ignora */ }
-  });
-  document.addEventListener('dragend', () => { document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')); arrastando = null; });
-  document.addEventListener('dragover', (e) => {
-    const n = e.target.closest && e.target.closest('[data-arrasta]');
-    if (!arrastando || !n) return;
-    e.preventDefault();
-    document.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
-    if (n.dataset.id !== arrastando) n.classList.add('alvo-solta');
-  });
-  document.addEventListener('drop', (e) => {
-    const n = e.target.closest && e.target.closest('[data-arrasta]');
-    if (!arrastando || !n) return;
-    e.preventDefault();
-    const de = arrastando; arrastando = null;
-    if (n.dataset.id !== de) reordenarNotas(de, n.dataset.id);
-  });
-
+  /* ---------------- janelas: mover e redimensionar ---------------- */
   let movendo = null;
   document.addEventListener('mousedown', (e) => {
     const barra = e.target.closest('[data-move]'), canto = e.target.closest('[data-resize]');

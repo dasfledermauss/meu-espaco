@@ -8,6 +8,10 @@ const CABECALHOS = {
   'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.6'
 };
 
+/* Algumas lojas (Mercado Livre à frente) mostram uma página quase vazia para navegadores "de fora".
+   Quando falta dado, tentamos de novo com o mesmo identificador que o WhatsApp e o Facebook usam para gerar prévias. */
+const CABECALHOS_PREVIA = { ...CABECALHOS, 'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)' };
+
 const desescapar = (s) => String(s).replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, g) => {
   const t = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'", '#x27': "'" };
   if (t[g.toLowerCase()]) return t[g.toLowerCase()];
@@ -93,6 +97,32 @@ function amazon(pagina, r) {
   }
 }
 
+/* Mercado Livre: nome, foto e preço também ficam no HTML da página (classes ui-pdp / andes). */
+function mercadolivre(pagina, r) {
+  if (!r.nome) { const m = pagina.match(/class="ui-pdp-title"[^>]*>([\s\S]*?)</); if (m) r.nome = m[1]; }
+  if (!r.imagem) { const m = pagina.match(/https:\/\/http2\.mlstatic\.com\/D_(?:NQ_NP|Q_NP)[^"'\s)]+?\.(?:webp|jpg|png)/); if (m) r.imagem = m[0]; }
+  if (r.preco === null) {
+    const m = pagina.match(/andes-money-amount__fraction[^>]*>\s*([\d.]+)</);
+    if (m) { const c = pagina.match(/andes-money-amount__cents[^>]*>\s*(\d{2})</); r.preco = numero(m[1].replace(/\./g, '') + (c ? '.' + c[1] : '')); }
+  }
+}
+
+/* Links curtos e páginas de "compartilhar" só repassam para a página do produto. */
+function proximoSalto(pagina, url) {
+  const achados = [
+    (pagina.match(/<meta[^>]+http-equiv=["']refresh["'][^>]+content=["'][^"']*url=([^"']+)/i) || [])[1],
+    (pagina.match(/location\.(?:href|replace)\s*(?:=|\()\s*["']([^"']+)["']/) || [])[1],
+    (pagina.match(/<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)/i) || [])[1],
+    (pagina.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)/i) || [])[1],
+    (pagina.match(/https?:\/\/[^"'\s<>]*mercadoli[vb]re[^"'\s<>]*\/(?:p\/)?MLB-?\d+[^"'\s<>]*/) || [])[0]
+  ];
+  for (const a of achados) {
+    if (!a) continue;
+    try { const u = new URL(desescapar(a).replace(/\\u002F/g, '/'), url); if (/^https?:$/.test(u.protocol) && u.href.split('#')[0] !== url.split('#')[0]) return u.href; } catch (e) { /* tenta o próximo */ }
+  }
+  return null;
+}
+
 function extrair(pagina, url) {
   const m = metas(pagina);
   const r = { nome: null, descricao: null, imagem: null, favicon: null, preco: null, moeda: null, estrelas: null, avaliacoes: null, loja: null };
@@ -118,6 +148,7 @@ function extrair(pagina, url) {
       r.avaliacoes = q ? Math.round(q) : null;
     }
   }
+  if (/mercadoli[vb]re|mlstatic/.test(new URL(url).hostname + pagina.slice(0, 200000))) mercadolivre(pagina, r);
   if (new URL(url).hostname.includes('amazon.') || pagina.includes('id="productTitle"')) amazon(pagina, r);
   r.nome = r.nome || m['og:title'] || m['twitter:title'] || (pagina.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || null;
   r.descricao = r.descricao || m['og:description'] || m.description || m['twitter:description'] || null;
@@ -146,20 +177,46 @@ function extrair(pagina, url) {
   return r;
 }
 
+/** Fica com o que `base` tem e completa o que está vazio com `extra`. */
+const mesclar = (base, extra) => { const o = { ...base }; for (const k of Object.keys(extra)) if ((o[k] === null || o[k] === undefined || o[k] === '') && extra[k] != null) o[k] = extra[k]; return o; };
+const faltaDado = (r) => !r.nome || !r.imagem || r.preco === null;
+
+async function baixar(href, cabecalhos, sinal) {
+  const r = await fetch(href, { headers: cabecalhos, redirect: 'follow', signal: sinal });
+  if (!r.ok) throw new Error(r.status + '');
+  return { pagina: (await r.text()).slice(0, 4 * 1024 * 1024), url: r.url || href };
+}
+
 export default async function handler(req, res) {
   const url = new URL(req.url, 'http://x').searchParams.get('url') || '';
   let alvo;
   try { alvo = new URL(url); } catch (e) { alvo = null; }
   if (!alvo || !/^https?:$/.test(alvo.protocol)) return res.status(400).json({ erro: 'endereço inválido' });
   const corta = new AbortController();
-  const tempo = setTimeout(() => corta.abort(), 15000);
+  const tempo = setTimeout(() => corta.abort(), 20000);
   try {
-    const r = await fetch(alvo.href, { headers: CABECALHOS, redirect: 'follow', signal: corta.signal });
-    if (!r.ok) throw new Error(r.status + '');
-    const pagina = (await r.text()).slice(0, 4 * 1024 * 1024);
-    if (bloqueado(pagina)) return res.status(502).json({ erro: 'a loja bloqueou a leitura automática desta página' });
+    let atual = await baixar(alvo.href, CABECALHOS, corta.signal);
+    if (bloqueado(atual.pagina)) {
+      try { atual = await baixar(alvo.href, CABECALHOS_PREVIA, corta.signal); } catch (e) { /* segue com o bloqueio */ }
+      if (bloqueado(atual.pagina)) return res.status(502).json({ erro: 'a loja bloqueou a leitura automática desta página' });
+    }
+    let r = extrair(atual.pagina, atual.url);
+    // Página de passagem (link curto, "compartilhar"): segue até a do produto, no máximo duas vezes.
+    for (let n = 0; n < 2 && faltaDado(r); n++) {
+      const prox = proximoSalto(atual.pagina, atual.url);
+      if (!prox) break;
+      try { atual = await baixar(prox, CABECALHOS, corta.signal); r = mesclar(extrair(atual.pagina, atual.url), r); } catch (e) { break; }
+    }
+    // Ainda faltando? Pede como o WhatsApp pede e completa só o que está vazio.
+    if (faltaDado(r)) {
+      try {
+        const alt = await baixar(atual.url, CABECALHOS_PREVIA, corta.signal);
+        const r2 = extrair(alt.pagina, alt.url);
+        r = mesclar(r, r2);
+      } catch (e) { /* o que já temos basta */ }
+    }
     res.setHeader('Cache-Control', 'no-store');
-    return res.status(200).json(extrair(pagina, r.url || alvo.href));
+    return res.status(200).json(r);
   } catch (e) {
     return res.status(502).json({ erro: `a página não respondeu (${e.name === 'AbortError' ? 'demorou demais' : e.message})` });
   } finally { clearTimeout(tempo); }

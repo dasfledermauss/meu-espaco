@@ -60,8 +60,13 @@ CABECALHOS = {
 }
 
 
-def baixar(url):
-    req = Request(url, headers=CABECALHOS)
+# Algumas lojas (Mercado Livre à frente) mostram página quase vazia a navegadores "de fora";
+# o identificador do WhatsApp/Facebook costuma receber a página completa com os dados da prévia.
+CABECALHOS_PREVIA = {**CABECALHOS, "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)"}
+
+
+def baixar(url, cabecalhos=None):
+    req = Request(url, headers=cabecalhos or CABECALHOS)
     with urlopen(req, timeout=15) as r:
         bruto = r.read(LIMITE)
         enc = (r.headers.get("Content-Encoding") or "").lower()
@@ -145,24 +150,62 @@ ROBO = ("validateCaptcha", "Digite os caracteres", "Enter the characters you see
 
 
 def faixas_da_playlist(pagina):
-    """A página da playlist traz os vídeos num JSON embutido (ytInitialData)."""
     achados, vistos = [], set()
-    padrao = re.compile(
-        r'"playlistVideoRenderer":\{"videoId":"([\w-]{6,20})".*?"title":\{(?:"runs":\[\{"text":"((?:[^"\\]|\\.)*)"|"simpleText":"((?:[^"\\]|\\.)*)")',
-        re.S)
-    for m in padrao.finditer(pagina):
-        vid = m.group(1)
-        if vid in vistos:
-            continue
-        vistos.add(vid)
-        bruto = m.group(2) or m.group(3) or ""
+
+    def add(video, titulo):
+        if not video or video in vistos or len(achados) >= 200 or not re.fullmatch(r"[\w-]{6,20}", video):
+            return
+        vistos.add(video)
+        achados.append({"video": video, "titulo": (titulo or "").strip() or "Sem nome"})
+
+    def texto(t):
+        if not isinstance(t, dict):
+            return ""
+        return t.get("simpleText") or "".join(r.get("text", "") for r in t.get("runs", [])) or t.get("content") or ""
+
+    def andar(o):
+        if isinstance(o, list):
+            for x in o:
+                andar(x)
+        elif isinstance(o, dict):
+            pv = o.get("playlistVideoRenderer")
+            if isinstance(pv, dict):
+                add(pv.get("videoId"), texto(pv.get("title")))
+            lv = o.get("lockupViewModel")
+            if isinstance(lv, dict) and "VIDEO" in str(lv.get("contentType", "")):
+                meta = (lv.get("metadata") or {}).get("lockupMetadataViewModel") or {}
+                add(lv.get("contentId"), texto(meta.get("title")))
+            for v in o.values():
+                andar(v)
+
+    j = re.search(r"ytInitialData\s*=\s*(\{.*?\});\s*</script>", pagina, flags=re.S)
+    if j:
         try:
-            titulo = json.loads('"' + bruto + '"')
-        except Exception:
-            titulo = bruto
-        achados.append({"video": vid, "titulo": titulo.strip() or "Sem nome"})
-        if len(achados) >= 200:
-            break
+            andar(json.loads(j.group(1)))
+        except ValueError:
+            pass
+    if not achados:
+        padrao = re.compile(
+            r'"playlistVideoRenderer":\{"videoId":"([\w-]{6,20})".*?"title":\{(?:"runs":\[\{"text":"((?:[^"\\]|\\.)*)"|"simpleText":"((?:[^"\\]|\\.)*)")',
+            re.S)
+        for m in padrao.finditer(pagina):
+            bruto = m.group(2) or m.group(3) or ""
+            try:
+                titulo = json.loads('"' + bruto + '"')
+            except Exception:
+                titulo = bruto
+            add(m.group(1), titulo)
+    return achados
+
+
+def faixas_do_feed(xml):
+    """O feed público da lista traz só os 15 mais recentes, mas quase nunca é bloqueado."""
+    achados = []
+    for e in re.findall(r"<entry>.*?</entry>", xml, flags=re.S):
+        v = re.search(r"<yt:videoId>([\w-]+)</yt:videoId>", e)
+        t = re.search(r"<title>(.*?)</title>", e, flags=re.S)
+        if v:
+            achados.append({"video": v.group(1), "titulo": html.unescape(t.group(1)).strip() if t else "Sem nome"})
     return achados
 
 
@@ -211,6 +254,79 @@ def amazon(pagina, r):
             r["avaliacoes"] = int(q) if q else None
 
 
+def mercadolivre(pagina, r):
+    """Mercado Livre: nome, foto e preço também ficam no HTML (classes ui-pdp / andes)."""
+    if not r["nome"]:
+        m = re.search(r'class="ui-pdp-title"[^>]*>([\s\S]*?)<', pagina)
+        if m:
+            r["nome"] = m.group(1)
+    if not r["imagem"]:
+        m = re.search(r'https://http2\.mlstatic\.com/D_(?:NQ_NP|Q_NP)[^"\'\s)]+?\.(?:webp|jpg|png)', pagina)
+        if m:
+            r["imagem"] = m.group(0)
+    if r["preco"] is None:
+        m = re.search(r'andes-money-amount__fraction[^>]*>\s*([\d.]+)<', pagina)
+        if m:
+            c = re.search(r'andes-money-amount__cents[^>]*>\s*(\d{2})<', pagina)
+            r["preco"] = numero(m.group(1).replace(".", "") + ("." + c.group(1) if c else ""))
+
+
+def proximo_salto(pagina, url):
+    """Links curtos e páginas de "compartilhar" só repassam para a página do produto."""
+    padroes = (r'<meta[^>]+http-equiv=["\']refresh["\'][^>]+content=["\'][^"\']*url=([^"\']+)',
+               r'location\.(?:href|replace)\s*(?:=|\()\s*["\']([^"\']+)["\']',
+               r'<meta[^>]+property=["\']og:url["\'][^>]+content=["\']([^"\']+)',
+               r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\']([^"\']+)',
+               r'(https?://[^"\'\s<>]*mercadoli[vb]re[^"\'\s<>]*/(?:p/)?MLB-?\d+[^"\'\s<>]*)')
+    for padrao in padroes:
+        m = re.search(padrao, pagina, flags=re.I)
+        if not m:
+            continue
+        alvo = urljoin(url, html.unescape(m.group(1)).replace("\\u002F", "/"))
+        if urlparse(alvo).scheme in ("http", "https") and alvo.split("#")[0] != url.split("#")[0]:
+            return alvo
+    return None
+
+
+def mesclar(base, extra):
+    """Fica com o que `base` tem e completa o que está vazio com `extra`."""
+    return {**base, **{k: v for k, v in extra.items() if base.get(k) in (None, "") and v is not None}}
+
+
+def falta_dado(r):
+    return not r["nome"] or not r["imagem"] or r["preco"] is None
+
+
+def capturar_pagina(url):
+    pagina, final = baixar(url)
+    if bloqueado(pagina):
+        try:
+            pagina, final = baixar(url, CABECALHOS_PREVIA)
+        except Exception:
+            pass
+        if bloqueado(pagina):
+            raise PermissionError("bloqueio")
+    r = extrair(pagina, final)
+    for _ in range(2):  # página de passagem: segue até a do produto
+        if not falta_dado(r):
+            break
+        prox = proximo_salto(pagina, final)
+        if not prox:
+            break
+        try:
+            pagina, final = baixar(prox)
+        except Exception:
+            break
+        r = mesclar(extrair(pagina, final), r)
+    if falta_dado(r):  # pede como o WhatsApp pede e completa só o que está vazio
+        try:
+            alt, alt_url = baixar(final, CABECALHOS_PREVIA)
+            r = mesclar(r, extrair(alt, alt_url))
+        except Exception:
+            pass
+    return r
+
+
 def extrair(pagina, url):
     m = metas(pagina)
     r = {"nome": None, "descricao": None, "imagem": None, "favicon": None, "preco": None, "moeda": None,
@@ -242,6 +358,8 @@ def extrair(pagina, url):
             qtd = numero(nota.get("reviewCount") or nota.get("ratingCount"))
             r["avaliacoes"] = int(qtd) if qtd else None
 
+    if re.search(r"mercadoli[vb]re|mlstatic", (urlparse(url).hostname or "") + pagina[:200000]):
+        mercadolivre(pagina, r)
     if "amazon." in (urlparse(url).hostname or "") or 'id="productTitle"' in pagina:
         amazon(pagina, r)
     r["nome"] = r["nome"] or m.get("og:title") or m.get("twitter:title")
@@ -407,8 +525,15 @@ class Manipulador(SimpleHTTPRequestHandler):
             if not re.fullmatch(r"[\w-]{8,60}", lista):
                 return self.responder(400, {"erro": "lista inválida"})
             try:
-                pagina, _ = baixar("https://www.youtube.com/playlist?list=" + lista + "&hl=pt-BR")
+                pagina, _ = baixar("https://www.youtube.com/playlist?list=" + lista + "&hl=pt-BR",
+                                   {**CABECALHOS, "Cookie": "CONSENT=YES+1; SOCS=CAI"})
                 faixas = faixas_da_playlist(pagina)
+                if not faixas:
+                    try:
+                        xml, _ = baixar("https://www.youtube.com/feeds/videos.xml?playlist_id=" + lista)
+                        faixas = faixas_do_feed(xml)
+                    except Exception:
+                        pass
                 if not faixas:
                     return self.responder(502, {"erro": "não consegui ler os vídeos dessa lista"})
                 return self.responder(200, {"faixas": faixas})
@@ -420,10 +545,9 @@ class Manipulador(SimpleHTTPRequestHandler):
             if urlparse(url).scheme not in ("http", "https"):
                 return self.responder(400, {"erro": "endereço inválido"})
             try:
-                pagina, final = baixar(url)
-                if bloqueado(pagina):
-                    return self.responder(502, {"erro": "a loja bloqueou a leitura automática desta página"})
-                return self.responder(200, extrair(pagina, final))
+                return self.responder(200, capturar_pagina(url))
+            except PermissionError:
+                return self.responder(502, {"erro": "a loja bloqueou a leitura automática desta página"})
             except Exception as e:  # rede, bloqueio da loja, página fora do ar
                 motivo = getattr(e, "code", None) or getattr(e, "reason", None) or e.__class__.__name__
                 return self.responder(502, {"erro": f"a loja não respondeu ({motivo})"})
