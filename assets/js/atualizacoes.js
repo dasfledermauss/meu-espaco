@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.11',
+    data: '2026-11-13',
+    titulo: 'Comentários maiores e playlist em foco',
+    itens: [
+      'Comentários: o campo para escrever ficou maior e cresce conforme você digita. Enter envia e Shift+Enter quebra a linha; as quebras aparecem no comentário.',
+      'Mini app de música: ao clicar numa playlist, ela vira a tela principal com todos os vídeos dela e um botão Listas para voltar às outras.'
+    ]
+  },
+  {
     versao: '5.10',
     data: '2026-11-13',
     titulo: 'Playlists no mini app',

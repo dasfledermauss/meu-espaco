@@ -744,7 +744,7 @@
           <section class="comentarios tar-coment"><h3 class="secao-tit">Comentários${(i.comentarios || []).length ? ' · ' + i.comentarios.length : ''}</h3>
             ${(i.comentarios || []).map((c) => `<div class="comentario">${avatarHTML('p')}<div class="balao">${esc(c.texto)}<time>${fmtDataHora(c.em)}</time></div></div>`).join('')}
             <form class="comentar" data-form="comentar" data-id="${i.id}">${avatarHTML('p')}
-              <input name="texto" required placeholder="Escreva um comentário…" autocomplete="off">
+              <textarea name="texto" required rows="2" placeholder="Escreva um comentário…"></textarea>
               <button class="btn-1 btn-p" type="submit">Enviar</button></form></section></div>
         <footer class="modal-pe">${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-f')}
           <span class="espaco"></span>${btn('modal-fechar', 'Fechar', '', 'btn-f')}
@@ -1047,18 +1047,23 @@
   const fecharMusica = () => { UI.painelMusica = false; if (!UI.tocando) UI.playerMin = false; UI.pularColheita = true; render(); };
 
   function listaMiniApp() {
+    const aberta = UI.listaMini && item(UI.listaMini);
+    if (aberta) {
+      return `<div class="ma-lista-topo">${btn('ma-lista-voltar', ic('nav-arrow-left') + 'Listas', '', 'btn-f btn-p')}<strong>${esc(tituloItem(aberta))}</strong></div>
+        <div class="ma-faixas ma-faixas-cheia">${faixasHTML(aberta).replace(/^<div class="ma-faixas">|<\/div>$/g, '')}</div>`;
+    }
     const lista = musicasDoGrupo();
     if (!lista.length) return `<p class="nada" style="padding:14px 16px">Nada neste grupo ainda.</p>`;
     return lista.map((i) => `<div class="ma-faixa ${UI.tocando === i.id ? 'tocando' : ''}" data-ordena="musicas" data-oid="${i.id}">
       <button type="button" class="ma-tocar" data-act="tocar" data-id="${i.id}" aria-label="Tocar ${esc(tituloItem(i))}">
         ${ic(UI.tocando === i.id && !UI.pausado ? 'pause' : 'play-solid')}</button>
-      <span class="ma-nome">${esc(tituloItem(i))}${i.listaYT ? ` <em class="ma-selo">${ic('playlist')}lista</em>` : ''}</span>
-      ${i.listaYT ? btnIco('ma-faixas', UI.listaAberta === i.id ? 'nav-arrow-up' : 'nav-arrow-down', 'Ver os vídeos da lista', `data-id="${i.id}"`) : ''}
+      <span class="ma-nome" ${i.listaYT ? `data-act="ma-lista-abrir" data-id="${i.id}" title="Abrir a lista"` : ''}>${esc(tituloItem(i))}${i.listaYT ? ` <em class="ma-selo">${ic('playlist')}lista</em>` : ''}</span>
+      ${i.listaYT ? btnIco('ma-lista-abrir', 'nav-arrow-right', 'Abrir a lista', `data-id="${i.id}"`) : ''}
       ${menuMais([{ act: 'musica-grupo', id: i.id, ico: 'folder', txt: 'Mover para grupo' },
         { act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
         { act: 'abrir-fora', id: i.id, ico: 'open-new-window', txt: 'Abrir no YouTube' },
         '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>
-      ${UI.listaAberta === i.id ? faixasHTML(i) : ''}`).join('');
+      `).join('');
   }
   /** No mini app, leva a playlist aberta para o topo da lista, para ver os vídeos dela. */
   function rolarListaAoTopo(id) {
@@ -1086,6 +1091,7 @@
     if (!ap) return;
     ap.classList.toggle('min', !!UI.playerMin);
     ap.classList.toggle('sem-video', !UI.tocando);
+    ap.classList.toggle('em-lista', !!(UI.listaMini && item(UI.listaMini)));
     const i = UI.tocando && item(UI.tocando);
     const nome = i ? (UI.faixaYT || tituloItem(i)) : 'Nada tocando';
     ap.querySelectorAll('.ma-nome-atual').forEach((n) => { n.textContent = nome; });
@@ -1792,7 +1798,7 @@
     return `<div class="comentarios">
       ${i.comentarios.map((c) => `<div class="comentario">${avatarHTML('p')}<div class="balao">${esc(c.texto)}<time>${fmtDataHora(c.em)}</time></div></div>`).join('')}
       <form class="comentar" data-form="comentar" data-id="${i.id}">${avatarHTML('p')}
-        <input name="texto" required placeholder="Comentar de novo…" autocomplete="off">
+        <textarea name="texto" required rows="2" placeholder="Comentar de novo…"></textarea>
         <button class="btn-1 btn-p" type="submit">Enviar</button></form></div>`;
   }
 
@@ -2566,7 +2572,7 @@
       ${cartao(ic('chat-bubble') + `Comentários (${(i.comentarios || []).length})`, `
         ${(i.comentarios || []).length ? `<div class="comentarios">${i.comentarios.map((c) => `<div class="comentario">${avatarHTML('p')}<div class="balao">${esc(c.texto)}<time>${fmtDataHora(c.em)}</time></div></div>`).join('')}</div>` : '<p class="nada">Nenhum comentário ainda.</p>'}
         <form class="comentar" data-form="comentar" data-id="${i.id}" style="margin-top:12px">${avatarHTML('p')}
-          <input name="texto" required placeholder="O que aconteceu depois?" autocomplete="off"><button class="btn-1 btn-p" type="submit">Enviar</button></form>`)}
+          <textarea name="texto" required rows="2" placeholder="O que aconteceu depois?"></textarea><button class="btn-1 btn-p" type="submit">Enviar</button></form>`)}
       ${(i.notasFonte || []).some((n) => n.original && (n.original.customTitle || n.original.customDescription)) ? cartao(ic('import') + 'Veio dos arquivos importados',
         `<div class="mini-lista">${i.notasFonte.filter((n) => n.original && (n.original.customTitle || n.original.customDescription)).map((n) => `<p class="mini-item"><span>${esc(n.fonte)}${n.grupo ? ' › ' + esc(n.grupo) : ''}: ${esc(n.original.customTitle || '')} ${esc(n.original.customDescription || '')}</span></p>`).join('')}</div>`) : ''}`;
   }
@@ -2939,6 +2945,14 @@
         if (!mesmo) rolarListaAoTopo(b.dataset.id);
         return;
       }
+      case 'ma-lista-abrir': {
+        e.preventDefault(); const alvo = item(b.dataset.id); if (!alvo) return;
+        UI.listaMini = alvo.id; if (!(alvo.faixas && alvo.faixas.length)) carregarFaixas(alvo.id);
+        UI.pularColheita = true; render();
+        { const l = document.getElementById('ma-lista'); if (l) l.scrollTop = 0; }
+        return;
+      }
+      case 'ma-lista-voltar': e.preventDefault(); UI.listaMini = ''; UI.pularColheita = true; render(); return;
       case 'ma-faixas-recarregar': e.preventDefault(); return carregarFaixas(b.dataset.id);
       case 'player-fechar': e.preventDefault(); return fecharMusica();
       case 'player-abrir': {
@@ -3032,7 +3046,7 @@
         return;
       }
       case 'comentar': fecharMenu(); UI.comentando = UI.comentando === id ? null : id; render();
-        { const c = document.querySelector(`[data-form="comentar"][data-id="${id}"] input`); if (c) c.focus(); } return;
+        { const c = document.querySelector(`[data-form="comentar"][data-id="${id}"] textarea`); if (c) c.focus(); } return;
       case 'editar-item': fecharMenu(); return abrirModal({ tipo: 'editar', id });
       case 'excluir-item': fecharMenu(); if (UI.modal && UI.modal.tipo === 'item-ver') fecharModal(); return excluirItem(i);
       case 'abrir-fora': fecharMenu(); window.open(i.url, '_blank', 'noopener'); return;
@@ -3460,7 +3474,7 @@
       it.comentarios.push({ id: uid('com'), texto: d.texto.trim(), em: t });
       if (!UI.modal) UI.comentando = it.id;
       ok(); render();
-      { const c = document.querySelector(`[data-form="comentar"][data-id="${it.id}"] input`); if (c) c.focus(); }
+      { const c = document.querySelector(`[data-form="comentar"][data-id="${it.id}"] textarea`); if (c) c.focus(); }
       return;
     }
     if (tipo === 'perfil') {
@@ -3546,6 +3560,16 @@
     const escrevendo = e.target.closest && e.target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]');
     if (e.shiftKey && (e.code === 'Space' || e.key === ' ') && !escrevendo && !UI.modal) { e.preventDefault(); return alternarTrabalho(); }
     if (e.key === 'Escape' && UI.modoTrabalho && !UI.modal) { e.preventDefault(); return alternarTrabalho(false); }
+  });
+
+  // Comentário: Enter envia, Shift+Enter quebra a linha; o campo cresce conforme você escreve.
+  document.addEventListener('keydown', (e) => {
+    const c = e.target.closest && e.target.closest('.comentar textarea');
+    if (c && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (c.value.trim()) c.form.requestSubmit(); }
+  });
+  document.addEventListener('input', (e) => {
+    const c = e.target.closest && e.target.closest('.comentar textarea');
+    if (c) { c.style.height = 'auto'; c.style.height = Math.min(c.scrollHeight + 2, 220) + 'px'; }
   });
 
   // Enter e espaço valem como clique no que é botão por papel (o post-it, por exemplo).
