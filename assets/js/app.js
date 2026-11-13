@@ -1416,14 +1416,18 @@
   }
   function renderTopo() {
     const p = S.perfil, h = p.humores[hoje()] || {};
-    const curtos = EMOJIS.slice(0, 8);
+    // Os 4 últimos emojis usados (mais recente primeiro); se houver menos de 4, completa com sugestões.
+    const recentes = [];
+    Object.entries(p.humores).sort((a, b) => b[0].localeCompare(a[0])).forEach(([, x]) => { if (x.emoji && !recentes.includes(x.emoji) && recentes.length < 4) recentes.push(x.emoji); });
+    EMOJIS.forEach((e) => { if (recentes.length < 4 && !recentes.includes(e)) recentes.push(e); });
+    const curtos = recentes;
     topoPerfil.innerHTML = `<details class="menu menu-perfil"><summary aria-label="Perfil e configurações">
         ${avatarHTML()}<span class="mp-texto"><strong>${esc(p.nome === 'Meu Nome' ? p.nome : p.nome.split(' ')[0])}</strong><span>${h.emoji || h.texto ? esc(h.emoji || '') + ' ' + esc(h.texto || '') : 'como estou hoje?'}</span></span>${ic('nav-arrow-down')}</summary>
       <div class="menu-corpo">
         <form class="humor-rapido" data-form="humor-rapido">
           <span class="rotulo">Como estou hoje</span>
-          <div class="emojis">${curtos.map((e) => `<button type="button" class="emoji-op" data-act="humor-emoji" data-v="${e}" aria-pressed="${h.emoji === e}" aria-label="Humor ${e}">${e}</button>`).join('')}</div>
-          <input type="hidden" name="humorEmoji" value="${esc(h.emoji || '')}">
+          <div class="emojis">${curtos.map((e) => `<button type="button" class="emoji-op" data-act="humor-emoji" data-v="${e}" aria-pressed="${h.emoji === e}" aria-label="Humor ${e}">${e}</button>`).join('')}
+            <input type="text" name="humorEmoji" class="emoji-campo" value="${esc(h.emoji || '')}" placeholder="+" maxlength="16" autocomplete="off" inputmode="text" aria-label="Escolher outro emoji" title="Digite ou cole qualquer emoji (no Windows: tecla Windows + ponto)"></div>
           <div class="humor-linha">
             <input type="text" name="humorTexto" value="${esc(h.texto || '')}" placeholder="em uma palavra: focado, tranquilo…" aria-label="Como estou hoje">
             <button class="btn-1 btn-p" type="submit" aria-label="Salvar humor">${ic('check')}</button></div>
@@ -2617,6 +2621,11 @@
   });
 
   document.addEventListener('input', (e) => {
+    if (e.target.matches && e.target.matches('.humor-rapido [name=humorEmoji]')) {
+      const v = e.target.value.trim();
+      if (v) { const g = typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(v)].map((x) => x.segment) : [...v]; e.target.value = g[g.length - 1]; }
+      e.target.closest('form').querySelectorAll('[data-act=humor-emoji]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === e.target.value)));
+    }
     const t = e.target, act = t.dataset && t.dataset.act;
     if (t === buscaTopo) {
       UI.busca = t.value;
