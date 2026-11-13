@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '4.4',
+    data: '2026-11-13',
+    titulo: 'Seu emoji do dia',
+    itens: [
+      'No menu da foto, o humor do dia mostra os 4 últimos emojis que você usou, para repetir com um toque.',
+      'Ao lado deles há um campo para escolher qualquer emoji: digite, cole ou abra o teclado de emojis (no Windows, tecla Windows + ponto).'
+    ]
+  },
+  {
     versao: '4.3',
     data: '2026-11-13',
     titulo: 'Menu do perfil no celular',

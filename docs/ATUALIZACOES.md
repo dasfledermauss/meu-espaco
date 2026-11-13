@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.4 — 13/11/2026 · Seu emoji do dia
+
+- No menu da foto, o humor do dia mostra os 4 últimos emojis que você usou, para repetir com um toque.
+- Ao lado deles há um campo para escolher qualquer emoji: digite, cole ou abra o teclado de emojis (no Windows, tecla Windows + ponto).
+
 ## 4.3 — 13/11/2026 · Menu do perfil no celular
 
 - Correção no celular: o humor do dia, no menu da foto, aparecia como uma coluna gigante de emojis com o campo espremido. Agora os emojis ficam em linha, o botão de salvar tem cor e o menu rola se a tela for baixa.

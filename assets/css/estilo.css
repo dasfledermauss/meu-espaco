@@ -975,6 +975,9 @@ kbd { font: inherit; font-size: 12.5px; font-weight: 500; padding: 4px 9px; bord
 .menu-corpo .humor-linha input { width: auto; }
 #topo-perfil .menu-corpo { max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain; }
 
+.menu-corpo .humor-rapido .emoji-campo { width: 48px; height: 36px; padding: 0; text-align: center; font-size: 18px; border-radius: 10px; flex: none; }
+.menu-corpo .humor-rapido .emoji-campo::placeholder { color: var(--tinta-3); font-size: 16px; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
