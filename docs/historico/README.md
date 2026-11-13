@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.10 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.9 com o mini app de música mais alto e a lista rolando. | — |
+| v5.11 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.10 com campo de comentário maior e playlist como tela principal no mini app. | — |
+| v5.10 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.9 com o mini app de música mais alto e a lista rolando. | — |
 | v5.9 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.8 com o currículo base em branco (sem mudança visual). | — |
 | v5.8 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.7 com o botão de adicionar do modo trabalho abrindo só sobre o símbolo. | — |
 | v5.7 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.6 com o cenário de 212 px e balões de fala maiores. | — |
