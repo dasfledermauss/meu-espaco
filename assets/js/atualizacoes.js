@@ -10,6 +10,18 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.1',
+    data: '2026-11-13',
+    titulo: 'Três pets, bolinha e vasilhas',
+    itens: [
+      'Agora são três pets para escolher: salsicha, pinscher e gato frajola. Troque pela engrenagem dentro do cenário; cada um tem a sua voz.',
+      'Novo botão Brincar: ele corre atrás de uma bolinha, chutando de um lado para o outro.',
+      'Clicar no chão agora joga a bolinha naquele ponto, e ele vai brincar. O botão Comida saiu.',
+      'Duas vasilhas, de comida e de água: o nível desce com as horas e você enche clicando nelas. Ele vai comer e beber sozinho, e avisa quando está com fome ou sede.',
+      'Os botões do cenário ficaram mais legíveis ao passar o mouse.'
+    ]
+  },
+  {
     versao: '5.0',
     data: '2026-11-13',
     titulo: 'Cuidados com o cachorrinho',
