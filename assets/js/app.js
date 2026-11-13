@@ -740,7 +740,12 @@
             <div><dt>Situação</dt><dd>${ETAPAS[e]}</dd></div>
             <div><dt>Prazo</dt><dd>${i.prazo ? (atras ? 'venceu ' : '') + fmtDiaCurto(i.prazo) : '—'}</dd></div>
             <div><dt>Coleção</dt><dd>${(i.colecoes || []).map((c) => esc((colecao(c.id) || {}).nome || '')).filter(Boolean).join(', ') || '—'}</dd></div>
-          </dl></div>
+          </dl>
+          <section class="comentarios tar-coment"><h3 class="secao-tit">Comentários${(i.comentarios || []).length ? ' · ' + i.comentarios.length : ''}</h3>
+            ${(i.comentarios || []).map((c) => `<div class="comentario">${avatarHTML('p')}<div class="balao">${esc(c.texto)}<time>${fmtDataHora(c.em)}</time></div></div>`).join('')}
+            <form class="comentar" data-form="comentar" data-id="${i.id}">${avatarHTML('p')}
+              <input name="texto" required placeholder="Escreva um comentário…" autocomplete="off">
+              <button class="btn-1 btn-p" type="submit">Enviar</button></form></section></div>
         <footer class="modal-pe">${btn('editar-item', ic('edit-pencil') + 'Editar', `data-id="${i.id}"`, 'btn-f')}
           <span class="espaco"></span>${btn('modal-fechar', 'Fechar', '', 'btn-f')}
           <a class="btn btn-1" href="#/tarefas" data-act="modal-fechar">${ic('list')}Ver em Tarefas</a></footer></div>`;
@@ -1186,9 +1191,9 @@
       <button type="button" class="tar-marca" data-act="tar-ok" data-id="${i.id}"
         aria-pressed="${!!i.concluida}" aria-label="${i.concluida ? 'Reabrir tarefa' : 'Marcar como feita'}" title="${i.concluida ? 'Reabrir' : 'Marcar como feita'}">
         ${ic(i.concluida ? 'check-circle-solid' : 'check-circle')}</button>
-      <span class="tar-corpo"><a class="tar-tit" href="#/item/${i.id}">${esc(i.titulo || 'Tarefa sem nome')}</a>
+      <span class="tar-corpo" data-act="tarefa-ver" data-id="${i.id}"><a class="tar-tit" href="#/item/${i.id}">${esc(i.titulo || 'Tarefa sem nome')}</a>
         ${i.descricao && !opts.semDescricao ? `<span class="tar-desc">${esc(corta(i.descricao, 120))}</span>` : ''}
-        <span class="tar-meta">${prazo}${e === 'fazendo' ? `<span class="tar-etapa">${ic('clock')}Fazendo</span>` : ''}${cols}</span></span></div>`;
+        <span class="tar-meta">${prazo}${e === 'fazendo' ? `<span class="tar-etapa">${ic('clock')}Fazendo</span>` : ''}${(i.comentarios || []).length ? `<span class="tar-col">${ic('chat-bubble')}${i.comentarios.length}</span>` : ''}${cols}</span></span></div>`;
   }
   function alternarTarefa(id) {
     const i = item(id); if (!i) return;
@@ -3098,8 +3103,10 @@
     if (tipo === 'comentar') {
       const it = item(f.dataset.id);
       if (!d.texto.trim()) return;
+      it.comentarios = it.comentarios || [];
       it.comentarios.push({ id: uid('com'), texto: d.texto.trim(), em: t });
-      UI.comentando = it.id; ok(); render();
+      if (!UI.modal) UI.comentando = it.id;
+      ok(); render();
       { const c = document.querySelector(`[data-form="comentar"][data-id="${it.id}"] input`); if (c) c.focus(); }
       return;
     }

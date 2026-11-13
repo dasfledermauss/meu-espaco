@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '4.9',
+    data: '2026-11-13',
+    titulo: 'Tarefas com descrição e comentários',
+    itens: [
+      'Clicar numa tarefa (no card todo, não só no título) abre a janela dela, com descrição, situação, prazo e comentários, tanto na tela Tarefas quanto no modo trabalho.',
+      'Dá para comentar direto na janela da tarefa, e o card mostra quantos comentários ela tem.'
+    ]
+  },
+  {
     versao: '4.8',
     data: '2026-11-13',
     titulo: 'Um cachorrinho no Início',
