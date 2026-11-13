@@ -10,6 +10,17 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.2',
+    data: '2026-11-13',
+    titulo: 'Ajustes nas vasilhas e no banho',
+    itens: [
+      'As vasilhas de comida e de água esvaziam a cada 5 minutos; encher agora mostra a ração e a água caindo, e o nível desce enquanto ele come.',
+      'O botão Brincar saiu: para brincar, clique no chão e jogue a bolinha.',
+      'Dar banho agora interrompe a brincadeira.',
+      'A plaquinha do nome da casinha não muda mais de cor de forma estranha ao passar o mouse.'
+    ]
+  },
+  {
     versao: '5.1',
     data: '2026-11-13',
     titulo: 'Três pets, bolinha e vasilhas',

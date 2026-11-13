@@ -1334,7 +1334,6 @@
       <div class="pc-chao"></div>${PET_FLORES}${petPotesHTML()}
       <div class="pet-cao" role="img" aria-label="${nome ? esc(nome) : petDef().nome}"></div><div class="pet-balao" hidden></div>
       <div class="pet-barra">
-        <button type="button" class="pet-botao" data-act="pet-brincar" title="Brincar de bolinha">${petIco('<circle cx="12" cy="12" r="8.5"/><path d="M4 9.6c5 1.2 11 1.2 16 0M4 14.4c5-1.2 11-1.2 16 0"/>')}<span>Brincar</span></button>
         <button type="button" class="pet-botao" data-act="pet-banho" title="Dar banho">${petIco('<path d="M12 3.5s6 6.1 6 10.2a6 6 0 0 1-12 0C6 9.6 12 3.5 12 3.5Z"/><path d="M9.5 14a2.6 2.6 0 0 0 2.2 2.4"/>')}<span>Banho</span></button>
         <button type="button" class="pet-botao so-icone" data-act="pet-config" aria-label="Configurações do pet" aria-haspopup="true" title="Configurações do pet">
           ${petIco('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>')}</button></div>
@@ -1373,8 +1372,8 @@
     PET.interagiu = true; PET.estado = 'latindo'; PET.tEstado = 0; PET.alvo = null; PET.pulo = 1;
     petFalar(petDef().fala, 1); petLatido();
   }
-  /** Vasilhas: o nível cai com o tempo real (comida 10 h, água 6 h) e sobe quando você enche. */
-  const PET_POTES = { comida: { dur: 10 * 3600e3, nome: 'comida', fome: 'Fome!' }, agua: { dur: 6 * 3600e3, nome: 'água', fome: 'Sede!' } };
+  /** Vasilhas: o nível cai com o tempo real (5 min cada) e sobe quando você enche. */
+  const PET_POTES = { comida: { dur: 5 * 60e3, nome: 'comida', fome: 'Fome!' }, agua: { dur: 5 * 60e3, nome: 'água', fome: 'Sede!' } };
   const petNivel = (k) => { const t = (S.perfil.petPote || {})[k]; return t == null ? 1 : Math.max(0, Math.min(1, 1 - (Date.now() - t) / PET_POTES[k].dur)); };
   function petPotesHTML() {
     return Object.entries(PET_POTES).map(([k, d]) => `<button type="button" class="pc-pote ${k}" data-act="pet-encher" data-pote="${k}" style="--n:${petNivel(k).toFixed(2)}" title="Encher a vasilha de ${d.nome}" aria-label="Encher a vasilha de ${d.nome}"><span class="pote-conteudo"></span><span class="pote-borda"></span></button>`).join('');
@@ -1384,11 +1383,11 @@
     PET.interagiu = true; const vazio = petNivel(k) < .15;
     S.perfil.petPote = Object.assign({}, S.perfil.petPote, { [k]: Date.now() }); salvar();
     const el = document.querySelector('.pc-pote.' + k); if (el) el.style.setProperty('--n', '1');
-    petFx(document.getElementById('pet-cena'), 'pet-gota', petPoteX(document.getElementById('pet-cena'), k) || 40, 30, 0, 8);
+    if (el) { el.classList.remove('enchendo'); void el.offsetWidth; el.classList.add('enchendo'); setTimeout(() => el.classList.remove('enchendo'), 700); }
     if (vazio) PET.visitaEm = 0;
   }
   function petConsumir(k) {
-    const n = Math.max(0, petNivel(k) - .12);
+    const n = Math.max(0, petNivel(k) - .25);
     S.perfil.petPote = Object.assign({}, S.perfil.petPote, { [k]: Date.now() - (1 - n) * PET_POTES[k].dur }); salvar();
   }
   /** Joga a bolinha onde você clicou: cai do alto e o cão corre atrás. */
@@ -1423,6 +1422,7 @@
     const L = cena.clientWidth, solo = cena.clientHeight - 26, larg = petDef().CW * PET.ESC, agora = performance.now();
     if (PET.x === null) PET.x = L * .55;
     PET.x = Math.max(larg / 2, Math.min(L - larg / 2, PET.x));
+    if (agora - (PET.nivelT || 0) > 400) { PET.nivelT = agora; Object.keys(PET_POTES).forEach((k) => { const el = cena.querySelector('.pc-pote.' + k); if (el) el.style.setProperty('--n', petNivel(k).toFixed(2)); }); }
     // cocôs: ficam no chão até alguém limpar
     PET.cocos.forEach((c) => {
       if (!c.el || !c.el.isConnected) { c.el = document.createElement('button'); c.el.type = 'button'; c.el.className = 'pet-coco'; c.el.title = 'Limpar'; c.el.setAttribute('aria-label', 'Limpar o cocô'); c.el.innerHTML = PET_COCO + '<b></b><b></b>'; cena.appendChild(c.el); }
@@ -2709,7 +2709,7 @@
       case 'pet-escolher': e.preventDefault(); S.perfil.petTipo = b.dataset.tipo; UI.petConfig = false; salvar(); PET.estado = 'parado'; PET.alvo = null; UI.pularColheita = true; render(); petFalar(petDef().fala, 1); petLatido(); return;
       case 'pet-encher': e.preventDefault(); petEncher(b.dataset.pote); return;
       case 'pet-brincar': e.preventDefault(); PET.interagiu = true; if (!PET.bola) PET.fila = 'brincar'; petFalar('Bolinha!', 1); return;
-      case 'pet-banho': e.preventDefault(); PET.interagiu = true; PET.fila = 'banho'; petFalar('Banho!', 1); return;
+      case 'pet-banho': e.preventDefault(); PET.interagiu = true; PET.fila = 'banho'; PET.visita = null; if (PET.bola) { if (PET.bola.el) PET.bola.el.remove(); PET.bola = null; } petFalar('Banho!', 1); return;
       case 'pet-nome': e.preventDefault(); return abrirModal({ tipo: 'pet-nome' });
       case 'pet-alternar': e.preventDefault(); S.perfil.petOculto = !S.perfil.petOculto; salvar(); UI.pularColheita = true; return render();
       case 'pwa-instalar': {

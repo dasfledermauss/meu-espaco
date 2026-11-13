@@ -1036,7 +1036,9 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .pc-casinha { right: 5%; bottom: 20px; width: 84px; height: auto; image-rendering: pixelated; cursor: pointer; }
 .pc-placa { right: calc(5% + 42px); bottom: 78px; transform: translateX(50%); z-index: 1; max-width: 120px; padding: 3px 9px 4px; border: 0; border-radius: 4px; background: #d9a766; color: #3a2616; font: inherit; font-size: 11px; font-weight: 700; letter-spacing: .02em; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   box-shadow: inset 0 -3px 0 #b8844a, inset 0 2px 0 #ecc58c, 0 2px 0 rgba(0, 0, 0, .2); transition: filter .2s ease-out; }
-.pc-placa:hover { filter: brightness(1.06); }
+.pc-placa:hover, .pc-placa:focus-visible { background: #e6b97a; color: #3a2616; filter: none; }
+.pc-placa.sem-nome:hover, .pc-placa.sem-nome:focus-visible { background: #f7eed8; }
+.pc-pote:hover, .pet-coco:hover { background: none; }
 .pc-placa.sem-nome { background: #efe3c8; font-weight: 600; box-shadow: inset 0 -3px 0 #d3c19c, inset 0 2px 0 #fff, 0 2px 0 rgba(0, 0, 0, .2); animation: pulsa 2.4s ease-in-out infinite; }
 @keyframes pulsa { 50% { filter: brightness(1.08); } }
 .pc-flores { left: 38%; bottom: 20px; width: 150px; height: auto; opacity: .95; }
@@ -1089,6 +1091,9 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .pc-pote.agua .pote-borda { background: #5b86a8; }
 .pote-conteudo { position: absolute; left: 3px; right: 3px; bottom: 6px; height: calc(var(--n, 1) * 9px + 1px); max-height: 10px; background: #b0703c; transition: height .3s ease-out; z-index: 1; clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%); }
 .pc-pote.agua .pote-conteudo { background: #8cc3e6; }
+.pc-pote.enchendo .pote-conteudo::before, .pc-pote.enchendo .pote-conteudo::after { content: ''; position: absolute; top: -26px; width: 5px; height: 5px; background: inherit; animation: cai-pote .5s ease-in forwards; }
+.pc-pote.enchendo .pote-conteudo::before { left: 10px; } .pc-pote.enchendo .pote-conteudo::after { left: 22px; animation-delay: .12s; }
+@keyframes cai-pote { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(24px); } }
 .pc-pote:hover .pote-borda, .pc-pote:focus-visible .pote-borda { filter: brightness(1.12); }
 .pc-pote:focus-visible { outline: 2px solid #26314d; outline-offset: 3px; }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
