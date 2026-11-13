@@ -8,6 +8,12 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.2 — 13/11/2026 · Boas-vindas
+
+- Boas-vindas para quem chega: cinco passos curtos, com barra de progresso e “Pular” a qualquer hora.
+- Passo 1 pergunta como você quer ser chamado; o 2 mostra o que cabe em cada área; o 3 troca cor e aparência na hora; o 4 ensina os três atalhos (Ctrl+V, Ctrl+K, Shift+Espaço); o 5 leva ao primeiro registro.
+- Para rever: menu da foto de perfil → Primeiros passos.
+
 ## 4.1 — 13/11/2026 · Imagens
 
 - Nova área Imagens: uma grade em colunas, estilo Pinterest, com cada imagem na proporção que tem.

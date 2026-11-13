@@ -6,6 +6,7 @@
   const CHAVE = 'meuEspaco.v1';
   const CHAVE_RASC = 'meuEspaco.rascunhos';
   const CHAVE_NOVID = 'meuEspaco.novidades';
+  const CHAVE_ONB = 'meuEspaco.onboarding';
   const FOTO_PADRAO = 'assets/img/foto-perfil.jpg';
   const main = document.getElementById('conteudo');
   const navLateral = document.getElementById('nav-lateral');
@@ -742,6 +743,7 @@
           <span class="espaco"></span>${btn('modal-fechar', 'Fechar', '', 'btn-f')}
           <a class="btn btn-1" href="#/tarefas" data-act="modal-fechar">${ic('list')}Ver em Tarefas</a></footer></div>`;
     }
+    if (m.tipo === 'onboarding') return onboardingHTML();
     if (m.tipo === 'novidades') {
       return `<div class="modal modal-novidades"><header class="modal-cab">${ic('page-star')}
           <h2>O que há de novo</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
@@ -795,6 +797,7 @@
   function abrirModal(m) { colherRascunhos(); UI.modal = m; render(); }
   function fecharModal() {
     if (UI.modal && UI.modal.tipo === 'novidades') marcarNovidadesVistas();
+    if (UI.modal && UI.modal.tipo === 'onboarding') { onboardingSalvaNome(); return encerrarOnboarding(); }
     UI.colPadrao = null;
     colherRascunhos(); UI.modal = null; render();
   }
@@ -1181,6 +1184,70 @@
     S.lembretes.push(novo); i.lembreteId = novo.id;
   }
 
+  /* ---------------- onboarding ----------------
+     Cinco passos curtos para quem chega: nome, o que dá para guardar, aparência, atalhos e o primeiro registro.
+     Fica guardado como visto no navegador; dá para rever pelo menu da foto de perfil. */
+  const onboardingVisto = () => { try { return !!localStorage.getItem(CHAVE_ONB); } catch (e) { return true; } };
+  function marcarOnboardingVisto() { try { localStorage.setItem(CHAVE_ONB, '1'); } catch (e) { /* ignora */ } }
+  const ONB_PASSOS = 5;
+  function abrirOnboarding() { UI.onb = { passo: 0, entra: true }; abrirModal({ tipo: 'onboarding' }); }
+  function onboardingHTML() {
+    const o = UI.onb || (UI.onb = { passo: 0, entra: true }), n = o.passo, p = S.perfil;
+    const primeiro = (p.nome && p.nome !== 'Meu Nome') ? p.nome.split(' ')[0] : '';
+    const tiles = [['journal-page', 'Notas', 'Ideias e textos soltos, em post-its ou listas.'], ['list', 'Tarefas', 'O que precisa ser feito, com prazo e quadro.'],
+      ['media-image', 'Imagens', 'Referências em grade, coladas ou por link.'], ['link', 'Links', 'Páginas para ler depois, com prévia.'],
+      ['book', 'Livros e filmes', 'Sua estante, com progresso e anotações.'], ['music-note', 'Músicas', 'Playlists do YouTube num mini player.'],
+      ['shopping-bag', 'Desejos', 'Produtos com preço acompanhado.'], ['folder', 'Estudos', 'Artigos e PDFs com anotações.']];
+    const tecla = (...t) => `<span class="teclas">${t.map((x) => `<kbd>${x}</kbd>`).join('<span class="mais">+</span>')}</span>`;
+    const corpo = [
+      () => `<span class="onb-icone">${ic('home-simple')}</span>
+        <h2 id="onb-tit">Oi! Este é o seu espaço.</h2>
+        <p class="onb-sub">Um lugar só seu para guardar o que importa e encontrar depois. Em um minuto você deixa tudo com a sua cara.</p>
+        <div class="campo onb-nome"><label for="onb-nome">Como você quer ser chamado?</label>
+          <input type="text" id="onb-nome" autocomplete="given-name" placeholder="Seu nome" value="${esc(primeiro || (conta() && conta().nome ? conta().nome.split(' ')[0] : ''))}"></div>`,
+      () => `<span class="onb-icone">${ic('folder')}</span>
+        <h2 id="onb-tit">O que cabe aqui</h2>
+        <p class="onb-sub">Cada coisa tem seu lugar no menu da esquerda. Você começa por onde fizer sentido.</p>
+        <div class="onb-tiles">${tiles.map(([i, t, d]) => `<div class="onb-tile"><span class="onb-tile-ico">${ic(i)}</span><strong>${t}</strong><span>${d}</span></div>`).join('')}</div>`,
+      () => `<span class="onb-icone">${ic('palette')}</span>
+        <h2 id="onb-tit">Do seu jeito</h2>
+        <p class="onb-sub">Escolha a cor e a aparência. Dá para mudar quando quiser, no menu da sua foto.</p>
+        <div class="onb-grupo"><span class="rotulo">Cor</span><div class="onb-temas">${TEMAS.filter(([v]) => v !== 'lilas').map(([v, nm, c]) =>
+          `<button type="button" class="tema-op" data-act="onb-tema" data-v="${v}" aria-pressed="${p.tema === v && !p.corCustom}"><span class="amostra" style="background:${c}"></span>${nm}</button>`).join('')}</div></div>
+        <div class="onb-grupo"><span class="rotulo">Aparência</span><span class="segmento" role="group" aria-label="Aparência">
+          ${[['claro', 'Claro'], ['escuro', 'Escuro'], ['sistema', 'Automática']].map(([v, nm]) => `<button type="button" data-act="onb-modo" data-v="${v}" aria-pressed="${(p.modo || 'sistema') === v}">${nm}</button>`).join('')}</span></div>`,
+      () => `<span class="onb-icone">${ic('search')}</span>
+        <h2 id="onb-tit">Atalhos que poupam tempo</h2>
+        <p class="onb-sub">Três que valem a pena decorar.</p>
+        <div class="onb-atalhos">
+          <div class="onb-atalho">${tecla('Ctrl', 'V')}<span><strong>Cole uma imagem</strong>Ela é guardada na hora, sem abrir janela.</span></div>
+          <div class="onb-atalho">${tecla('Ctrl', 'K')}<span><strong>Busque em tudo</strong>Notas, links, livros, imagens e o resto.</span></div>
+          <div class="onb-atalho">${tecla('Shift', 'Espaço')}<span><strong>Modo trabalho</strong>Suas tarefas em quadro, por cima de tudo.</span></div></div>`,
+      () => `<span class="onb-icone ok">${ic('check-circle-solid')}</span>
+        <h2 id="onb-tit">${primeiro ? 'Tudo pronto, ' + esc(primeiro) + '.' : 'Tudo pronto.'}</h2>
+        <p class="onb-sub">Que tal guardar a primeira coisa agora? Escolha uma:</p>
+        <div class="onb-primeiro">${[['nota', 'Uma nota', 'journal-page'], ['tarefa', 'Uma tarefa', 'list'], ['imagem', 'Uma imagem', 'media-image'], ['link', 'Um link', 'link']].map(([t, nm, i], k) =>
+          `<button type="button" class="${k === 0 ? 'btn-1' : 'btn-2'}" data-act="onb-criar" data-t="${t}">${ic(i)}${nm}</button>`).join('')}</div>
+        <p class="meta onb-rodape-dica">Prefere explorar sozinho? Tudo bem, o menu da esquerda leva a cada área.</p>`
+    ][n]();
+    const ultimo = n === ONB_PASSOS - 1;
+    return `<div class="modal modal-onb" role="document" aria-labelledby="onb-tit">
+      <div class="onb-topo"><span class="onb-contagem">Passo ${n + 1} de ${ONB_PASSOS}</span>
+        ${ultimo ? '' : `<button type="button" class="btn-txt" data-act="onb-pular">Pular</button>`}</div>
+      <div class="onb-barra" role="progressbar" aria-valuemin="1" aria-valuemax="${ONB_PASSOS}" aria-valuenow="${n + 1}">${Array.from({ length: ONB_PASSOS }, (_, k) => `<i class="${k <= n ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="onb-corpo ${o.entra ? 'entra' : ''}">${corpo}</div>
+      <footer class="modal-pe">${n > 0 ? btn('onb-voltar', 'Voltar', '', 'btn-f') : ''}<span class="espaco"></span>
+        ${ultimo ? btn('onb-fim', 'Explorar sozinho', '', 'btn-f') : `<button class="btn-1" type="button" data-act="onb-prox">${n === 0 ? 'Começar' : 'Continuar'}${ic('nav-arrow-right')}</button>`}</footer></div>`;
+  }
+  /** Passo 1 guarda o nome; os demais já salvam na hora em que a pessoa escolhe. */
+  function onboardingSalvaNome() {
+    const campoN = document.getElementById('onb-nome');
+    if (campoN && campoN.value.trim()) { S.perfil.nome = campoN.value.trim().slice(0, 40); salvar(); renderTopo(); }
+  }
+  function encerrarOnboarding() {
+    marcarOnboardingVisto(); marcarNovidadesVistas(); UI.onb = null; UI.colPadrao = null; UI.modal = null; UI.pularColheita = true; render();
+  }
+
   /* ---------------- novidades ----------------
      A lista vem de assets/js/atualizacoes.js, da mais nova para a mais antiga.
      O popup abre sozinho quando a versão do topo ainda não foi vista aqui. */
@@ -1361,6 +1428,7 @@
         <hr>
         <a href="#/perfil">${ic('user')}<span>Editar perfil</span></a>
         <a href="#/config">${ic('settings')}<span>Configurações e backup</span></a>
+        <button type="button" data-act="onboarding">${ic('home-simple')}<span>Primeiros passos</span></button>
         <button type="button" data-act="novidades">${ic('page-star')}<span>O que há de novo</span>${temNovidade() ? '<em class="novid-selo">novo</em>' : ''}</button>
         <div class="menu-modo"><span>${ic(modoAtual() === 'escuro' ? 'half-moon' : 'sun-light')}Aparência</span>
           <span class="segmento pequeno" role="group" aria-label="Aparência">
@@ -2249,6 +2317,13 @@
       case 'trabalho': e.preventDefault(); return alternarTrabalho();
       case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
       case 'atalho': e.preventDefault(); UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
+      case 'onb-prox': e.preventDefault(); if (UI.onb.passo === 0) onboardingSalvaNome(); UI.onb.passo = Math.min(ONB_PASSOS - 1, UI.onb.passo + 1); UI.onb.entra = true; UI.pularColheita = true; return render();
+      case 'onb-voltar': e.preventDefault(); UI.onb.passo = Math.max(0, UI.onb.passo - 1); UI.onb.entra = true; UI.pularColheita = true; return render();
+      case 'onb-pular': case 'onb-fim': e.preventDefault(); onboardingSalvaNome(); return encerrarOnboarding();
+      case 'onb-tema': e.preventDefault(); S.perfil.tema = b.dataset.v; S.perfil.corCustom = ''; UI.onb.entra = false; salvar(); aplicarTema(); UI.pularColheita = true; return render();
+      case 'onb-modo': e.preventDefault(); S.perfil.modo = b.dataset.v; UI.onb.entra = false; salvar(); aplicarTema(); UI.pularColheita = true; return render();
+      case 'onb-criar': { e.preventDefault(); const t = b.dataset.t; encerrarOnboarding(); return abrirModal({ tipo: 'criar', t }); }
+      case 'onboarding': e.preventDefault(); fecharMenu(); return abrirOnboarding();
       case 'novidades': e.preventDefault(); UI.novidPagina = undefined; return abrirModal({ tipo: 'novidades' });
       case 'novid-ir': e.preventDefault(); UI.novidPagina = +b.dataset.n; UI.pularColheita = true; return render();
       case 'tarefa-ver': e.preventDefault(); return abrirModal({ tipo: 'tarefa-ver', id: b.dataset.id });
@@ -3012,6 +3087,7 @@
   document.addEventListener('dragend', () => { arrastandoImg = null; document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')); });
   /* No visualizador, as setas do teclado passam as imagens; no campo do link, Enter usa o link em vez de enviar o formulário. */
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.id === 'onb-nome') { e.preventDefault(); const nx = document.querySelector('[data-act="onb-prox"]'); if (nx) nx.click(); return; }
     if (e.key === 'Enter' && e.target.dataset && e.target.dataset.act === 'img-link') {
       e.preventDefault();
       const v = e.target.value.trim(); if (!v) return;
@@ -3322,7 +3398,8 @@
     if (UI.sessao.modo === 'deslogado') { renderEntrada(); return; }
     render();
     // Espaço recém-criado já começa em dia: o popup é para quem volta e encontra o sistema mudado.
-    if (temNovidade()) { if (novo) marcarNovidadesVistas(); else abrirModal({ tipo: 'novidades' }); }
+    if (novo && !onboardingVisto()) abrirOnboarding();
+    else if (temNovidade()) { if (novo) marcarNovidadesVistas(); else abrirModal({ tipo: 'novidades' }); }
     if (temNuvem) {
       if (doFirebase) await ligarNuvem();
       else if (UI.nuvem.estado !== 'erro') { UI.nuvem.estado = 'desligada'; pintarNuvem(); }

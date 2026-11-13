@@ -914,6 +914,41 @@ button, .btn { white-space: nowrap; }
 :root[data-modo="escuro"] .chip-grupo[aria-pressed="true"] { background: var(--marca); }
 #atalho-add { z-index: 80; }
 
+/* ---------- onboarding ---------- */
+.modal-onb { width: min(580px, calc(100vw - 32px)); }
+.onb-topo { display: flex; align-items: center; justify-content: space-between; padding: 22px 28px 0; font-size: 13px; color: var(--tinta-3); }
+.onb-barra { display: flex; gap: 6px; padding: 12px 28px 0; }
+.onb-barra i { flex: 1; height: 4px; border-radius: 4px; background: var(--campo); transition: background .25s ease-out; }
+.onb-barra i.on { background: var(--marca); }
+.onb-corpo { padding: 34px 28px 30px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; min-height: 330px; }
+.onb-corpo.entra { animation: onbEntra .28s ease-out; }
+@keyframes onbEntra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.onb-icone { width: 56px; height: 56px; border-radius: 50%; background: var(--marca-leve); color: var(--marca); display: grid; place-items: center; }
+.onb-icone .ico { width: 26px; height: 26px; }
+.onb-icone.ok { background: var(--marca); color: var(--marca-texto); }
+.onb-corpo h2 { font-size: 28px; line-height: 1.15; font-weight: 600; letter-spacing: -.01em; margin-top: 6px; }
+.onb-sub { font-size: 16px; line-height: 1.55; color: var(--tinta-2); max-width: 46ch; }
+.onb-nome { margin-top: 12px; max-width: 380px; }
+.onb-nome input { font-size: 17px; padding: 14px 16px; }
+.onb-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 6px; }
+.onb-tile { display: grid; grid-template-columns: 38px 1fr; column-gap: 12px; row-gap: 2px; align-items: center; padding: 14px; border-radius: 16px; background: var(--cartao-2); }
+.onb-tile-ico { grid-row: 1 / 3; width: 38px; height: 38px; border-radius: 50%; background: var(--cartao); color: var(--marca); display: grid; place-items: center; }
+.onb-tile strong { font-size: 14.5px; font-weight: 600; }
+.onb-tile > span:last-child { font-size: 12.5px; line-height: 1.4; color: var(--tinta-3); }
+.onb-grupo { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin-top: 8px; }
+.onb-temas { display: flex; flex-wrap: wrap; gap: 8px; }
+.onb-atalhos { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.onb-atalho { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; padding: 14px 16px; border-radius: 16px; background: var(--cartao-2); }
+.onb-atalho > span:last-child { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--tinta-3); }
+.onb-atalho strong { font-size: 15px; color: var(--tinta); font-weight: 600; }
+.teclas { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.teclas .mais { color: var(--tinta-3); font-size: 12px; }
+kbd { font: inherit; font-size: 12.5px; font-weight: 500; padding: 4px 9px; border-radius: 8px; background: var(--cartao); border: 1px solid var(--linha); border-bottom-width: 2px; color: var(--tinta-2); }
+.onb-primeiro { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.onb-primeiro button { display: inline-flex; align-items: center; gap: 8px; }
+.onb-rodape-dica { margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .onb-corpo.entra { animation: none; } }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
@@ -922,6 +957,11 @@ button, .btn { white-space: nowrap; }
   .grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 780px) {
+  .onb-topo, .onb-barra { padding-left: 20px; padding-right: 20px; }
+  .onb-corpo { padding: 26px 20px 22px; min-height: 0; }
+  .onb-corpo h2 { font-size: 24px; }
+  .onb-tiles { grid-template-columns: 1fr; }
+  .onb-atalho { grid-template-columns: 1fr; gap: 8px; }
   .pin-grade { column-width: 150px; column-gap: 10px; }
   .pin { margin-bottom: 10px; }
   .envio-lado { flex-basis: 100%; }

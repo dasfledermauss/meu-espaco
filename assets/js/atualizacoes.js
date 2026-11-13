@@ -10,6 +10,16 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '4.2',
+    data: '2026-11-13',
+    titulo: 'Boas-vindas',
+    itens: [
+      'Boas-vindas para quem chega: cinco passos curtos, com barra de progresso e “Pular” a qualquer hora.',
+      'Passo 1 pergunta como você quer ser chamado; o 2 mostra o que cabe em cada área; o 3 troca cor e aparência na hora; o 4 ensina os três atalhos (Ctrl+V, Ctrl+K, Shift+Espaço); o 5 leva ao primeiro registro.',
+      'Para rever: menu da foto de perfil → Primeiros passos.'
+    ]
+  },
+  {
     versao: '4.1',
     data: '2026-11-13',
     titulo: 'Imagens',
