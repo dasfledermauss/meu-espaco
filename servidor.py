@@ -247,6 +247,9 @@ def ml_link(url):
             m = re.search(r"/(?:p|up)/(MLBU?\d+)", u.path, re.I)
             if m:
                 codigo, produto = m.group(1), True
+    it = re.search(r"item_id(?::|%3A)(MLB\d+)", u.query, re.I)
+    if it:
+        codigo, produto = it.group(1), False
     if not codigo:
         return None
     if nome:

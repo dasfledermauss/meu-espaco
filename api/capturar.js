@@ -91,6 +91,8 @@ function mlLink(url) {
   if (m) { codigo = 'MLB' + m[2]; nome = m[3]; }
   else if ((m = u.pathname.match(/^\/([^/]+)\/(?:p|up)\/(MLB[U]?\d+)/i))) { codigo = m[2]; nome = m[1]; produto = true; }
   else if ((m = u.pathname.match(/\/(?:p|up)\/(MLB[U]?\d+)/i))) { codigo = m[1]; produto = true; }
+  const it = (u.searchParams.get('pdp_filters') || '').match(/item_id:(MLB\d+)/i);
+  if (it) { codigo = it[1]; produto = false; }
   if (!codigo) return null;
   if (nome) { try { nome = decodeURIComponent(nome); } catch (e) { /* mantém */ } nome = nome.replace(/-+/g, ' ').replace(/\s+/g, ' ').trim(); }
   return { codigo, nome, produto };
