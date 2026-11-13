@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.13',
+    data: '2026-11-13',
+    titulo: 'Colar link cria o card e Shopee',
+    itens: [
+      'Ctrl+V de um endereço nas páginas Wishlist e Links cria o card na hora (vários endereços de uma vez também, um por linha), já buscando a prévia.',
+      'Shopee: a loja bloqueia a leitura e o card ficava com “Oops! Seu navegador não é mais aceito!”. Agora o nome e a foto saem do próprio link, e o preço é buscado quando a Shopee deixar. Títulos de página de bloqueio nunca mais viram nome de produto.'
+    ]
+  },
+  {
     versao: '5.12',
     data: '2026-11-13',
     titulo: 'Arrastar sem piscar',
