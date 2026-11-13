@@ -6,14 +6,14 @@ Um pet em pixel art no alto do Início, acima de "O que você quer guardar?".
 
 - **Parado:** quadros de respiração; de tempos em tempos senta e volta a ficar de pé.
 - **Clique nele:** late (balão "AU! AU!", pulinho e som sintetizado, sem arquivo de áudio).
-- **Clique no chão:** joga a bolinha ali (cai do alto); ele corre atrás e chuta de um lado para o outro. Também dá para usar o botão **Brincar**.
+- **Clique no chão:** joga a bolinha ali (cai do alto); ele corre atrás e chuta de um lado para o outro.
 - **Pets:** salsicha, pinscher e frajola, escolhidos pela engrenagem do cenário (`perfil.petTipo`). Cada um tem folha própria, tamanho de célula e voz (`PET_TIPOS`).
 - **Som:** botão no canto do cenário ou Configurações → Cachorrinho. **Esconder** também fica em Configurações. Ficam em `perfil.petMudo` e `perfil.petOculto`.
 - Respeita "reduzir movimento" do sistema: sem nuvens andando, sem sentar sozinho.
 
 ## Cuidados
 
-- **Vasilhas:** comida (esvazia em 10 h) e água (6 h), à esquerda do cenário. O nível segue o horário real e fica em `perfil.petPote` (momento do último enchimento). Clique na vasilha para encher. Ele visita sozinho as que não estão cheias, e avisa "Fome!" ou "Sede!" quando vazias. Depois de comer ele faz **cocô** (de 7 a 14 s depois, no máximo 3 no chão). Clique no cocô para limpar.
+- **Vasilhas:** comida e água (esvaziam em 5 min cada; cada refeição tira 25%), à esquerda do cenário. O nível segue o horário real e fica em `perfil.petPote` (momento do último enchimento). Clique na vasilha para encher. Ele visita sozinho as que não estão cheias, e avisa "Fome!" ou "Sede!" quando vazias. Depois de comer ele faz **cocô** (de 7 a 14 s depois, no máximo 3 no chão). Clique no cocô para limpar.
 - **Banho:** botão "Banho". Ele vai ao meio do cenário, fica sentado entre bolhas e se sacode.
 - **Nome:** clique na plaquinha da casinha (ou na casinha) e escolha até 14 letras. Fica em `perfil.petNome`.
 
