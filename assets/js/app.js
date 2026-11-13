@@ -1293,10 +1293,11 @@
   const PET_TIPOS = {
     salsicha: { nome: 'Salsicha', arq: 'assets/img/pet/salsicha.png', CW: 63, CH: 40, fala: 'AU! AU!', som: 'latido' },
     pinscher: { nome: 'Pinscher', arq: 'assets/img/pet/pinscher.png', CW: 45, CH: 43, fala: 'AI AI AI!', som: 'ganido' },
-    frajola: { nome: 'Frajola', arq: 'assets/img/pet/frajola.png', CW: 51, CH: 38, fala: 'MIAU!', som: 'miado' }
+    frajola: { nome: 'Frajola', arq: 'assets/img/pet/frajola.png', CW: 51, CH: 38, fala: 'MIAU!', som: 'miado' },
+    shollie: { nome: 'Shollie', arq: 'assets/img/pet/shollie.png', CW: 62, CH: 42, fala: 'AU AU!', som: 'latido' }
   };
   const petDef = () => PET_TIPOS[S.perfil.petTipo] || PET_TIPOS.salsicha;
-  const PET = { ESC: 2, x: null, dir: 1, estado: 'parado', tEstado: 0, rel: 0, visita: null, visitaEm: 0, avisoEm: 0, cocos: [], falaAte: 0, pulo: 0, espera: 6, alvo: null, id: 0, cocoEm: 0, fila: '', bolhaT: 0, forcar: null, interagiu: false };
+  const PET = { ESC: 2, x: null, dir: 1, estado: 'parado', tEstado: 0, rel: 0, visita: null, visitaEm: 0, comentados: new Set(), recentes: [], ultimaCat: '', oiEm: 0, saudadeFeita: false, proxFala: 0, foraMs: 0, avisoEm: 0, cocos: [], falaAte: 0, pulo: 0, espera: 6, alvo: null, id: 0, cocoEm: 0, fila: '', bolhaT: 0, forcar: null, interagiu: false };
   const PET_LINHA = { parado: 0, sentado: 1, andando: 2, comendo: 3, latindo: 1, banho: 1, sacode: 0, coco: 3, brincando: 2 };
   const PET_FPS = { parado: 4, sentado: 3, andando: 9, comendo: 6, latindo: 9, banho: 3, sacode: 0, coco: 0, brincando: 13 };
   const petReduz = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1351,6 +1352,7 @@
         <div class="pet-opcoes">${Object.entries(PET_TIPOS).map(([k, d]) => `<button type="button" class="pet-opcao" data-act="pet-escolher" data-tipo="${k}" aria-pressed="${(S.perfil.petTipo || 'salsicha') === k}">
           <span class="pet-mini" style="width:${d.CW * 1.5}px;height:${d.CH * 1.5}px;background-image:url('${d.arq}');background-size:${d.CW * 6}px ${d.CH * 6}px"></span><span>${d.nome}</span></button>`).join('')}</div>
         <button type="button" class="pet-linha" data-act="pet-som" aria-pressed="${som}"><span>Som do pet</span><b>${som ? 'Ligado' : 'Desligado'}</b></button>
+        <button type="button" class="pet-linha" data-act="pet-papo" aria-pressed="${!S.perfil.petCala}"><span>Conversa do pet</span><b>${S.perfil.petCala ? 'Desligada' : 'Ligada'}</b></button>
         <button type="button" class="pet-linha" data-act="pet-alternar"><span>Esconder o pet</span><b>Voltar em Configurações</b></button></div>
       <p class="pet-dica ${PET.interagiu ? 'some' : ''}">Clique no chão para jogar a bolinha, nele para ouvir um latido, nas vasilhas para encher e na casinha para dar um nome</p></section>`;
   };
@@ -1377,6 +1379,95 @@
     } catch (e) { /* sem áudio: só o balão */ }
   }
   function petFalar(txt, seg) { PET.fala = txt; PET.falaAte = performance.now() + seg * 1000; }
+  /* ---------------- conversa do pet ----------------
+     De tempos em tempos, e só com a janela visível, o pet comenta algo do seu espaço: o que você guardou,
+     lembretes e tarefas, o tempo, o fim de semana, ou diz que sentiu falta. As frases ficam em
+     assets/js/pet-frases.js. */
+  const PAPO_VISTO = 'meuEspaco.petVisto';
+  const sorteia = (l) => l[Math.floor(Math.random() * l.length)];
+  const lerVisto = () => { try { return +localStorage.getItem(PAPO_VISTO) || 0; } catch (e) { return 0; } };
+  const marcarVisto = () => { try { localStorage.setItem(PAPO_VISTO, String(Date.now())); } catch (e) { /* sem espaço: segue */ } };
+  const corta28 = (t) => { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > 28 ? t.slice(0, 27) + '…' : t; };
+  function petFrase(f, v = {}) {
+    const nome = (S.perfil.nome || '').trim().split(/\s+/)[0], temNome = nome && nome !== 'Meu';
+    return f.replace(/,? ?\{nome\}/g, temNome ? (/^\{nome\}/.test(f) ? '' : ', ' + nome) : '').replace(/\{(\w+)\}/g, (m, k) => (v[k] != null ? v[k] : '')).replace(/\s+([!.?,])/g, '$1');
+  }
+  /** Reúne o que há para comentar agora; cada assunto tem um peso. */
+  function petAssuntos() {
+    const F = window.PET_FRASES; if (!F) return [];
+    const a = [], h = new Date(), dia = h.getDay(), d0 = hoje();
+    const novo = (txt, cat, peso, id) => a.push({ txt, cat, peso, id });
+    const rec = S.itens.filter((i) => i.criadoEm && Date.now() - new Date(i.criadoEm).getTime() < 36 * 3600e3 && !PET.comentados.has(i.id)).sort(() => Math.random() - .5)[0];
+    if (rec) {
+      const k = rec.tipo === 'midia' ? (rec.formato === 'filme' ? 'filme' : 'livro') : (F.post[rec.tipo] ? rec.tipo : 'generico');
+      novo(petFrase(sorteia(F.post[k]), { t: corta28(tituloItem(rec)) }), 'post', 5, rec.id);
+    }
+    const feita = tarefas().filter((i) => i.concluida && Date.now() - new Date(i.editadoEm || i.criadoEm).getTime() < 6 * 3600e3 && !PET.comentados.has('f' + i.id))[0];
+    if (feita) novo(petFrase(sorteia(F.post.feita), { t: corta28(tituloItem(feita)) }), 'post', 5, 'f' + feita.id);
+    const lembs = S.lembretes.filter((l) => !l.concluido && l.data && l.data <= d0).sort((x, y) => venc(x) - venc(y));
+    if (lembs.length) { const l = lembs[0], atras = l.data < d0 || venc(l) < Date.now(); novo(petFrase(sorteia(F.alerta[atras ? 'lembreteAtrasado' : 'lembreteHoje']), { t: corta28(l.texto) }), 'alerta', 5); }
+    const atr = tarefasAbertas().filter((i) => atrasada(i))[0], hojeT = tarefasAbertas().filter((i) => i.prazo === d0)[0];
+    if (atr) novo(petFrase(sorteia(F.alerta.tarefaAtrasada), { t: corta28(tituloItem(atr)) }), 'alerta', 4);
+    else if (hojeT) novo(petFrase(sorteia(F.alerta.tarefaHoje), { t: corta28(tituloItem(hojeT)) }), 'alerta', 4);
+    const ab = tarefasAbertas().length; if (ab >= 4) novo(petFrase(sorteia(F.alerta.tarefasAbertas), { n: ab }), 'alerta', 2);
+    const fh = tarefas().filter((i) => i.concluida && (i.editadoEm || i.criadoEm).slice(0, 10) === d0).length; if (fh) novo(petFrase(sorteia(F.alerta.feitasHoje), { n: fh }), 'alerta', 3);
+    const c = typeof climaDados === 'function' ? climaDados() : null;
+    if (c && c.atual && c.dia) {
+      const t = Math.round(c.atual.temperature_2m), ch = c.dia.precipitation_probability_max[0] || 0, cod = c.atual.weather_code;
+      if (ch >= 50) novo(petFrase(sorteia(F.tempo.chuva), { n: ch }), 'tempo', 4);
+      else if (t >= 32) novo(petFrase(sorteia(F.tempo.calor), { n: t }), 'tempo', 4);
+      else if (t <= 14) novo(petFrase(sorteia(F.tempo.frio), { n: t }), 'tempo', 4);
+      else if (cod <= 2) novo(petFrase(sorteia(F.tempo.sol), { n: t }), 'tempo', 3);
+      else novo(petFrase(sorteia(F.tempo.nublado), { n: t }), 'tempo', 2);
+    }
+    const fim = F.fim[dia === 0 || dia === 6 ? 'fds' : dia === 5 ? 'sex' : dia === 1 ? 'seg' : 'meio'];
+    novo(petFrase(sorteia(fim), { n: 6 - dia }), 'fim', dia === 5 || dia === 6 || dia === 0 ? 3 : 2);
+    if (agora_() - PET.oiEm > 3 * 3600e3) novo(petFrase(sorteia(F.oi[petFase()])), 'oi', 2);
+    novo(petFrase(sorteia(F.elogio)), 'elogio', 2);
+    novo(petFrase(sorteia(F.carinho)), 'carinho', 2);
+    return a;
+  }
+  const agora_ = () => Date.now();
+  function petConversar(forcar) {
+    const cena = document.getElementById('pet-cena'); if (!cena || !window.PET_FRASES) return false;
+    let txt = '', cat = '', id = null;
+    const fora = PET.foraMs;
+    if (!PET.saudadeFeita && fora > 2 * 3600e3) { PET.saudadeFeita = true; cat = 'saudade'; txt = petFrase(sorteia(window.PET_FRASES[fora > 24 * 3600e3 ? 'sumiu' : 'saudade'])); }
+    else {
+      const l = petAssuntos().filter((x) => x.cat !== PET.ultimaCat || forcar === 'qualquer');
+      if (!l.length) return false;
+      let r = Math.random() * l.reduce((n, x) => n + x.peso, 0), x = l[0];
+      for (const y of l) { r -= y.peso; if (r <= 0) { x = y; break; } }
+      txt = x.txt; cat = x.cat; id = x.id;
+    }
+    if (PET.recentes.includes(txt)) return false;
+    PET.recentes.push(txt); if (PET.recentes.length > 8) PET.recentes.shift();
+    if (id) PET.comentados.add(id);
+    if (cat === 'oi') PET.oiEm = Date.now();
+    PET.ultimaCat = cat; PET.saudadeFeita = true;
+    petFalar(txt, Math.max(4, 2.2 + txt.length / 13));
+    return true;
+  }
+  /** Confere de 4 em 4 segundos se é hora de puxar assunto. */
+  setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    marcarVistoSeguido();
+    const cena = document.getElementById('pet-cena'), t = performance.now();
+    if (!cena || S.perfil.petCala || UI.modal || PET.bola || !['parado', 'sentado', 'andando'].includes(PET.estado)) return;
+    if (t < PET.falaAte + 1500) return;
+    if (!PET.proxFala) PET.proxFala = t + 6000 + Math.random() * 5000;
+    if (t < PET.proxFala) return;
+    if (petConversar()) PET.proxFala = t + 50000 + Math.random() * 40000; else PET.proxFala = t + 15000;
+  }, 4000);
+  PET.foraMs = lerVisto() ? Date.now() - lerVisto() : 0;
+  let ultimoVisto = 0;
+  function marcarVistoSeguido() { const t = Date.now(); if (t - ultimoVisto > 30000) { ultimoVisto = t; marcarVisto(); } }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { marcarVisto(); ultimoVisto = Date.now(); return; }
+    const fora = Date.now() - lerVisto(); PET.foraMs = fora;
+    if (fora > 30 * 60e3) { PET.saudadeFeita = false; PET.proxFala = performance.now() + 2500; }
+  });
+  window.addEventListener('pagehide', marcarVisto);
   function petLatir() {
     PET.interagiu = true; PET.estado = 'latindo'; PET.tEstado = 0; PET.alvo = null; PET.pulo = 1;
     petFalar(petDef().fala, 1); petLatido();
@@ -1523,7 +1614,11 @@
     if (balao) {
       const fala = agora < PET.falaAte;
       balao.hidden = !fala;
-      if (fala) { balao.textContent = PET.fala; balao.style.transform = `translate(${PET.x - 28}px, 0)`; }
+      if (fala) {
+        if (balao.textContent !== PET.fala) balao.textContent = PET.fala;
+        const bw = balao.offsetWidth, bx = Math.max(6, Math.min(L - bw - 6, PET.x - 28));
+        balao.style.transform = `translate(${bx}px, 0)`; balao.style.setProperty('--seta', Math.max(12, Math.min(bw - 22, PET.x - bx - 4)) + 'px');
+      }
     }
     const dica = cena.querySelector('.pet-dica'); if (dica && PET.interagiu) dica.classList.add('some');
   }
@@ -2776,6 +2871,7 @@
       case 'pet-som': e.preventDefault(); S.perfil.petMudo = !S.perfil.petMudo; salvar(); UI.pularColheita = true; render(); if (!S.perfil.petMudo) petLatido(); return;
       case 'pet-config': { e.preventDefault(); const pn = document.querySelector('#pet-cena .pet-config'); if (pn) { pn.hidden = !pn.hidden; UI.petConfig = !pn.hidden; } return; }
       case 'pet-escolher': e.preventDefault(); S.perfil.petTipo = b.dataset.tipo; UI.petConfig = false; salvar(); PET.estado = 'parado'; PET.alvo = null; UI.pularColheita = true; render(); petFalar(petDef().fala, 1); petLatido(); return;
+      case 'pet-papo': e.preventDefault(); S.perfil.petCala = !S.perfil.petCala; salvar(); UI.pularColheita = true; render(); if (!S.perfil.petCala) petFalar('Oba, vamos conversar!', 2); return;
       case 'pet-encher': e.preventDefault(); petEncher(b.dataset.pote); return;
       case 'pet-brincar': e.preventDefault(); PET.interagiu = true; if (!PET.bola) PET.fila = 'brincar'; petFalar('Bolinha!', 1); return;
       case 'pet-banho': e.preventDefault(); PET.interagiu = true; PET.fila = 'banho'; PET.visita = null; if (PET.bola) { if (PET.bola.el) PET.bola.el.remove(); PET.bola = null; } petFalar('Banho!', 1); return;
