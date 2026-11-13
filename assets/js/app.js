@@ -1379,7 +1379,9 @@
       });
     } catch (e) { /* sem áudio: só o balão */ }
   }
-  function petFalar(txt, seg) { PET.fala = txt; PET.falaAte = performance.now() + seg * 1000; }
+  /** Balão: no máximo três palavras por linha. */
+  const quebra3 = (t) => { const w = String(t).trim().split(/\s+/), l = []; for (let k = 0; k < w.length; k += 3) l.push(w.slice(k, k + 3).join(' ')); return l.join('\n'); };
+  function petFalar(txt, seg) { PET.fala = quebra3(txt); PET.falaAte = performance.now() + seg * 1000; }
   /* ---------------- conversa do pet ----------------
      De tempos em tempos, e só com a janela visível, o pet comenta algo do seu espaço: o que você guardou,
      lembretes e tarefas, o tempo, o fim de semana, ou diz que sentiu falta. As frases ficam em
@@ -1446,7 +1448,7 @@
     if (id) PET.comentados.add(id);
     if (cat === 'oi') PET.oiEm = Date.now();
     PET.ultimaCat = cat; PET.saudadeFeita = true;
-    petFalar(txt, Math.max(4, 2.2 + txt.length / 13));
+    petFalar(txt, Math.max(7, 3 + txt.split(/\s+/).length * 1.1));
     return true;
   }
   /** Confere de 4 em 4 segundos se é hora de puxar assunto. */
@@ -1629,6 +1631,7 @@
     if (!cena) return;
     const painel = cena.querySelector('.pet-config');
     if (painel && !painel.hidden && !e.target.closest('.pet-config-card, [data-act="pet-config"]')) { painel.hidden = true; UI.petConfig = false; return; }
+    if (e.target.closest('.pet-balao')) { PET.falaAte = 0; const bl = cena.querySelector('.pet-balao'); if (bl) bl.hidden = true; return; }
     const coco = e.target.closest('.pet-coco');
     if (coco) { const c = PET.cocos.find((x) => x.el === coco); if (c) petLimpar(c, coco, cena); return; }
     if (e.target.closest('button, [data-act]')) return;

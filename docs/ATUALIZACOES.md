@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.7 — 13/11/2026 · Balão do pet mais legível
+
+- As falas do pet ficam bem mais tempo no balão (de 7 a 14 segundos, conforme o tamanho), e dá para clicar no balão para fazê-lo sumir.
+- O balão tem no máximo três palavras por linha, e o cenário ficou um pouco mais alto para caber.
+
 ## 5.6 — 13/11/2026 · Escolha de pets em popup
 
 - A escolha do pet agora abre como um popup no centro do cenário, com um card para cada pet (salsicha, pinscher, frajola e shollie), em vez de ficar escondida numa engrenagem.
