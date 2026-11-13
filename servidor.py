@@ -209,7 +209,7 @@ def faixas_do_feed(xml):
     return achados
 
 
-TITULO_BLOQUEIO = re.compile(r"navegador n[ãa]o [ée] mais aceito|oops!|access denied|acesso negado|just a moment|attention required|captcha|robot check|are you a human|403 forbidden|enable javascript", re.I)
+TITULO_BLOQUEIO = re.compile(r"^mercado libre$|^mercado livre$|navegador n[ãa]o [ée] mais aceito|oops!|access denied|acesso negado|just a moment|attention required|captcha|robot check|are you a human|403 forbidden|enable javascript", re.I)
 
 
 def shopee(url, r):
@@ -227,6 +227,62 @@ def shopee(url, r):
         r["imagem"] = "https://down-br.img.susercontent.com/file/" + img
     r["loja"] = "Shopee"
     return (a.group(2), a.group(3)) if a else None
+
+
+def ml_link(url):
+    """Mercado Livre: o endereço traz o código (MLB...) e o nome; com o código, a API pública devolve foto e preço."""
+    u = urlparse(url)
+    if not re.search(r"mercadoli[vb]re", u.hostname or ""):
+        return None
+    nome = codigo = None
+    produto = False
+    m = re.search(r"/MLB-?(\d+)-([^/]*?)(?:-_JM)?(?:/|$)", u.path, re.I)
+    if m:
+        codigo, nome = "MLB" + m.group(1), m.group(2)
+    else:
+        m = re.match(r"^/([^/]+)/(?:p|up)/(MLBU?\d+)", u.path, re.I)
+        if m:
+            codigo, nome, produto = m.group(2), m.group(1), True
+        else:
+            m = re.search(r"/(?:p|up)/(MLBU?\d+)", u.path, re.I)
+            if m:
+                codigo, produto = m.group(1), True
+    if not codigo:
+        return None
+    if nome:
+        nome = re.sub(r"\s+", " ", re.sub(r"-+", " ", unquote(nome))).strip()
+    return {"codigo": codigo, "nome": nome, "produto": produto}
+
+
+def ml_api(info, r):
+    def j(c):
+        req = Request("https://api.mercadolibre.com/" + c, headers={"Accept": "application/json", "User-Agent": CABECALHOS["User-Agent"]})
+        with urlopen(req, timeout=10) as x:
+            return json.loads(x.read(2 * 1024 * 1024).decode("utf-8"))
+    try:
+        if info["produto"]:
+            d = j("products/" + info["codigo"])
+            if d.get("name") and not r["nome"]:
+                r["nome"] = d["name"]
+            f = (d.get("pictures") or [{}])[0]
+            if (f.get("url") or f.get("secure_url")) and not r["imagem"]:
+                r["imagem"] = f.get("url") or f.get("secure_url")
+            p = (d.get("buy_box_winner") or {}).get("price")
+            if p and r["preco"] is None:
+                r["preco"] = p
+        else:
+            d = j("items/" + info["codigo"])
+            if d.get("title") and not r["nome"]:
+                r["nome"] = d["title"]
+            f = (d.get("pictures") or [{}])[0]
+            img = f.get("secure_url") or f.get("url") or d.get("thumbnail")
+            if img and not r["imagem"]:
+                r["imagem"] = img.replace("http:", "https:", 1)
+            if d.get("price") is not None and r["preco"] is None:
+                r["preco"] = d["price"]
+        r["moeda"] = r["moeda"] or "BRL"
+    except Exception:
+        pass  # API barrada: fica o que veio do endereço
 
 
 def bloqueado(pagina):
@@ -318,6 +374,24 @@ def falta_dado(r):
 
 
 def capturar_pagina(url):
+    try:
+        r = _capturar_leitura(url)
+        final = url
+    except Exception:
+        # Mercado Livre e Shopee às vezes recusam a página: ainda dá para montar o card pelo endereço e pela API.
+        if not (ml_link(url) or shopee(url, {"nome": "x", "imagem": "x", "loja": None})):
+            raise
+        r = extrair("<html></html>", url)
+        final = url
+    ml = ml_link(final) or ml_link(url)
+    if ml and falta_dado(r):
+        ml_api(ml, r)
+    if not r.get("nome") and not r.get("imagem"):
+        raise PermissionError("bloqueio")
+    return r
+
+
+def _capturar_leitura(url):
     pagina, final = baixar(url)
     if bloqueado(pagina):
         try:
@@ -413,6 +487,11 @@ def extrair(pagina, url):
     if r["descricao"] and TITULO_BLOQUEIO.search(str(r["descricao"])):
         r["descricao"] = None
     shopee(url, r)
+    ml = ml_link(url)
+    if ml and ml["nome"] and not r["nome"]:
+        r["nome"] = ml["nome"]
+    if ml and not m.get("og:site_name"):
+        r["loja"] = "Mercado Livre"
     host = urlparse(url).hostname or ""
     if not r["favicon"] and host:
         r["favicon"] = f"{urlparse(url).scheme}://{host}/favicon.ico"
