@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '4.5',
+    data: '2026-11-13',
+    titulo: 'Notas soltas na coleção',
+    itens: [
+      'Na tela de uma coleção, cada nota agora é um post-it próprio, do mesmo tamanho do Mural, em vez de ficar agrupada num cartão “Notas” com tamanhos estranhos. Clicar abre a edição.',
+      'As colunas da coleção ficaram mais estreitas (mais blocos por linha).'
+    ]
+  },
+  {
     versao: '4.4',
     data: '2026-11-13',
     titulo: 'Seu emoji do dia',

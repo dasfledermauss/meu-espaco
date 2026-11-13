@@ -1804,11 +1804,11 @@
       `<div class="bento-lista">${tarAb.slice(0, 6).map((i) => linhaTarefa(i, { semColecao: true })).join('') || `<p class="meta">Tudo feito.</p>`}</div>`,
       `<a href="#/tarefas">${tarAb.length}/${tar.length}</a>`) });
 
-    const notas = de('nota');
-    if (notas.length) blocos.push({ cls: notas.length > 1 ? 'largo' : '', html: cartao(ic('journal-page') + 'Notas',
-      `<div class="bento-notas">${notas.slice(0, 4).map((i) => `<a class="postit ${corNota(i)} mini" href="#/item/${i.id}">
-        ${i.titulo ? `<h3>${esc(i.titulo)}</h3>` : ''}<p>${esc(corta(i.modo === 'lista' ? (i.lista || []).map((x) => x.texto).join(' · ') : i.texto, 120))}</p></a>`).join('')}</div>`,
-      `<a href="#/mural">${notas.length}</a>`) });
+    // Cada nota é um post-it solto, no mesmo tamanho do Mural; sem cartão agrupando.
+    de('nota').sort((x, y) => (y.fixado ? 1 : 0) - (x.fixado ? 1 : 0) || (x.ordem ?? 0) - (y.ordem ?? 0) || y.criadoEm.localeCompare(x.criadoEm)).forEach((i) => blocos.push({ cls: 'solta',
+      html: `<article class="postit ${corNota(i)} abre solto" data-act="editar-item" data-id="${i.id}" tabindex="0" role="button" aria-label="Editar ${esc(corta(i.titulo || i.texto || 'nota', 50))}">
+        ${i.titulo ? `<h3>${esc(i.titulo)}</h3>` : ''}${i.modo === 'lista' ? listaCheckHTML(i) : `<p>${esc(corta(i.texto, 240))}</p>`}
+        <footer><time>${i.fixado ? ic('pin-solid') + ' ' : ''}${fmtDiaCurto(dataLocal(i.criadoEm))}</time></footer></article>` }));
 
     const links = de('link');
     if (links.length) blocos.push({ cls: '', html: cartao(ic('link') + 'Links',
