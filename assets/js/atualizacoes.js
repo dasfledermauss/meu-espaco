@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.8',
+    data: '2026-11-13',
+    titulo: 'Adicionar abre só no símbolo',
+    itens: [
+      'No modo trabalho, a lista de itens do botão de adicionar agora só abre ao passar o mouse sobre o símbolo de mais (antes abria também ao passar perto dele). No celular, abre com um toque.'
+    ]
+  },
+  {
     versao: '5.7',
     data: '2026-11-13',
     titulo: 'Balão do pet mais legível',

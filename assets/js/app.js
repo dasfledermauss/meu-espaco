@@ -999,7 +999,7 @@
   }
 
   /* ---------------- atalho de adicionar ----------------
-     Um botão no canto de baixo à esquerda que abre ao passar o mouse. */
+     Um botão no canto de baixo à esquerda que abre só ao passar o mouse sobre o símbolo de mais (no toque, abre com um toque). */
   function renderAtalho() {
     if (!caixaAtalho) return;
     if (UI.sessao.modo === 'deslogado' || !UI.modoTrabalho) { caixaAtalho.innerHTML = ''; return; }
@@ -2871,7 +2871,7 @@
       case 'modal-fechar': e.preventDefault(); return fecharModal();
       case 'trabalho': e.preventDefault(); return alternarTrabalho();
       case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
-      case 'atalho': e.preventDefault(); UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
+      case 'atalho': e.preventDefault(); if (!matchMedia('(hover: none)').matches) return; UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
       case 'pet-som': e.preventDefault(); S.perfil.petMudo = !S.perfil.petMudo; salvar(); UI.pularColheita = true; render(); if (!S.perfil.petMudo) petLatido(); return;
       case 'pet-config': { e.preventDefault(); const pn = document.querySelector('#pet-cena .pet-config'); if (pn) { pn.hidden = !pn.hidden; UI.petConfig = !pn.hidden; } return; }
       case 'pet-escolher': e.preventDefault(); S.perfil.petTipo = b.dataset.tipo; UI.petConfig = false; salvar(); PET.estado = 'parado'; PET.alvo = null; UI.pularColheita = true; render(); petFalar(petDef().fala, 1); petLatido(); return;
