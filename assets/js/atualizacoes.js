@@ -10,6 +10,16 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.4',
+    data: '2026-11-13',
+    titulo: 'Previsão do tempo',
+    itens: [
+      'A coluna da direita do Início ganhou a previsão do tempo: temperatura agora, máxima e mínima, sensação, chance de chuva, vento e os próximos 5 dias.',
+      'Escolha a cidade pelo nome ou pela localização do aparelho; dá para trocar e atualizar a qualquer hora. Ela avisa quando convém levar guarda-chuva ou casaco.',
+      'O bloco do tempo pode ser arrastado como os outros da coluna.'
+    ]
+  },
+  {
     versao: '5.3',
     data: '2026-11-13',
     titulo: 'Marcar como lido ou assistido',

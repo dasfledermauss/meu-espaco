@@ -8,6 +8,12 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.4 — 13/11/2026 · Previsão do tempo
+
+- A coluna da direita do Início ganhou a previsão do tempo: temperatura agora, máxima e mínima, sensação, chance de chuva, vento e os próximos 5 dias.
+- Escolha a cidade pelo nome ou pela localização do aparelho; dá para trocar e atualizar a qualquer hora. Ela avisa quando convém levar guarda-chuva ou casaco.
+- O bloco do tempo pode ser arrastado como os outros da coluna.
+
 ## 5.3 — 13/11/2026 · Marcar como lido ou assistido
 
 - Na Biblioteca, cada livro e filme ganhou um botão para marcar como lido ou assistido (e desmarcar), direto na capa.
