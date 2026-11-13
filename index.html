@@ -2,9 +2,20 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Meu Espaço</title>
-  <meta name="theme-color" content="#eef1f7">
+  <meta name="description" content="Seu arquivo pessoal: notas, tarefas, imagens, links, livros, músicas e o que mais você quiser guardar.">
+  <meta name="theme-color" content="#eef1f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#10131a" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/img/pwa/icone.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/img/pwa/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Meu Espaço">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
   <link rel="stylesheet" href="assets/css/estilo.css">
 </head>
 <body>
@@ -39,6 +50,7 @@
   <div id="player" hidden></div>
   <div id="menu-selecao" class="menu-selecao" hidden><button type="button" data-act="anot-selecao">Guardar como anotação</button></div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div id="aviso-pwa" class="aviso-pwa" role="status" aria-live="polite" hidden></div>
   <input type="file" id="arquivo-cv" accept=".json,application/json" hidden>
   <input type="file" id="arquivo-backup" accept=".json,application/json" hidden>
   <input type="file" id="arquivo-foto" accept="image/*" hidden>
@@ -48,5 +60,6 @@
   <script src="assets/js/atualizacoes.js"></script>
   <script src="assets/js/nuvem.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/pwa.js"></script>
 </body>
 </html>

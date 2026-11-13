@@ -8,6 +8,15 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 4.6 — 13/11/2026 · Aplicativo instalável (PWA)
+
+- O Meu Espaço agora é um aplicativo instalável: no menu da foto (ou em Configurações → Aplicativo) há “Instalar o app”, e ele abre em janela própria, com ícone na tela inicial. No iPhone, o botão mostra o passo a passo do Safari.
+- Funciona sem internet: depois da primeira visita, o app abre offline e o que você guardar fica salvo e sincroniza quando a conexão voltar.
+- Atalhos no ícone do app: Nova nota, Nova tarefa, Guardar imagem, Guardar link e Modo trabalho.
+- Receba compartilhamentos: no Android/Chrome, compartilhar uma página ou texto de outro app para o Meu Espaço abre o formulário de link ou nota já preenchido.
+- Aviso “Há uma versão nova” com botão Atualizar, e aviso discreto quando você está sem conexão.
+- A barra do sistema acompanha a cor do tema, e os botões flutuantes respeitam a área segura de celulares com notch.
+
 ## 4.5 — 13/11/2026 · Notas soltas na coleção
 
 - Na tela de uma coleção, cada nota agora é um post-it próprio, do mesmo tamanho do Mural, em vez de ficar agrupada num cartão “Notas” com tamanhos estranhos. Clicar abre a edição.
