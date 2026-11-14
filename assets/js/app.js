@@ -2070,8 +2070,10 @@
   function abasPagina(rota) {
     const g = GRUPO_DE[rota]; if (!g) return;
     const q = ABA_QTD();
-    main.insertAdjacentHTML('afterbegin', `<nav class="abas-pag" aria-label="${g === 'agenda' ? 'Agenda' : 'Biblioteca'}" title="Arraste uma aba para reordenar">${abasOrdenadas(g).map((r) =>
+    const cabPag = main.querySelector('.pagina-cab');
+    const abasHTML = (`<nav class="abas-pag" aria-label="${g === 'agenda' ? 'Agenda' : 'Biblioteca'}" title="Arraste uma aba para reordenar">${abasOrdenadas(g).map((r) =>
       `<a href="#/${r}" draggable="false" data-ordena="abas" data-oid="${r}" ${r === rota ? 'aria-current="page"' : ''}>${ABA_NOME[r]}${q[r] !== '' && q[r] ? `<em>${q[r]}</em>` : ''}</a>`).join('')}</nav>`);
+    if (cabPag) cabPag.insertAdjacentHTML('afterend', abasHTML); else main.insertAdjacentHTML('afterbegin', abasHTML);
   }
   function areasOrdenadas() {
     const todas = AREAS();
@@ -2566,7 +2568,9 @@
       ...tar.map((t) => { const l = lemDe(t); return { k: 'tar', id: t.id, titulo: tituloItem(t), hora: l ? (l.hora || '') : '', selos: l ? ['tar', 'lem'] : ['tar'], feito: !!t.concluida }; }),
       ...lemSoltos.map((l) => ({ k: 'lem', id: l.id, titulo: l.texto, hora: l.hora || '', selos: ['lem'], feito: !!l.concluido }))
     ];
-    return { ev, tar, lem, linhas, total: linhas.length };
+    const on = UI.agFiltro || {};
+    const visiveis = linhas.map((x) => { const ativos = x.selos.filter((k) => on[k] !== false); return ativos.length ? Object.assign({}, x, { k: ativos.includes(x.k) ? x.k : ativos[0], selos: ativos }) : null; }).filter(Boolean);
+    return { ev, tar, lem, linhas: visiveis, total: visiveis.length };
   }
   const SELO_NOME = { ev: 'evento', tar: 'tarefa', lem: 'lembrete' };
   function renderAgenda() {
@@ -2597,14 +2601,14 @@
       ? `<div class="ag-linha ag-clicavel" role="button" tabindex="0" data-act="ev-ver" data-id="${x.id}">${miolo(x)}${menuMais([{ act: 'ev-editar', id: x.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'ev-excluir', id: x.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>`
       : x.k === 'tar' ? `<a class="ag-linha ${x.feito ? 'feito' : ''}" href="#/item/${x.id}">${miolo(x)}</a>`
         : `<button type="button" class="ag-linha ${x.feito ? 'feito' : ''}" data-act="ag-lembrete" data-id="${x.id}">${miolo(x)}</button>`;
-    main.innerHTML = `<header class="pagina-cab"><h1>${ic('calendar')}Agenda</h1>
+    main.innerHTML = `<header class="pagina-cab cab-linha"><h1>${ic('calendar')}Agenda</h1>
         <div class="ferramentas">${btn('ev-novo', ic('plus') + 'Novo evento', '', 'btn-1')}</div>
         <p class="meta">Eventos, tarefas com prazo e lembretes, juntos no mês.</p></header>
       <div class="ag-layout">
         <section class="cartao ag-cal" aria-label="Calendário">
           <div class="ag-topo"><h2>${esc(nomeMes)}</h2><span class="espaco"></span>
             ${btnIco('ag-mes', 'nav-arrow-left', 'Mês anterior', 'data-v="-1"')}${btn('ag-mes', 'Hoje', 'data-v="hoje"', 'btn-f btn-p')}${btnIco('ag-mes', 'nav-arrow-right', 'Próximo mês', 'data-v="1"')}</div>
-          <p class="ag-legenda" aria-label="Legenda">${['ev', 'tar', 'lem'].map((k) => `<span class="ag-chip ${k}">${SELO_NOME[k]}</span>`).join('')}</p>
+          <div class="ag-legenda" role="group" aria-label="Mostrar no calendário">${['ev', 'tar', 'lem'].map((k) => `<button type="button" class="ag-chip ${k} ag-filtro" data-act="ag-filtro" data-k="${k}" aria-pressed="${(UI.agFiltro || {})[k] !== false}">${SELO_NOME[k]}</button>`).join('')}</div>
           <div class="ag-semana" aria-hidden="true">${sem.map((x) => `<span>${x}</span>`).join('')}</div>
           <div class="ag-grade">${celulas.map(cel).join('')}</div></section>
         <aside class="cartao ag-painel" aria-label="Dia selecionado">
@@ -2647,8 +2651,9 @@
           ${l.concluido ? '' : btnIco('lemb-adiar', 'clock', 'Adiar', `data-id="${l.id}"`)}
           ${menuMais([{ act: 'editar-item', id: l.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'excluir-lembrete', id: l.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></article>`;
     };
-    main.innerHTML = `<header class="pagina-cab"><h1>${ic('alarm')}Lembretes</h1>
-        <div class="ferramentas">${btn('criar', ic('plus') + 'Novo lembrete', 'data-t="lembrete"', 'btn-1')}</div></header>
+    main.innerHTML = `<header class="pagina-cab cab-linha"><h1>${ic('alarm')}Lembretes</h1>
+        <div class="ferramentas">${btn('criar', ic('plus') + 'Novo lembrete', 'data-t="lembrete"', 'btn-1')}</div>
+        <p class="meta">Avisos com data para não esquecer.</p></header>
       <div class="quadro">${cols.map(([n, ls]) => `<section class="quadro-col"><h2>${n}<em class="pino ${n === 'Vencidos' && ls.length ? 'alerta' : ''}">${ls.length}</em></h2>
         ${ls.map(card).join('') || '<p class="nada" style="padding:0 6px">—</p>'}</section>`).join('')}</div>
       ${feitos.length ? `<details class="cartao"><summary style="cursor:pointer;font-weight:600;font-size:14px">${ic('check-circle-solid')} Concluídos (${feitos.length})</summary>
@@ -2772,8 +2777,9 @@
       ? `<details class="cartao tar-feitas" ${UI.verFeitas ? 'open' : ''}><summary data-act="tar-feitas">${ic('check-circle-solid')} Feitas (${feitas.length})</summary>
           <div class="tar-lista-feitas">${feitas.slice(0, 50).map((i) => linha(i)).join('')}</div></details>` : '';
 
-    main.innerHTML = `<header class="pagina-cab"><h1>${ic('list')}Tarefas</h1>
-        <div class="ferramentas">${btn('criar', ic('plus') + 'Nova tarefa', 'data-t="tarefa"', 'btn-1')}</div></header>
+    main.innerHTML = `<header class="pagina-cab cab-linha"><h1>${ic('list')}Tarefas</h1>
+        <div class="ferramentas">${btn('criar', ic('plus') + 'Nova tarefa', 'data-t="tarefa"', 'btn-1')}</div>
+        <p class="meta">Tudo o que você precisa fazer.</p></header>
       <div class="barra-filtros"><div class="segmento" role="group" aria-label="Como ver as tarefas">
         ${VISOES.map(([v, n, icone]) => `<button type="button" data-act="tar-visao" data-v="${v}" aria-pressed="${visao === v}">${ic(icone)}${n}</button>`).join('')}</div>
         ${abertas.length ? `<p class="meta">${abertas.length} aberta${abertas.length > 1 ? 's' : ''}${feitas.length ? ' · ' + feitas.length + ' feita' + (feitas.length > 1 ? 's' : '') : ''}</p>` : ''}</div>
@@ -3431,6 +3437,7 @@
       }
       case 'ag-ir': e.preventDefault(); UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); location.hash = '#/agenda'; return;
       case 'ag-lembrete': return abrirModal({ tipo: 'editar', id });
+      case 'ag-filtro': { UI.agFiltro = Object.assign({ ev: true, tar: true, lem: true }, UI.agFiltro); UI.agFiltro[b.dataset.k] = !UI.agFiltro[b.dataset.k]; render(); { const f = main.querySelector(`.ag-filtro[data-k="${b.dataset.k}"]`); if (f) f.focus(); } return; }
       case 'ag-dia': {
         UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); UI.agFoco = b.dataset.d; return render();
       }

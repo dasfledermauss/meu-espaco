@@ -1448,6 +1448,18 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .tk-info dd::first-letter { text-transform: uppercase; }
 .tk-falta { width: 100%; font-size: 13px; color: var(--tinta-2); }
 
+/* ---------- cabeçalho da Agenda (v5.24): título + ação, subtítulo, abas, conteúdo no grid de 24px ---------- */
+.pagina-cab { row-gap: 8px; }
+.pagina-cab .meta { margin-top: 0; }
+.pagina-cab + .abas-pag { margin: 4px 0 4px; }
+.abas-pag { margin: 0 0 4px; }
+.abas-pag a { color: var(--tinta-2); }
+.abas-pag a[aria-current="page"] { background: var(--cartao); color: var(--tinta); font-weight: 600; box-shadow: 0 1px 3px rgba(20, 28, 48, .14), inset 0 -2px 0 var(--marca); }
+:root[data-modo="escuro"] .abas-pag a[aria-current="page"] { box-shadow: 0 1px 3px rgba(0, 0, 0, .5), inset 0 -2px 0 var(--marca); }
+.abas-pag em { color: var(--tinta-2); }
+.ag-filtro { border: 0; font-family: inherit; cursor: pointer; padding: 2px 10px; min-height: 24px; transition: opacity .15s ease-out, background-color .15s ease-out; }
+.ag-filtro[aria-pressed="false"] { opacity: .5; background: var(--campo); color: var(--tinta-2); box-shadow: inset 0 0 0 1px var(--linha); }
+.ag-filtro:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
@@ -1517,3 +1529,12 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media (max-width: 640px) { .pet-config-card { gap: 6px; padding: 8px 10px 10px; } .pet-linha { padding: 4px 9px; font-size: 11.5px; } .pet-opcao { padding: 6px 2px 5px; } }
+
+/* título e botão sempre na mesma linha (Agenda, Tarefas, Lembretes) */
+.pagina-cab.cab-linha { flex-wrap: wrap; }
+.pagina-cab.cab-linha > h1 { flex: 1 1 0; min-width: 0; }
+.pagina-cab.cab-linha .meta { flex: 0 0 100
+/* título e botão sempre na mesma linha (Agenda, Tarefas, Lembretes) */
+.pagina-cab.cab-linha { flex-wrap: wrap; }
+.pagina-cab.cab-linha > h1 { flex: 1 1 0; min-width: 0; }
+.pagina-cab.cab-linha .meta { flex: 0 0 100%; }

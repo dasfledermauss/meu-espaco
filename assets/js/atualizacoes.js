@@ -10,6 +10,17 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.24',
+    data: '2026-11-13',
+    titulo: 'Cabeçalho da Agenda refinado',
+    itens: [
+      'Cabeçalho da Agenda reorganizado: título e botão de ação na mesma linha, subtítulo logo abaixo, depois as abas (Calendário, Tarefas, Lembretes) e o conteúdo, tudo no grid de 24px, sem o vão que havia entre as abas e o título.',
+      'Cada aba tem seu subtítulo e seu botão: “Novo evento”, “Nova tarefa” e “Novo lembrete”.',
+      'Aba ativa mais clara nos dois temas (fundo do cartão, sombra leve e sublinhado na cor do tema) e texto das inativas com contraste AA; a aba aberta continua na URL (#/agenda, #/tarefas, #/lembretes) e volta igual ao recarregar.',
+      'Legenda do calendário virou filtro: toque em evento, tarefa ou lembrete para mostrar ou esconder no mês e na lista do dia; todos começam ativos e os desligados ficam opacos.'
+    ]
+  },
+  {
     versao: '5.23',
     data: '2026-11-13',
     titulo: 'Eventos com foto e ticket',

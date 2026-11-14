@@ -12,6 +12,10 @@ Grade do mês (semana começa no domingo). Em cada dia aparecem os **eventos**, 
 
 **Stickers:** 7 opções (aniversário, viagem, saúde, trabalho, festa, coração, destaque), até 3 por dia, escolhidos no painel do dia. Ficam em `S.stickers` (`{ 'AAAA-MM-DD': ['bolo', ...] }`). Imagens: Twemoji (© Twitter/X, CC-BY 4.0), em `assets/img/stickers/`.
 
+## Cabeçalho e abas
+
+Ordem: título + botão de ação (mesma linha) → subtítulo → abas → conteúdo, com 8px entre título e subtítulo e 24px nos demais espaços. Cada aba tem seu subtítulo e botão (Novo evento, Nova tarefa, Novo lembrete). A aba aberta fica na URL (`#/agenda`, `#/tarefas`, `#/lembretes`). A legenda evento / tarefa / lembrete filtra o calendário e a lista do dia (toggle; todos ativos por padrão; o estado vale até recarregar).
+
 ## Foto e ticket do evento
 
 - A foto do evento é opcional e entra como nas capas dos livros: arquivo, arrastar, Ctrl + V ou link. Com foto, o evento vira um card no feed (Início e dia); a imagem é reduzida a 480×300.
