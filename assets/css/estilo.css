@@ -1456,8 +1456,8 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .ag-filtro:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
 /* card de evento no feed: ticket horizontal */
 .post-evento { padding: 0; background: none; border: 0; box-shadow: none; }
-.ev-ticket { display: flex; align-items: stretch; width: 100%; min-height: 176px; padding: 0; text-align: left; font: inherit; color: var(--tinta); background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-l, 24px); overflow: hidden; cursor: pointer; transition: border-color .15s ease-out, background-color .15s ease-out; }
-.ev-ticket:hover { border-color: var(--tinta-3); }
+.ev-ticket { display: flex; align-items: stretch; width: 100%; min-height: 176px; padding: 0; text-align: left; font: inherit; color: var(--tinta); background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-l, 24px); overflow: hidden; cursor: pointer; transition: none; }
+.ev-ticket:hover, :root[data-modo="escuro"] .ev-ticket:hover { background: var(--cartao); }
 .ev-ticket:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
 .evt-foto { flex: 0 0 38%; max-width: 280px; position: relative; background: var(--hover-2); }
 .evt-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
