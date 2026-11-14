@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.29',
+    data: '2026-11-13',
+    titulo: 'Barra de rolagem fixa',
+    itens: [
+      'A barra de rolagem lateral agora fica sempre no lugar, então a página não “quica” mais quando o conteúdo passa a caber ou deixa de caber na tela.'
+    ]
+  },
+  {
     versao: '5.28',
     data: '2026-11-13',
     titulo: 'Anotações dos artigos à vista',

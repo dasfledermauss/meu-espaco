@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.29 — 13/11/2026 · Barra de rolagem fixa
+
+- A barra de rolagem lateral agora fica sempre no lugar, então a página não “quica” mais quando o conteúdo passa a caber ou deixa de caber na tela.
+
 ## 5.28 — 13/11/2026 · Anotações dos artigos à vista
 
 - As anotações dos artigos agora aparecem: no feed, as 2 últimas ficam abaixo do artigo (com link para ver todas) e, na janela do artigo, um painel lateral lista tudo, com contador no ícone, botão “Nova” e exclusão; ao guardar uma anotação, ela surge na hora.
