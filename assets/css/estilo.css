@@ -1154,6 +1154,10 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .barra-sel button[disabled] { opacity: .45; pointer-events: none; }
 .barra-sel .perigo { color: var(--perigo); }
 
+/* ---------- mosaico (cards se encaixam nos vãos) ---------- */
+.mosaico { row-gap: 0 !important; grid-auto-rows: 1px !important; align-items: start !important; }
+.mosaico > * { margin-bottom: var(--gap-m, 16px); align-self: start; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
