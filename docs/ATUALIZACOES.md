@@ -8,6 +8,14 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.15 — 13/11/2026 · Refinamento visual do Início
+
+- Início mais leve: o bloco “O que você quer guardar?” virou um card claro com 5 atalhos (Nota, Link, Tarefa, Imagem, Lembrete) e um botão Mais para os outros tipos.
+- Hierarquia de textos: menu e rótulos em peso regular/médio; negrito só em títulos de card, de widget e números. Cinzas secundários ajustados para contraste mínimo 4.5:1 nos modos claro e escuro.
+- Botões Banho e Pets do pet viraram chips escuros translúcidos; o botão de música ao lado do perfil ganhou descrição ao passar o mouse.
+- Widgets da direita com o mesmo link “ver todas”; Tarefas mostra também as concluídas (riscadas) e “+N” quando há mais, batendo com o contador.
+- Card de filme/livro mostra um resumo curto (2 linhas) ao lado da capa; ícones de ação dos cards ficam calmos e ganham a cor do tema ao passar o mouse; “A organizar” tem o contador em destaque, como caixa de entrada.
+
 ## 5.14 — 13/11/2026 · Tyba, selecionar em lote, encaixe de cards e mais
 
 - As confirmações (excluir, sair, descartar etc.) agora são cartões bonitos do próprio app, no estilo do onboarding, em vez das caixas do navegador; “Mover para coleção” também virou uma janela do app.
