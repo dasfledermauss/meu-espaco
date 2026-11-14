@@ -14,6 +14,7 @@ window.ATUALIZACOES = [
     data: '2026-11-13',
     titulo: 'Agenda e barra enxuta',
     itens: [
+      'Três cliques no logo agora trocam também a fonte dos títulos para a Lora (e voltam ao normal no próximo trio de cliques).',
       'Início ganhou o widget “Próximos eventos”: os próximos compromissos com “hoje”, “amanhã” ou “em N dias”. Marque “Contar os dias no Início” num evento para ele aparecer como contagem regressiva em destaque.',
       'Calendário com 7 stickers (aniversário, viagem, saúde, trabalho, festa, coração e destaque), até 3 por dia, escolhidos no painel do dia.',
       'Barra lateral enxuta, com 8 áreas: Início, Agenda, Mural, Músicas, Biblioteca, Gastos, Wishlist e Currículo.',
