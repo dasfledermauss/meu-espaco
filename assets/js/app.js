@@ -813,7 +813,7 @@
           <li><strong>Abra no Safari.</strong><span>Outros navegadores do iPhone não instalam aplicativos.</span></li>
           <li><strong>Toque em Compartilhar</strong><span>O ícone de quadrado com seta para cima, na barra do Safari.</span></li>
           <li><strong>Escolha “Adicionar à Tela de Início”</strong><span>Role a lista se não aparecer de primeira.</span></li>
-          <li><strong>Toque em Adicionar</strong><span>O Meu Espaço vira um ícone, abre em tela cheia e funciona sem internet.</span></li></ol></div>
+          <li><strong>Toque em Adicionar</strong><span>A Tyba vira um ícone, abre em tela cheia e funciona sem internet.</span></li></ol></div>
         <footer class="modal-pe"><span class="espaco"></span><button class="btn-1" type="button" data-act="modal-fechar">Entendi</button></footer></div>`;
     }
     if (m.tipo === 'onboarding') return onboardingHTML();
@@ -1289,7 +1289,7 @@
     const el = document.getElementById('aviso-pwa');
     if (!el) return;
     if (pwaAtualizacao && !pwaDepois) {
-      el.innerHTML = `${ic('refresh')}<span>Há uma versão nova do Meu Espaço.</span><button type="button" class="aviso-btn" data-act="pwa-atualizar">Atualizar</button><button type="button" class="aviso-x" data-act="pwa-depois" aria-label="Agora não">${ic('xmark')}</button>`;
+      el.innerHTML = `${ic('refresh')}<span>Há uma versão nova da Tyba.</span><button type="button" class="aviso-btn" data-act="pwa-atualizar">Atualizar</button><button type="button" class="aviso-x" data-act="pwa-depois" aria-label="Agora não">${ic('xmark')}</button>`;
       el.hidden = false;
     } else if (!navigator.onLine) {
       el.innerHTML = `${ic('priority-high')}<span>Sem conexão. O que você guardar fica neste aparelho e sincroniza quando voltar.</span>`;
@@ -1298,7 +1298,7 @@
   }
   window.addEventListener('pwa:atualizacao', () => { pwaAtualizacao = true; pintarAvisoPwa(); });
   window.addEventListener('pwa:mudou', () => { if (!S) return; renderTopo(); if ((rotaAtual()[0] || '') === 'config') { UI.pularColheita = true; render(); } });
-  window.addEventListener('pwa:instalado', () => toast('Meu Espaço instalado.', 'check-circle-solid'));
+  window.addEventListener('pwa:instalado', () => toast('Tyba instalada.', 'check-circle-solid'));
   window.addEventListener('offline', pintarAvisoPwa);
   window.addEventListener('online', () => { pintarAvisoPwa(); toast('Conexão de volta.', 'check-circle-solid'); try { if (typeof agendarSync === 'function') agendarSync(); } catch (e) { /* ignora */ } });
   function tratarEntrada() {
@@ -2577,7 +2577,7 @@
         <div class="acoes-form" style="margin-top:14px">${btn('pet-alternar', ic(S.perfil.petOculto ? 'eye' : 'eye-solid') + (S.perfil.petOculto ? 'Mostrar o pet' : 'Esconder o pet'), '', 'btn-f')}
           ${btn('pet-som', S.perfil.petMudo ? 'Ligar o latido' : 'Silenciar o latido', '', 'btn-f')}</div>`)}
       ${cartao(ic('download') + 'Aplicativo', `
-        <p class="meta">${PWA_().instalado ? 'Você está usando o Meu Espaço como aplicativo.' : 'Instale para abrir em janela própria, com ícone na tela inicial e funcionando sem internet.'}</p>
+        <p class="meta">${PWA_().instalado ? 'Você está usando a Tyba como aplicativo.' : 'Instale para abrir em janela própria, com ícone na tela inicial e funcionando sem internet.'}</p>
         <p class="meta" style="margin-top:8px">${'serviceWorker' in navigator && navigator.serviceWorker.controller ? 'Modo offline pronto: o app abre mesmo sem conexão.' : 'Modo offline: prepara-se na primeira visita ao site publicado (https).'}</p>
         ${!PWA_().instalado && !podeInstalar() ? '<p class="meta" style="margin-top:8px">No Chrome ou Edge, procure o ícone de instalar na barra de endereço, ou o menu do navegador → Instalar app.</p>' : ''}
         <div class="acoes-form" style="margin-top:14px">${podeInstalar() ? btn('pwa-instalar', ic('download') + 'Instalar o app', '', 'btn-1') : ''}${btn('pwa-procurar', ic('refresh') + 'Procurar atualização', '', 'btn-f')}</div>
@@ -3643,7 +3643,7 @@
     r.onload = () => {
       let raw;
       try { raw = JSON.parse(r.result); } catch (er) { return toast('Esse arquivo não é um JSON válido.'); }
-      if (!raw || !Array.isArray(raw.itens) || !raw.perfil || !Array.isArray(raw.colecoes)) return toast('Esse arquivo não é um backup do Meu Espaço.');
+      if (!raw || !Array.isArray(raw.itens) || !raw.perfil || !Array.isArray(raw.colecoes)) return toast('Esse arquivo não é um backup da Tyba.');
       if (!confirm(`Substituir os dados deste navegador pelo backup “${f.name}” (${raw.itens.length} registros)?`)) return;
       delete raw.tipoArquivo; S = migrar(raw); salvar(); toast('Backup importado.', 'check-circle-solid');
       UI.pularColheita = true; location.hash = '#/inicio'; render();
@@ -3970,8 +3970,8 @@
   function renderEntrada() {
     document.body.classList.add('entrando');
     main.innerHTML = `<div class="entrada"><section class="cartao entrada-cartao">
-        <span class="marca-selo grande">${ic('archive')}</span>
-        <h1>Meu Espaço</h1>
+        <span class="logo-tyba grande" role="img" aria-label="Tyba"></span>
+        <h1 class="sr-only">Tyba</h1>
         <p class="meta">Entre com sua conta Google para abrir seu arquivo pessoal.</p>
         <div id="botao-google"></div>
         ${UI.erroEntrada ? `<p class="erro">${esc(UI.erroEntrada)}</p>` : ''}
