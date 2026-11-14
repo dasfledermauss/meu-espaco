@@ -113,6 +113,7 @@
       Formatos: 'capa' (300×450), 'quadrada' (440×440) e 'livre' (proporção original). */
   async function carregarImagem(fonte, formato) {
     const preparar = (blob) => formato === 'capa' ? redimensionar(blob, 300, 450).then((src) => ({ src }))
+      : formato === 'banner' ? redimensionar(blob, 480, 300).then((src) => ({ src }))
       : formato === 'quadrada' ? redimensionar(blob, 440, 440).then((src) => ({ src }))
         : reduzir(blob, 1200);
     if (typeof fonte !== 'string') return preparar(fonte);
@@ -419,8 +420,6 @@
   const item = (id) => S.itens.find((i) => i.id === id);
   const lembrete = (id) => S.lembretes.find((l) => l.id === id);
   const evento = (id) => (S.eventos || []).find((e) => e.id === id);
-  /** As fotos dos eventos não vão para a nuvem (o documento tem limite de tamanho): ao receber, mantém as deste aparelho. */
-  const comFotosLocais = (remotos) => (remotos || []).map((e) => { const l = evento(e.id); return l && l.foto ? Object.assign({}, e, { foto: l.foto }) : e; });
   const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], imagem: ['Imagem', 'media-image'], musica: ['Música', 'ytmusic'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
   /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
   const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
@@ -518,7 +517,7 @@
   /** Campo de imagem usado em todo o sistema: escolher arquivo, arrastar, colar (Ctrl + V) ou usar um link. */
   function envioImagem(k, rot, formato, atual) {
     const prev = UI.imagens[k] !== undefined ? UI.imagens[k] : atual;
-    const cls = formato === 'capa' ? 'previa-capa' : formato === 'livre' ? 'previa-livre' : 'previa-quadrada';
+    const cls = formato === 'banner' ? 'previa-banner' : formato === 'capa' ? 'previa-capa' : formato === 'livre' ? 'previa-livre' : 'previa-quadrada';
     return `<div class="campo"><span class="rotulo">${rot}</span><div class="envio" data-envio="${esc(k)}" data-formato="${formato}">
       ${prev ? `<div class="envio-previa ${cls}"><img src="${esc(prev)}" alt="Prévia" referrerpolicy="no-referrer"><button type="button" class="ico-btn remover" data-act="img-remover" data-k="${esc(k)}" aria-label="Remover imagem" title="Remover">${ic('xmark')}</button></div>` : ''}
       <div class="envio-lado">
@@ -770,7 +769,7 @@
           <div class="linha">${campo('f-data', 'Dia', `<input type="date" id="f-data" name="data" required value="${esc(v.data)}">`, 'medio')}
             ${campo('f-hora', 'Horário <span class="opcional">(opcional)</span>', `<input type="time" id="f-hora" name="hora" value="${esc(v.hora || '')}">`, 'curto')}</div>
           ${campo('f-nota', 'Nota <span class="opcional">(opcional)</span>', txt('f-nota', 'nota', v.nota))}
-          <div class="campo"><span class="rotulo">Foto <span class="opcional">(opcional, aparece no feed)</span></span><div class="ev-foto-area" id="ev-foto-area">${evFotoHTML()}</div></div>
+          ${envioImagem('evfoto', 'Foto <span class="opcional">(opcional, aparece no feed)</span>', 'banner', v.foto)}
           <label class="check"><input type="checkbox" name="contagem" ${v.contagem ? 'checked' : ''}> Contar os dias no Início</label></div></div>
         <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
@@ -2101,10 +2100,6 @@
   /** Widget do Início: contagem regressiva (evento marcado) e os próximos eventos. */
   const diasAte = (d) => Math.round((deDia(d) - deDia(hoje())) / 864e5);
   const quandoEvento = (n) => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : 'em ' + n + ' dias';
-  function evFotoHTML() {
-    return UI.evFoto ? `<div class="ev-foto-prev"><img src="${UI.evFoto}" alt="Foto do evento">${btn('ev-foto-rm', 'Remover foto', '', 'btn-f btn-p')}</div>`
-      : `<label class="btn btn-2 btn-p ev-foto-add">Escolher foto<input type="file" accept="image/*" data-act="ev-foto" hidden></label>`;
-  }
   function eventosHTML() {
     const prox = (S.eventos || []).filter((e) => e.data >= hoje()).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
     const dest = prox.find((e) => e.contagem);
@@ -3419,10 +3414,9 @@
         const v = campoL.value; campoL.value = '';
         return definirImagem(campoL.dataset.k, campoL.dataset.formato, v);
       }
-      case 'ev-novo': e.preventDefault(); UI.evFoto = ''; return abrirModal({ tipo: 'evento', dia: b.dataset.d || (UI.agDia || hoje()) });
-      case 'ev-editar': fecharMenu(); UI.evFoto = (evento(id) || {}).foto || ''; return abrirModal({ tipo: 'evento', id });
+      case 'ev-novo': e.preventDefault(); delete UI.imagens['evfoto']; return abrirModal({ tipo: 'evento', dia: b.dataset.d || (UI.agDia || hoje()) });
+      case 'ev-editar': fecharMenu(); delete UI.imagens['evfoto']; return abrirModal({ tipo: 'evento', id });
       case 'ev-ver': e.preventDefault(); return abrirModal({ tipo: 'evento-ver', id });
-      case 'ev-foto-rm': e.preventDefault(); UI.evFoto = ''; { const a = document.getElementById('ev-foto-area'); if (a) a.innerHTML = evFotoHTML(); } return;
       case 'ev-excluir': {
         fecharMenu(); const ev = evento(id); if (!ev) return;
         if (!(await confirmar(`Excluir “${ev.titulo}”?`))) return;
@@ -3633,11 +3627,6 @@
     if (t.id === 'arquivo-foto') return escolherFoto(t);
     if (t.id === 'arquivo-cv') return escolherCV(t);
     if (t.id === 'arquivo-backup') return escolherBackup(t);
-    if (act === 'ev-foto') {
-      const f = t.files && t.files[0]; if (!f) return;
-      return redimensionar(f, 960, 600).then((u) => { UI.evFoto = u; const a = document.getElementById('ev-foto-area'); if (a) a.innerHTML = evFotoHTML(); })
-        .catch(() => toast('Não consegui ler essa imagem.'));
-    }
     if (!act) return;
     if (act === 'img-escolher') {
       const f = t.files[0]; t.value = '';
@@ -3731,7 +3720,8 @@
       if (!d.data) return toast('Escolha o dia.');
       S.eventos = S.eventos || [];
       const e = f.dataset.id ? evento(f.dataset.id) : null;
-      const foto = UI.evFoto || '';
+      const foto = UI.imagens['evfoto'] !== undefined ? UI.imagens['evfoto'] : ((e && e.foto) || '');
+      delete UI.imagens['evfoto'];
       if (e) { Object.assign(e, { titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem }); if (foto) e.foto = foto; else delete e.foto; }
       else S.eventos.push(Object.assign({ id: uid('ev'), titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem, criadoEm: agora() }, foto ? { foto } : {}));
       UI.agDia = d.data; UI.agMes = d.data.slice(0, 7); UI.modal = null;
@@ -4391,7 +4381,7 @@
   const quando = (x) => x.atualizadoEm || x.editadoEm || x.criadoEm || '';
   const nuvemLigada = () => UI.nuvem.estado === 'ligada' || UI.nuvem.estado === 'enviando';
   const baseNuvem = () => limpo({ perfil: S.perfil, colecoes: S.colecoes, pastas: S.pastas,
-    destinoPadrao: S.destinoPadrao, curriculo: S.curriculo, eventos: (S.eventos || []).map((e) => { const { foto, ...resto } = e; return resto; }), stickers: S.stickers || {}, versao: S.versao, atualizadoEm: S.baseEm || '' });
+    destinoPadrao: S.destinoPadrao, curriculo: S.curriculo, eventos: S.eventos || [], stickers: S.stickers || {}, versao: S.versao, atualizadoEm: S.baseEm || '' });
 
   function diferencas() {
     const b = baseNuvem();
@@ -4452,7 +4442,7 @@
     if (!r) return false;
     let mudou = false;
     if (r.base && (r.base.atualizadoEm || '') > (S.baseEm || '')) {
-      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (r.base[k] !== undefined) S[k] = k === 'eventos' ? comFotosLocais(r.base[k]) : r.base[k]; });
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (r.base[k] !== undefined) S[k] = k === 'eventos' ? r.base[k] : r.base[k]; });
       S.baseEm = r.base.atualizadoEm; mudou = true;
     }
     [['itens', r.itens], ['lembretes', r.lembretes]].forEach(([nome, remotos]) => {
@@ -4477,7 +4467,7 @@
   function aplicarRemoto(d) {
     let mudou = false;
     if (d.base && (d.base.atualizadoEm || '') > (S.baseEm || '')) {
-      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (d.base[k] !== undefined) S[k] = k === 'eventos' ? comFotosLocais(d.base[k]) : d.base[k]; });
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (d.base[k] !== undefined) S[k] = k === 'eventos' ? d.base[k] : d.base[k]; });
       S.baseEm = d.base.atualizadoEm; ULTIMO.base = canon(baseNuvem()); mudou = true;
     }
     [['itens', d.itens, d.apagarItens], ['lembretes', d.lembretes, d.apagarLembretes]].forEach(([nome, novos, fora]) => {
