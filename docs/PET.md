@@ -17,6 +17,8 @@ A cada 50 a 90 segundos (primeira fala uns 6 a 11 s depois de abrir), só com a 
 
 O balão dura de 7 a 14 s (3 s + 1,1 s por palavra), quebra em no máximo 3 palavras por linha e some ao clicar nele. As frases ficam em `assets/js/pet-frases.js`: é só acrescentar linhas nas listas. Marcadores: `{t}` título, `{n}` número, `{nome}` seu primeiro nome (escreva no fim da frase). Desligar: engrenagem do cenário → Conversa do pet (`perfil.petCala`).
 
+Assuntos da Agenda: evento hoje ou amanhã, contagem regressiva, semana cheia ou livre, stickers do calendário (cada um tem fala própria) e som de fundo ou música tocando.
+
 ## Cuidados
 
 - **Vasilhas:** comida e água (esvaziam em 5 min cada; cada refeição tira 25%), à esquerda do cenário. O nível segue o horário real e fica em `perfil.petPote` (momento do último enchimento). Clique na vasilha para encher. Ele visita sozinho as que não estão cheias, e avisa "Fome!" ou "Sede!" quando vazias. Depois de comer ele faz **cocô** (de 7 a 14 s depois, no máximo 3 no chão). Clique no cocô para limpar.

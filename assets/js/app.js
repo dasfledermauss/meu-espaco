@@ -419,6 +419,8 @@
   const item = (id) => S.itens.find((i) => i.id === id);
   const lembrete = (id) => S.lembretes.find((l) => l.id === id);
   const evento = (id) => (S.eventos || []).find((e) => e.id === id);
+  /** As fotos dos eventos não vão para a nuvem (o documento tem limite de tamanho): ao receber, mantém as deste aparelho. */
+  const comFotosLocais = (remotos) => (remotos || []).map((e) => { const l = evento(e.id); return l && l.foto ? Object.assign({}, e, { foto: l.foto }) : e; });
   const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], imagem: ['Imagem', 'media-image'], musica: ['Música', 'ytmusic'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
   /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
   const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
@@ -741,6 +743,24 @@
         <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
     }
+    if (m.tipo === 'evento-ver') {
+      const e = evento(m.id); if (!e) return '';
+      const d = deDia(e.data), n = diasAte(e.data);
+      const dow = d.toLocaleDateString('pt-BR', { weekday: 'long' }), mes = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+      const falta = n === 0 ? 'É hoje' : n === 1 ? 'É amanhã' : n > 1 ? 'Faltam ' + n + ' dias' : 'Já passou';
+      return `<div class="modal modal-ticket" data-id="${e.id}">
+        <header class="modal-cab">${ic('calendar')}<h2>Evento</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><article class="ticket" aria-label="${esc(e.titulo)}">
+          <div class="tk-topo ${e.foto ? 'com-foto' : ''}">${e.foto ? `<img src="${e.foto}" alt="">` : `<span class="tk-vazio">${ic('calendar')}</span>`}<span class="tk-selo">${n < 0 ? 'Encerrado' : 'Evento'}</span></div>
+          <div class="tk-meio"><h3 class="tk-titulo">${esc(e.titulo)}</h3>${e.nota ? `<p class="tk-nota">${esc(e.nota)}</p>` : ''}</div>
+          <div class="tk-corte" aria-hidden="true"><i></i><hr><i></i></div>
+          <div class="tk-pe">
+            <div class="tk-data"><b>${d.getDate()}</b><span>${esc(mes)}</span></div>
+            <dl class="tk-info"><div><dt>Dia</dt><dd>${esc(dow)}</dd></div><div><dt>Horário</dt><dd>${e.hora ? esc(e.hora) : 'o dia todo'}</dd></div></dl>
+            <span class="tk-falta">${falta}</span></div></article></div>
+        <footer class="modal-pe">${btn('ev-excluir', ic('trash') + 'Excluir', `data-id="${e.id}"`, 'btn-f btn-perigo')}<span class="espaco"></span>
+          ${btn('ev-editar', ic('edit-pencil') + 'Editar', `data-id="${e.id}"`, 'btn-2')}</footer></div>`;
+    }
     if (m.tipo === 'evento') {
       const e = m.id ? evento(m.id) : null, v = e || { data: m.dia || hoje() };
       return `<form class="modal" method="dialog" data-form="evento" data-id="${m.id || ''}">
@@ -750,6 +770,7 @@
           <div class="linha">${campo('f-data', 'Dia', `<input type="date" id="f-data" name="data" required value="${esc(v.data)}">`, 'medio')}
             ${campo('f-hora', 'Horário <span class="opcional">(opcional)</span>', `<input type="time" id="f-hora" name="hora" value="${esc(v.hora || '')}">`, 'curto')}</div>
           ${campo('f-nota', 'Nota <span class="opcional">(opcional)</span>', txt('f-nota', 'nota', v.nota))}
+          <div class="campo"><span class="rotulo">Foto <span class="opcional">(opcional, aparece no feed)</span></span><div class="ev-foto-area" id="ev-foto-area">${evFotoHTML()}</div></div>
           <label class="check"><input type="checkbox" name="contagem" ${v.contagem ? 'checked' : ''}> Contar os dias no Início</label></div></div>
         <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
@@ -1497,6 +1518,21 @@
     else if (hojeT) novo(petFrase(sorteia(F.alerta.tarefaHoje), { t: corta28(tituloItem(hojeT)) }), 'alerta', 4);
     const ab = tarefasAbertas().length; if (ab >= 4) novo(petFrase(sorteia(F.alerta.tarefasAbertas), { n: ab }), 'alerta', 2);
     const fh = tarefas().filter((i) => i.concluida && dataLocal(i.editadoEm || i.criadoEm) === d0).length; if (fh) novo(petFrase(sorteia(F.alerta.feitasHoje), { n: fh }), 'alerta', 3);
+    // Agenda: eventos de hoje, de amanhã, contagem regressiva, stickers do dia, agenda livre e eventos novos.
+    const evs = (S.eventos || []).filter((e) => e.data >= d0).sort((x, y) => (x.data + (x.hora || '')).localeCompare(y.data + (y.hora || '')));
+    const evHoje = evs.find((e) => e.data === d0), evAmanha = evs.find((e) => e.data === somaDias(d0, 1)), evContagem = evs.find((e) => e.contagem && e.data > d0 && diasAte(e.data) <= 60);
+    if (evHoje) novo(petFrase(sorteia(F.alerta.eventoHoje), { t: corta28(evHoje.titulo) }), 'agenda', 5);
+    else if (evAmanha) novo(petFrase(sorteia(F.alerta.eventoAmanha), { t: corta28(evAmanha.titulo) }), 'agenda', 4);
+    if (evContagem) novo(petFrase(sorteia(F.alerta.contagem), { n: diasAte(evContagem.data), t: corta28(evContagem.titulo) }), 'agenda', 3);
+    else { const prox = evs.find((e) => diasAte(e.data) >= 2 && diasAte(e.data) <= 7); if (prox) novo(petFrase(sorteia(F.alerta.eventoSemana), { n: diasAte(prox.data), t: corta28(prox.titulo) }), 'agenda', 2); }
+    const stkHoje = (S.stickers || {})[d0];
+    if (stkHoje && stkHoje.length && F.sticker[stkHoje[0]]) novo(petFrase(sorteia(F.sticker[stkHoje[0]])), 'agenda', 4);
+    if (S.eventos && S.eventos.length && !compromissosDoDia(d0).total) novo(petFrase(sorteia(F.alerta.agendaLivre)), 'agenda', 1);
+    const evNovo = (S.eventos || []).find((e) => e.criadoEm && Date.now() - new Date(e.criadoEm).getTime() < 36 * 3600e3 && !PET.comentados.has('ev' + e.id));
+    if (evNovo) novo(petFrase(sorteia(F.post[evNovo.foto ? 'eventoFoto' : 'evento']), { t: corta28(evNovo.titulo) }), 'post', 5, 'ev' + evNovo.id);
+    // Som de fundo e música tocando
+    if (window.SONS && SONS.ambiente.tocando()) novo(petFrase(sorteia(F.ambiente.som)), 'ambiente', 2);
+    else if (UI.tocando && !UI.pausado) novo(petFrase(sorteia(F.ambiente.musica)), 'ambiente', 1);
     const c = typeof climaDados === 'function' ? climaDados() : null;
     if (c && c.atual && c.dia) {
       const t = Math.round(c.atual.temperature_2m), ch = c.dia.precipitation_probability_max[0] || 0, cod = c.atual.weather_code;
@@ -1932,7 +1968,16 @@
       <span class="valor">${brl(i.valor)}</span></div>`;
   }
 
+  function eventoPostHTML(i, opts = {}) {
+    const e = i.ev, quando = opts.hora ? fmtHora(e.criadoEm) : fmtDataHora(e.criadoEm);
+    return `<article class="post post-evento" data-ev="${e.id}">
+      <header class="post-cab"><span class="selo">${ic('calendar')}Evento</span><span>${esc(fmtDiaCurto(e.data))}${e.hora ? ' · ' + esc(e.hora) : ''}</span><time>${quando}</time></header>
+      <button type="button" class="ev-feed" data-act="ev-ver" data-id="${e.id}" aria-label="Abrir o evento ${esc(e.titulo)}">
+        <img src="${e.foto}" alt="" loading="lazy">
+        <span class="ev-feed-txt"><strong>${esc(e.titulo)}</strong>${e.nota ? `<small>${esc(e.nota)}</small>` : ''}<em>${diasAte(e.data) >= 0 ? quandoEvento(diasAte(e.data)) : 'já passou'}</em></span></button></article>`;
+  }
   function postHTML(i, opts = {}) {
+    if (i.tipo === 'evento' && i.ev) return eventoPostHTML(i, opts);
     const cols = (i.colecoes || []).map((c) => (colecao(c.id) || {}).nome).filter(Boolean);
     const quando = ehImportado(i) ? 'importado' : (opts.hora ? fmtHora(i.criadoEm) : fmtDataHora(i.criadoEm));
     return `<article class="post post-${i.tipo}" data-id="${i.id}">
@@ -2017,12 +2062,17 @@
     ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length + doTipo('link').length + doTipo('imagem').length + doTipo('artigo').length],
     ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
     ['gastos', 'Gastos', 'wallet', ''], ['curriculo', 'Currículo', 'suitcase', '']];
+  /** A ordem das abas de cada área fica no perfil (arrastar muda; abas novas entram no fim). */
+  function abasOrdenadas(g) {
+    const salva = ((S.perfil.ordemAbas || {})[g] || []).filter((r) => ABAS[g].includes(r));
+    return salva.concat(ABAS[g].filter((r) => !salva.includes(r)));
+  }
   /** Abas no alto das páginas que fazem parte de Agenda ou Biblioteca. */
   function abasPagina(rota) {
     const g = GRUPO_DE[rota]; if (!g) return;
     const q = ABA_QTD();
-    main.insertAdjacentHTML('afterbegin', `<nav class="abas-pag" aria-label="${g === 'agenda' ? 'Agenda' : 'Biblioteca'}">${ABAS[g].map((r) =>
-      `<a href="#/${r}" ${r === rota ? 'aria-current="page"' : ''}>${ABA_NOME[r]}${q[r] !== '' && q[r] ? `<em>${q[r]}</em>` : ''}</a>`).join('')}</nav>`);
+    main.insertAdjacentHTML('afterbegin', `<nav class="abas-pag" aria-label="${g === 'agenda' ? 'Agenda' : 'Biblioteca'}" title="Arraste uma aba para reordenar">${abasOrdenadas(g).map((r) =>
+      `<a href="#/${r}" draggable="false" data-ordena="abas" data-oid="${r}" ${r === rota ? 'aria-current="page"' : ''}>${ABA_NOME[r]}${q[r] !== '' && q[r] ? `<em>${q[r]}</em>` : ''}</a>`).join('')}</nav>`);
   }
   function areasOrdenadas() {
     const todas = AREAS();
@@ -2051,14 +2101,18 @@
   /** Widget do Início: contagem regressiva (evento marcado) e os próximos eventos. */
   const diasAte = (d) => Math.round((deDia(d) - deDia(hoje())) / 864e5);
   const quandoEvento = (n) => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : 'em ' + n + ' dias';
+  function evFotoHTML() {
+    return UI.evFoto ? `<div class="ev-foto-prev"><img src="${UI.evFoto}" alt="Foto do evento">${btn('ev-foto-rm', 'Remover foto', '', 'btn-f btn-p')}</div>`
+      : `<label class="btn btn-2 btn-p ev-foto-add">Escolher foto<input type="file" accept="image/*" data-act="ev-foto" hidden></label>`;
+  }
   function eventosHTML() {
     const prox = (S.eventos || []).filter((e) => e.data >= hoje()).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
     const dest = prox.find((e) => e.contagem);
     const lista = prox.filter((e) => e !== dest).slice(0, dest ? 3 : 4);
     const corpo = !prox.length ? `<p class="meta">Nada marcado por vir. <a href="#/agenda">Abrir a agenda</a></p>` : `
-      ${dest ? `<button type="button" class="contagem" data-act="ag-ir" data-d="${dest.data}"><b>${diasAte(dest.data) === 0 ? 'Hoje' : diasAte(dest.data)}</b>
+      ${dest ? `<button type="button" class="contagem" data-act="ev-ver" data-id="${dest.id}"><b>${diasAte(dest.data) === 0 ? 'Hoje' : diasAte(dest.data)}</b>
         <span>${diasAte(dest.data) === 0 ? '' : diasAte(dest.data) === 1 ? 'dia para' : 'dias para'}<strong>${esc(dest.titulo)}</strong></span></button>` : ''}
-      <div class="mini-lista">${lista.map((e) => `<button type="button" class="mini-item" data-act="ag-ir" data-d="${e.data}">
+      <div class="mini-lista">${lista.map((e) => `<button type="button" class="mini-item" data-act="ev-ver" data-id="${e.id}">
         <span class="mini-txt">${esc(e.titulo)}</span><span class="meta num">${quandoEvento(diasAte(e.data))}${e.hora ? ' · ' + esc(e.hora) : ''}</span></button>`).join('')}</div>`;
     return cartao(ic('calendar') + 'Próximos eventos', corpo, '<a href="#/agenda">ver todas</a>', 'fino');
   }
@@ -2132,6 +2186,9 @@
       <p class="meta" style="margin-top:10px"><a href="#/links">Ver organizados em Links</a></p></details>`;
     return h;
   }
+  /** Itens do feed: o que foi guardado e os eventos que têm foto (aparecem no dia em que foram criados). */
+  const evFeed = () => (S.eventos || []).filter((e) => e.foto && e.criadoEm && e.criadoEm.length > 8).map((e) => ({ id: e.id, tipo: 'evento', criadoEm: e.criadoEm, ev: e }));
+  const ordenadosFeed = () => ordenados().concat(evFeed()).sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
   function conteudoFeed() {
     const q = norm(UI.busca);
     if (q) {
@@ -2140,7 +2197,7 @@
         + (res.length ? res.map((i) => postHTML(i)).join('') : vazio('search', 'Nada encontrado. Tente outra palavra.'));
     }
     if (UI.feedModo === 'dia') {
-      const d = UI.dia, doDia = ordenados().filter((i) => dataLocal(i.criadoEm) === d), h = S.perfil.humores[d];
+      const d = UI.dia, doDia = ordenadosFeed().filter((i) => dataLocal(i.criadoEm) === d), h = S.perfil.humores[d];
       return `<div class="dia-nav">${btnIco('dia', 'nav-arrow-left', 'Dia anterior', 'data-n="-1"')}
           <input type="date" value="${d}" data-act="dia-sel">${btnIco('dia', 'nav-arrow-right', 'Próximo dia', 'data-n="1"')}
           ${btn('dia-hoje', 'Hoje', '', 'btn-2 btn-p')}
@@ -2148,7 +2205,7 @@
           <span class="espaco"></span>${btn('feed-todos', 'Todo o feed', '', 'btn-f btn-p')}</div>
         ${doDia.length ? blocosFeed(doDia, { hora: true }) : vazio('calendar', 'Nenhum registro neste dia.')}`;
     }
-    const lista = ordenados();
+    const lista = ordenadosFeed();
     const cab = (extra) => `<div class="secao-tit feed-cab">${btnTxt('feed-dia', 'calendar', extra || 'Por dia')}</div>`;
     if (!lista.length) return cab('') + vazio('journal-page', 'Nada guardado ainda. Comece pelos botões acima.');
     const dias = {};
@@ -2542,7 +2599,7 @@
     const miolo = (x) => `<span class="ag-hora">${x.hora ? esc(x.hora) : 'dia todo'}</span>
       <span class="ag-txt"><strong>${esc(x.titulo)}</strong>${x.nota ? `<small>${esc(x.nota)}</small>` : ''}${selos(x)}</span>`;
     const linha = (x) => x.k === 'ev'
-      ? `<div class="ag-linha">${miolo(x)}${menuMais([{ act: 'ev-editar', id: x.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'ev-excluir', id: x.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>`
+      ? `<div class="ag-linha ag-clicavel" role="button" tabindex="0" data-act="ev-ver" data-id="${x.id}">${miolo(x)}${menuMais([{ act: 'ev-editar', id: x.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'ev-excluir', id: x.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>`
       : x.k === 'tar' ? `<a class="ag-linha ${x.feito ? 'feito' : ''}" href="#/item/${x.id}">${miolo(x)}</a>`
         : `<button type="button" class="ag-linha ${x.feito ? 'feito' : ''}" data-act="ag-lembrete" data-id="${x.id}">${miolo(x)}</button>`;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('calendar')}Agenda</h1>
@@ -3362,12 +3419,14 @@
         const v = campoL.value; campoL.value = '';
         return definirImagem(campoL.dataset.k, campoL.dataset.formato, v);
       }
-      case 'ev-novo': e.preventDefault(); return abrirModal({ tipo: 'evento', dia: b.dataset.d || (UI.agDia || hoje()) });
-      case 'ev-editar': fecharMenu(); return abrirModal({ tipo: 'evento', id });
+      case 'ev-novo': e.preventDefault(); UI.evFoto = ''; return abrirModal({ tipo: 'evento', dia: b.dataset.d || (UI.agDia || hoje()) });
+      case 'ev-editar': fecharMenu(); UI.evFoto = (evento(id) || {}).foto || ''; return abrirModal({ tipo: 'evento', id });
+      case 'ev-ver': e.preventDefault(); return abrirModal({ tipo: 'evento-ver', id });
+      case 'ev-foto-rm': e.preventDefault(); UI.evFoto = ''; { const a = document.getElementById('ev-foto-area'); if (a) a.innerHTML = evFotoHTML(); } return;
       case 'ev-excluir': {
         fecharMenu(); const ev = evento(id); if (!ev) return;
         if (!(await confirmar(`Excluir “${ev.titulo}”?`))) return;
-        S.eventos = S.eventos.filter((x) => x.id !== id); if (window.SONS) SONS.tocar('excluir'); salvar(); toast('Evento excluído.'); return render();
+        S.eventos = S.eventos.filter((x) => x.id !== id); if (window.SONS) SONS.tocar('excluir'); if (UI.modal && UI.modal.tipo === 'evento-ver') fecharModal(); salvar(); toast('Evento excluído.'); return render();
       }
       case 'ag-sticker': {
         S.stickers = S.stickers || {}; const lista = S.stickers[UI.agDia] || [], k = lista.indexOf(b.dataset.v);
@@ -3574,6 +3633,11 @@
     if (t.id === 'arquivo-foto') return escolherFoto(t);
     if (t.id === 'arquivo-cv') return escolherCV(t);
     if (t.id === 'arquivo-backup') return escolherBackup(t);
+    if (act === 'ev-foto') {
+      const f = t.files && t.files[0]; if (!f) return;
+      return redimensionar(f, 960, 600).then((u) => { UI.evFoto = u; const a = document.getElementById('ev-foto-area'); if (a) a.innerHTML = evFotoHTML(); })
+        .catch(() => toast('Não consegui ler essa imagem.'));
+    }
     if (!act) return;
     if (act === 'img-escolher') {
       const f = t.files[0]; t.value = '';
@@ -3667,8 +3731,9 @@
       if (!d.data) return toast('Escolha o dia.');
       S.eventos = S.eventos || [];
       const e = f.dataset.id ? evento(f.dataset.id) : null;
-      if (e) Object.assign(e, { titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem });
-      else S.eventos.push({ id: uid('ev'), titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem, criadoEm: agora() });
+      const foto = UI.evFoto || '';
+      if (e) { Object.assign(e, { titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem }); if (foto) e.foto = foto; else delete e.foto; }
+      else S.eventos.push(Object.assign({ id: uid('ev'), titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem, criadoEm: agora() }, foto ? { foto } : {}));
       UI.agDia = d.data; UI.agMes = d.data.slice(0, 7); UI.modal = null;
       if (window.SONS) SONS.tocar('guardar');
       salvar(); toast(e ? 'Evento salvo.' : 'Evento guardado.', 'check-circle-solid');
@@ -4003,6 +4068,7 @@
     notas(ids) { reordenarPorValores(ids); },
     musicas(ids) { reordenarPorValores(ids); },
     areas(ids) { S.perfil.ordemNav = ids.concat(areasOrdenadas().map((a) => a[0]).filter((r) => !ids.includes(r))); },
+    abas(ids) { const g = GRUPO_DE[ids[0]]; if (!g) return; S.perfil.ordemAbas = S.perfil.ordemAbas || {}; S.perfil.ordemAbas[g] = ids.concat(abasOrdenadas(g).filter((r) => !ids.includes(r))); },
     blocos(ids) { S.perfil.ordemDireita = ids.concat(ordemDireita().filter((x) => !ids.includes(x))); }
   };
   /** Redistribui os valores de "ordem" já usados entre os itens, na nova sequência (o resto da lista não muda de lugar). */
@@ -4325,7 +4391,7 @@
   const quando = (x) => x.atualizadoEm || x.editadoEm || x.criadoEm || '';
   const nuvemLigada = () => UI.nuvem.estado === 'ligada' || UI.nuvem.estado === 'enviando';
   const baseNuvem = () => limpo({ perfil: S.perfil, colecoes: S.colecoes, pastas: S.pastas,
-    destinoPadrao: S.destinoPadrao, curriculo: S.curriculo, eventos: S.eventos || [], stickers: S.stickers || {}, versao: S.versao, atualizadoEm: S.baseEm || '' });
+    destinoPadrao: S.destinoPadrao, curriculo: S.curriculo, eventos: (S.eventos || []).map((e) => { const { foto, ...resto } = e; return resto; }), stickers: S.stickers || {}, versao: S.versao, atualizadoEm: S.baseEm || '' });
 
   function diferencas() {
     const b = baseNuvem();
@@ -4386,7 +4452,7 @@
     if (!r) return false;
     let mudou = false;
     if (r.base && (r.base.atualizadoEm || '') > (S.baseEm || '')) {
-      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (r.base[k] !== undefined) S[k] = r.base[k]; });
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (r.base[k] !== undefined) S[k] = k === 'eventos' ? comFotosLocais(r.base[k]) : r.base[k]; });
       S.baseEm = r.base.atualizadoEm; mudou = true;
     }
     [['itens', r.itens], ['lembretes', r.lembretes]].forEach(([nome, remotos]) => {
@@ -4411,7 +4477,7 @@
   function aplicarRemoto(d) {
     let mudou = false;
     if (d.base && (d.base.atualizadoEm || '') > (S.baseEm || '')) {
-      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (d.base[k] !== undefined) S[k] = d.base[k]; });
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (d.base[k] !== undefined) S[k] = k === 'eventos' ? comFotosLocais(d.base[k]) : d.base[k]; });
       S.baseEm = d.base.atualizadoEm; ULTIMO.base = canon(baseNuvem()); mudou = true;
     }
     [['itens', d.itens, d.apagarItens], ['lembretes', d.lembretes, d.apagarLembretes]].forEach(([nome, novos, fora]) => {

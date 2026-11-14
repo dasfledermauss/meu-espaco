@@ -8,6 +8,14 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.23 — 13/11/2026 · Eventos com foto e ticket
+
+- Evento com foto: no cadastro do evento dá para escolher uma foto; ela aparece como card no feed (no dia do evento) e o evento ganha um jeito de abrir.
+- Clicar num evento (na Agenda, no feed ou em “Próximos eventos”) abre um ticket com foto, título, dia, horário e quantos dias faltam, com Editar e Excluir. A foto fica só neste aparelho (não vai para a nuvem).
+- Abas de Agenda e Biblioteca no topo: arraste para reordenar; a ordem fica salva no seu perfil.
+- Menu “⋯” do evento na Agenda não fica mais cortado dentro do card.
+- Pets: falas novas sobre eventos de hoje e de amanhã, contagem regressiva, semana cheia ou livre, stickers do calendário e sons de fundo.
+
 ## 5.22 — 13/11/2026 · Agenda refinada
 
 - Agenda: “hoje”, o destaque do dia atual e as contas de “feitas hoje” agora usam sempre o fuso do seu aparelho (antes, depois das 21h, parte delas olhava a data em UTC e virava o dia cedo demais).

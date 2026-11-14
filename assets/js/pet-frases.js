@@ -35,6 +35,8 @@ window.PET_FRASES = {
     musica: ['Que música boa: “{t}”!', 'Gosto de “{t}”. Aumenta o som?', 'Boa trilha, {nome}. “{t}” combina com o dia.'],
     artigo: ['Estudando “{t}”? Que orgulho!', 'Guardou “{t}” para estudar. Bom demais.', 'Quanto conhecimento guardado, {nome}.'],
     gasto: ['Anotou um gasto. Controle é tudo, {nome}!', 'Bom ter tudo anotado, hein?'],
+    evento: ['Marcou “{t}” na agenda. Vai ser legal!', 'Novo evento: “{t}”. Já anotei aqui, {nome}.', 'Gostei de “{t}” na agenda. Quero ir junto!'],
+    eventoFoto: ['Que foto boa no evento “{t}”!', '“{t}” com foto ficou ainda melhor, {nome}.', 'Adorei a foto de “{t}”. Já parece lembrança.'],
     generico: ['Vi que você guardou “{t}”. Que legal!', 'Gostei do que você guardou hoje, {nome}.']
   },
   alerta: {
@@ -43,6 +45,11 @@ window.PET_FRASES = {
     tarefaAtrasada: ['A tarefa “{t}” está atrasada. Vamos resolver?', 'Passou do prazo de “{t}”, mas ainda dá tempo, {nome}.'],
     tarefaHoje: ['“{t}” vence hoje. Eu ajudo torcendo!', 'Hoje é o prazo de “{t}”, {nome}.'],
     tarefasAbertas: ['Você tem {n} tarefas abertas. Uma de cada vez!', 'Tem {n} tarefas esperando. Dá uma olhada nos alertas.'],
+    eventoHoje: ['Hoje tem “{t}”! Já está pronto, {nome}?', '“{t}” é hoje. Eu fico aqui torcendo!', 'Não esquece: hoje tem “{t}”, {nome}.'],
+    eventoAmanha: ['Amanhã tem “{t}”. Deixa tudo pronto!', '“{t}” é amanhã, {nome}. Já separou o que precisa?', 'Amanhã é dia de “{t}”. Estou ansioso!'],
+    contagem: ['Faltam {n} dias para “{t}”! Já estou ansioso.', 'Contagem regressiva: {n} dias para “{t}”, {nome}.', '“{t}” está chegando: faltam {n} dias!'],
+    eventoSemana: ['Daqui a {n} dias tem “{t}”. Vai se preparando!', 'Olha só: “{t}” é em {n} dias, {nome}.'],
+    agendaLivre: ['Agenda livre hoje. Dá para descansar, {nome}.', 'Nada marcado para hoje. Que tal um passeio comigo?', 'Hoje não tem compromisso nenhum. Bora brincar?'],
     feitasHoje: ['Já fez {n} tarefa(s) hoje! Que orgulho!', '{n} tarefa(s) feita(s) hoje. Você é demais, {nome}.']
   },
   tempo: {
@@ -51,5 +58,18 @@ window.PET_FRASES = {
     frio: ['Está frio: {n}°. Se agasalha, {nome}!', 'Frio de {n}°... Quero um cobertor.', '{n}° lá fora. Hoje é dia de aconchego.'],
     sol: ['Dia lindo lá fora! Bora dar uma volta?', 'O tempo está ótimo hoje, {nome}.', 'Céu limpo e {n}°. Perfeito para passear!'],
     nublado: ['Dia nublado, mas bom para ficar por aqui.', 'Céu fechado hoje. Eu fico com você, {nome}.']
+  },
+  sticker: {
+    bolo: ['Hoje tem aniversário na agenda! Parabéns pra quem faz anos.', 'Dia de bolo! Guarda um pedacinho pra mim, {nome}.'],
+    viagem: ['Dia de viagem! Boa viagem, {nome}. Me traz um petisco?', 'Hoje é dia de viajar. Cuida bem de você!'],
+    saude: ['Hoje tem compromisso de saúde. Cuidar de si é importante, {nome}.', 'Dia de cuidar da saúde. Eu espero você aqui.'],
+    trabalho: ['Hoje é dia de trabalho marcado. Vai dar tudo certo, {nome}!', 'Dia cheio de trabalho. Eu fico de olho em você.'],
+    festa: ['Hoje tem festa! Diverte-se, {nome}.', 'Dia de festa na agenda. Aproveita muito!'],
+    coracao: ['Hoje tem um dia especial na agenda. Que bonito, {nome}.', 'Um coração na agenda de hoje. Que dia bom!'],
+    estrela: ['Hoje é um dia de destaque na agenda. Brilha, {nome}!', 'Dia importante hoje, hein? Estou torcendo.']
+  },
+  ambiente: {
+    som: ['Que som gostoso tocando de fundo.', 'Com esse som até dá sono, {nome}.', 'Esse som de fundo ficou ótimo para ficar por aqui.'],
+    musica: ['Boa trilha tocando, {nome}.', 'Gosto quando tem música por aqui.']
   }
 };
