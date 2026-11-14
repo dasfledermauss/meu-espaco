@@ -10,6 +10,8 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ## 5.14 — 13/11/2026 · Tyba, selecionar em lote, encaixe de cards e mais
 
+- As confirmações (excluir, sair, descartar etc.) agora são cartões bonitos do próprio app, no estilo do onboarding, em vez das caixas do navegador; “Mover para coleção” também virou uma janela do app.
+- Início: a linha do feed ficou só com “Hoje” à esquerda (abre o por dia) e Selecionar à direita; sumiram “Atividade recente” e “Por dia”.
 - O rodapé saiu do site; o estado da sincronização e os créditos ficam só em Configurações.
 - Início: o Selecionar foi para a mesma linha de “Atividade recente” (e do seletor de dia). A barra lateral esquerda fica fixa e sempre inteira na tela, sem rolagem: o espaçamento encolhe conforme a altura da janela.
 - O sistema agora se chama Tyba: o logo (que muda com a cor do tema, claro e escuro) aparece no topo e na tela de entrada no lugar do nome, e o título da aba e o nome do aplicativo instalado também mudaram.
