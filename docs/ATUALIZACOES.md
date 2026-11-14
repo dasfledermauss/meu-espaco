@@ -10,6 +10,7 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ## 5.15 — 13/11/2026 · Refinamento visual do Início
 
+- Correção: nas coleções (ex.: A organizar), o card de Tarefas não fica mais coberto pelo card de baixo.
 - Início mais leve: o bloco “O que você quer guardar?” virou um card claro com 5 atalhos (Nota, Link, Tarefa, Imagem, Lembrete) e um botão Mais para os outros tipos.
 - Hierarquia de textos: menu e rótulos em peso regular/médio; negrito só em títulos de card, de widget e números. Cinzas secundários ajustados para contraste mínimo 4.5:1 nos modos claro e escuro.
 - Botões Banho e Pets do pet viraram chips escuros translúcidos; o botão de música ao lado do perfil ganhou descrição ao passar o mouse.

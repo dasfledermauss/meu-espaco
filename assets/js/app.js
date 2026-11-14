@@ -2225,7 +2225,7 @@
       c.classList.add('mosaico'); c.style.setProperty('--gap-m', gap + 'px');
       [...c.children].forEach((ch) => {
         if (getComputedStyle(ch).position === 'absolute' || getComputedStyle(ch).position === 'fixed') return;
-        ch.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil(ch.offsetHeight + gap));
+        ch.style.gridRowStart = 'auto'; ch.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil(ch.offsetHeight + gap));
         if (roMosaico) roMosaico.observe(ch);
       });
       if (roMosaico) roMosaico.observe(c);
