@@ -1420,12 +1420,6 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 /* ---------- evento com foto: feed e ticket (v5.23) ---------- */
 .ag-clicavel { cursor: pointer; }
 .ag-clicavel:hover { background: var(--hover-2); }
-.post-evento .ev-feed { display: flex; flex-direction: column; width: 100%; padding: 0; background: none; border: 0; text-align: left; font: inherit; color: var(--tinta); cursor: pointer; border-radius: var(--r-m); overflow: hidden; }
-.ev-feed img { display: block; width: 100%; max-height: 280px; object-fit: cover; border-radius: var(--r-m); }
-.ev-feed-txt { display: flex; flex-direction: column; gap: 2px; padding: 12px 0 0; }
-.ev-feed-txt strong { font-size: 16px; font-weight: 600; }
-.ev-feed-txt small { color: var(--tinta-2); font-size: 14px; }
-.ev-feed-txt em { font-style: normal; font-size: 13px; color: var(--tinta-2); }
 .modal-ticket { max-width: 400px; }
 .ticket { display: flex; flex-direction: column; background: var(--fundo); border: 1px solid var(--linha); border-radius: var(--r-m); overflow: hidden; }
 .tk-topo { position: relative; height: 160px; background: var(--hover-2); display: flex; align-items: center; justify-content: center; }
@@ -1460,6 +1454,34 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .ag-filtro { border: 0; font-family: inherit; cursor: pointer; padding: 2px 10px; min-height: 24px; transition: opacity .15s ease-out, background-color .15s ease-out; }
 .ag-filtro[aria-pressed="false"] { opacity: .5; background: var(--campo); color: var(--tinta-2); box-shadow: inset 0 0 0 1px var(--linha); }
 .ag-filtro:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
+/* card de evento no feed: ticket horizontal */
+.post-evento { padding: 0; background: none; border: 0; box-shadow: none; }
+.ev-ticket { display: flex; align-items: stretch; width: 100%; min-height: 176px; padding: 0; text-align: left; font: inherit; color: var(--tinta); background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--r-l, 24px); overflow: hidden; cursor: pointer; transition: border-color .15s ease-out, background-color .15s ease-out; }
+.ev-ticket:hover { border-color: var(--tinta-3); }
+.ev-ticket:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
+.evt-foto { flex: 0 0 38%; max-width: 280px; position: relative; background: var(--hover-2); }
+.evt-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.evt-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 24px; }
+.evt-selo { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--tinta-2); margin-bottom: 8px; }
+.evt-selo .ico { width: 16px; height: 16px; }
+.evt-selo time { margin-left: auto; font-weight: 400; }
+.evt-info strong { font-size: 20px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.evt-info small { font-size: 14px; color: var(--tinta-2); overflow-wrap: anywhere; }
+.evt-info em { font-style: normal; font-size: 13px; color: var(--tinta-2); margin-top: 8px; }
+.evt-corte { position: relative; flex: none; width: 0; display: flex; flex-direction: column; align-items: center; }
+.evt-corte hr { flex: 1; width: 0; border: 0; border-left: 2px dashed var(--linha); margin: 14px 0; }
+.evt-corte i { position: absolute; left: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--fundo); border: 1px solid var(--linha); }
+.evt-corte i:first-child { top: -12px; } .evt-corte i:last-child { bottom: -12px; }
+.evt-data { flex: 0 0 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 16px 8px; text-align: center; }
+.evt-data b { font-size: 36px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.evt-data small { font-size: 12px; text-transform: uppercase; color: var(--tinta-2); letter-spacing: .04em; }
+.ev-ticket.passou .evt-foto { filter: grayscale(.6); opacity: .8; }
+@media (max-width: 640px) {
+  .ev-ticket { flex-wrap: wrap; }
+  .evt-foto { flex: 1 1 100%; max-width: none; height: 160px; }
+  .evt-info { flex: 1 1 0; padding: 16px 16px 16px 20px; }
+  .evt-data { flex-basis: 80px; }
+}
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

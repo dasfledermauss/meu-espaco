@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.25',
+    data: '2026-11-13',
+    titulo: 'Evento no feed como ticket',
+    itens: [
+      'Card de evento no feed virou um ticket horizontal: foto à esquerda, título, nota e horário no meio e, depois do picote tracejado, o dia em destaque; no celular a foto vai para cima. Clicar abre o ticket completo.'
+    ]
+  },
+  {
     versao: '5.24',
     data: '2026-11-13',
     titulo: 'Cabeçalho da Agenda refinado',
