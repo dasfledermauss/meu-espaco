@@ -48,33 +48,46 @@
   const CAMADAS = [['chuva', 'Chuva'], ['vento', 'Vento'], ['fogo', 'Fogo'], ['mato', 'Mato'], ['marrom', 'Ruído marrom'], ['branco', 'Ruído branco']];
   const amb = { niveis: { chuva: 50, vento: 25, fogo: 0, mato: 0, marrom: 0, branco: 0 }, geral: 70, tocando: false, no: null, buffers: null };
 
-  function criarBuffer(c, seg, preencher) {
-    const n = Math.floor(c.sampleRate * seg), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
-    preencher(d, n, c.sampleRate);
-    const f = Math.min(2000, n >> 3);                      // suaviza as pontas para o laço não estalar
-    for (let k = 0; k < f; k++) { const r = k / f; d[k] *= r; d[n - 1 - k] *= r; }
+  /* Para não dar para ouvir o laço: (1) o fim se mistura com o começo (sem queda de volume),
+     (2) cada camada toca dois trechos longos de tamanhos diferentes ao mesmo tempo, então a repetição nunca coincide. */
+  function criarBuffer(c, seg, preencher, emenda) {
+    const sr = c.sampleRate, n = Math.floor(seg * sr), f = emenda ? Math.floor(sr * 1.5) : 0;
+    const bruto = new Float32Array(n + f); preencher(bruto, n + f, sr);
+    const b = c.createBuffer(1, n, sr), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = bruto[i];
+    for (let i = 0; i < f; i++) { const r = i / f; d[i] = bruto[i] * Math.sin(r * Math.PI / 2) + bruto[n + i] * Math.cos(r * Math.PI / 2); }
     return b;
   }
-  function buffersAmbiente(c) {
-    if (amb.buffers && amb.buffers.sr === c.sampleRate) return amb.buffers;
-    const branco = criarBuffer(c, 4, (d, n) => { for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; });
-    const marrom = criarBuffer(c, 4, (d, n) => { let l = 0; for (let i = 0; i < n; i++) { l = (l + .02 * (Math.random() * 2 - 1)) / 1.02; d[i] = l * 3.5; } });
-    const estalos = criarBuffer(c, 6, (d, n, sr) => {
-      for (let e = 0; e < 90; e++) {
-        const p0 = Math.floor(Math.random() * (n - 800)), a = .25 + Math.random() * .75, len = 40 + Math.floor(Math.random() * 360);
-        for (let k = 0; k < len; k++) d[p0 + k] += (Math.random() * 2 - 1) * a * Math.exp(-k / (len / 4));
+  const geraBranco = (d, n) => { for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; };
+  const geraMarrom = (d, n) => { let l = 0; for (let i = 0; i < n; i++) { l = (l + .02 * (Math.random() * 2 - 1)) / 1.02; d[i] = l * 3.5; } };
+  const geraEstalos = (taxa) => (d, n, sr) => {
+    const eventos = Math.floor(taxa * (n / sr));
+    for (let e = 0; e < eventos; e++) {
+      const p0 = Math.floor(Math.random() * (n - 800)), a = .2 + Math.random() * .8, len = 40 + Math.floor(Math.random() * 360);
+      for (let k = 0; k < len; k++) d[p0 + k] += (Math.random() * 2 - 1) * a * Math.exp(-k / (len / 4));
+    }
+  };
+  const geraGrilos = (seg) => (d, n, sr) => {
+    [4150, 4480, 4700, 5050].forEach((f) => {
+      const taxa = 1.7 + Math.random() * 1.6, total = Math.floor(taxa * seg);
+      for (let m = 0; m < total; m++) {
+        const t0 = (m / taxa) + (Math.random() - .5) * .12;
+        for (let pulso = 0; pulso < 3; pulso++) {
+          const ini = Math.floor((t0 + pulso * .024) * sr), len = Math.floor(.012 * sr);
+          for (let k = 0; k < len; k++) { const j = ((ini + k) % n + n) % n; d[j] += Math.sin(2 * Math.PI * f * k / sr) * Math.pow(Math.sin(Math.PI * k / len), 2) * .09; }
+        }
       }
     });
-    const grilos = criarBuffer(c, 6, (d, n, sr) => {
-      [[4200, 2], [4650, 2.5], [5100, 3]].forEach(([f, taxa]) => {
-        const total = Math.round(taxa * 6), off = Math.random();
-        for (let m = 0; m < total; m++) for (let pulso = 0; pulso < 3; pulso++) {
-          const ini = Math.floor(((m / taxa + off * .2) + pulso * .024) * sr), len = Math.floor(.012 * sr);
-          for (let k = 0; k < len; k++) { const j = (ini + k) % n; d[j] += Math.sin(2 * Math.PI * f * k / sr) * Math.pow(Math.sin(Math.PI * k / len), 2) * .1; }
-        }
-      });
-    });
-    amb.buffers = { sr: c.sampleRate, branco, marrom, estalos, grilos };
+  };
+  function buffersAmbiente(c) {
+    if (amb.buffers && amb.buffers.sr === c.sampleRate) return amb.buffers;
+    amb.buffers = {
+      sr: c.sampleRate,
+      branco: [criarBuffer(c, 13, geraBranco, true), criarBuffer(c, 17, geraBranco, true)],
+      marrom: [criarBuffer(c, 13, geraMarrom, true), criarBuffer(c, 17, geraMarrom, true)],
+      estalos: [criarBuffer(c, 19, geraEstalos(9)), criarBuffer(c, 23, geraEstalos(9))],
+      grilos: [criarBuffer(c, 19, geraGrilos(19)), criarBuffer(c, 23, geraGrilos(23))]
+    };
     return amb.buffers;
   }
   const curva = (v) => Math.pow(Math.max(0, Math.min(100, v)) / 100, 2);
@@ -82,30 +95,34 @@
   function montarAmbiente(c) {
     const B = buffersAmbiente(c), parar = [], mestre = c.createGain();
     mestre.gain.value = 0; mestre.connect(c.destination);
-    const fonte = (buf) => { const s = c.createBufferSource(); s.buffer = buf; s.loop = true; parar.push(s); return s; };
     const filtro = (tipo, f, q) => { const x = c.createBiquadFilter(); x.type = tipo; x.frequency.value = f; if (q) x.Q.value = q; return x; };
     const ganho = (v) => { const x = c.createGain(); x.gain.value = v; return x; };
-    const lfo = (hz, prof, alvo) => { const o = c.createOscillator(), g = ganho(prof); o.frequency.value = hz; o.connect(g); g.connect(alvo); parar.push(o); return o; };
+    // duas fontes de tamanhos diferentes, começando em pontos aleatórios, somadas num ganho só
+    const par = (bufs) => {
+      const g = ganho(.72);
+      bufs.forEach((buf) => { const s = c.createBufferSource(); s.buffer = buf; s.loop = true; s.connect(g); s.start(0, Math.random() * buf.duration); parar.push(s); });
+      return g;
+    };
+    const lfo = (hz, prof, alvo) => { const o = c.createOscillator(), g = ganho(prof); o.frequency.value = hz; o.connect(g); g.connect(alvo); o.start(); parar.push(o); };
     const camadas = {};
     CAMADAS.forEach(([id]) => { camadas[id] = ganho(0); camadas[id].connect(mestre); });
 
     // chuva: ruído branco sem os graves e sem o chiado agudo
-    const chS = fonte(B.branco), chHp = filtro('highpass', 700), chLp = filtro('lowpass', 7500);
-    chS.connect(chHp); chHp.connect(chLp); chLp.connect(ganho(.55)).connect(camadas.chuva); chS.start();
+    par(B.branco).connect(filtro('highpass', 700)).connect(filtro('lowpass', 7500)).connect(ganho(.6)).connect(camadas.chuva);
     // vento: ruído marrom com um filtro que passeia devagar
-    const vs = fonte(B.marrom), vf = filtro('bandpass', 420, .8), vg = ganho(.7);
-    vs.connect(vf); vf.connect(vg); vg.connect(camadas.vento); vs.start();
-    lfo(.07, 260, vf.frequency).start(); lfo(.11, .3, vg.gain).start();
-    // fogo: ronco grave + estalos
-    const fs = fonte(B.marrom), fl = filtro('lowpass', 450); fs.connect(fl); fl.connect(ganho(.8)).connect(camadas.fogo); fs.start();
-    const es = fonte(B.estalos), eh = filtro('highpass', 1400); es.connect(eh); eh.connect(ganho(.9)).connect(camadas.fogo); es.start();
+    const vf = filtro('bandpass', 420, .8), vg = ganho(.7);
+    par(B.marrom).connect(vf); vf.connect(vg); vg.connect(camadas.vento);
+    lfo(.07, 260, vf.frequency); lfo(.11, .3, vg.gain); lfo(.031, 120, vf.frequency);
+    // fogo: ronco grave que oscila + estalos
+    const fg = ganho(.8);
+    par(B.marrom).connect(filtro('lowpass', 450)).connect(fg).connect(camadas.fogo); lfo(.19, .2, fg.gain);
+    par(B.estalos).connect(filtro('highpass', 1400)).connect(ganho(1)).connect(camadas.fogo);
     // mato: grilos + folhas mexendo
-    const gs = fonte(B.grilos); gs.connect(ganho(.9)).connect(camadas.mato); gs.start();
-    const fo = fonte(B.branco), fb = filtro('bandpass', 3200, .7), fg = ganho(.05); fo.connect(fb); fb.connect(fg); fg.connect(camadas.mato); fo.start();
-    lfo(.13, .04, fg.gain).start();
+    par(B.grilos).connect(ganho(1)).connect(camadas.mato);
+    const folha = ganho(.05); par(B.branco).connect(filtro('bandpass', 3200, .7)).connect(folha).connect(camadas.mato); lfo(.13, .04, folha.gain);
     // marrom e branco puros
-    const ms = fonte(B.marrom); ms.connect(ganho(1)).connect(camadas.marrom); ms.start();
-    const bs = fonte(B.branco), bl = filtro('lowpass', 12000); bs.connect(bl); bl.connect(ganho(.4)).connect(camadas.branco); bs.start();
+    par(B.marrom).connect(camadas.marrom);
+    par(B.branco).connect(filtro('lowpass', 12000)).connect(ganho(.4)).connect(camadas.branco);
     return { mestre, camadas, parar };
   }
 

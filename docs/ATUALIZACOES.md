@@ -10,6 +10,7 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ## 5.19 — 13/11/2026 · Sons ambiente no mini player
 
+- Sons ambiente sem repetição audível: trechos longos com emenda em crossfade (sem queda de volume no laço) e duas camadas de tamanhos diferentes tocando juntas.
 - Mini player: o X agora fecha de verdade, parando a música e os sons ambiente (antes só guardava o painel no canto).
 - Mini player de música: o botão “Grupo” saiu e o “+” virou só o ícone, em cor primária, no canto direito.
 - Novo painel de Sons ambiente no mini player: sliders de volume para chuva, vento, fogo, mato, ruído marrom e ruído branco, mais um volume geral e os botões Tocar/Pausar e Zerar. Os sons são gerados no aparelho e o equilíbrio fica salvo.

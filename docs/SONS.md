@@ -21,3 +21,5 @@ Não há som em navegação, hover ou rolagem. O pet tem o próprio latido (ver 
 ## Sons ambiente (mini player)
 
 No mini player de música, o botão de sliders (à esquerda do “+”) abre o painel de sons ambiente: **chuva, vento, fogo, mato, ruído marrom e ruído branco**, cada um com o seu volume, mais um volume **Geral**. Tudo é ruído filtrado gerado em `sons.js` (`SONS.ambiente`), em laço, sem arquivos. Mexer num slider com o som parado já liga o ambiente; **Pausar** para; **Zerar** põe todas as camadas em 0. O equilíbrio fica em `perfil.ambiente` (`niveis` e `geral`); o som em si não volta sozinho ao recarregar a página.
+
+**Sem laço audível.** Cada camada usa dois trechos de 13/17 s (19/23 s nos estalos e grilos) tocando juntos, começando em pontos aleatórios, e a emenda de cada trecho é um crossfade de 1,5 s.
