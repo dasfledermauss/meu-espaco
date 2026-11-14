@@ -10,6 +10,7 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ## 5.14 — 13/11/2026 · Selecionar em lote, pontinhos e captura Mercado Livre
 
+- A previsão do tempo ficou compacta (cidade, temperatura e máx/mín) e abre os detalhes e os próximos dias ao clicar.
 - Os cards se encaixam nos vãos no Mural, Links, Wishlist e nas coleções: um card baixo deixa o seguinte subir para ocupar o espaço vazio, também ao arrastar.
 - Ao lado do perfil, saiu o botão do modo trabalho (continua em Shift + Espaço) e o disco de música virou o ícone do YouTube Music, que acende com a cor do tema quando algo está tocando.
 - O ícone de Músicas agora é o do YouTube Music (círculo com anel e play), na cor do tema, no menu, nos títulos e no cadastro de tipos.
