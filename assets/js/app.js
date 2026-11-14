@@ -1496,7 +1496,7 @@
     if (atr) novo(petFrase(sorteia(F.alerta.tarefaAtrasada), { t: corta28(tituloItem(atr)) }), 'alerta', 4);
     else if (hojeT) novo(petFrase(sorteia(F.alerta.tarefaHoje), { t: corta28(tituloItem(hojeT)) }), 'alerta', 4);
     const ab = tarefasAbertas().length; if (ab >= 4) novo(petFrase(sorteia(F.alerta.tarefasAbertas), { n: ab }), 'alerta', 2);
-    const fh = tarefas().filter((i) => i.concluida && (i.editadoEm || i.criadoEm).slice(0, 10) === d0).length; if (fh) novo(petFrase(sorteia(F.alerta.feitasHoje), { n: fh }), 'alerta', 3);
+    const fh = tarefas().filter((i) => i.concluida && dataLocal(i.editadoEm || i.criadoEm) === d0).length; if (fh) novo(petFrase(sorteia(F.alerta.feitasHoje), { n: fh }), 'alerta', 3);
     const c = typeof climaDados === 'function' ? climaDados() : null;
     if (c && c.atual && c.dia) {
       const t = Math.round(c.atual.temperature_2m), ch = c.dia.precipitation_probability_max[0] || 0, cod = c.atual.weather_code;
@@ -2070,7 +2070,7 @@
     blocos.eventos = eventosHTML();
 
     const abertas = tarefasAbertas();
-    const feitasHoje = tarefas().filter((i) => i.concluida && (i.editadoEm || i.criadoEm).slice(0, 10) === hoje());
+    const feitasHoje = tarefas().filter((i) => i.concluida && dataLocal(i.editadoEm || i.criadoEm) === hoje());
     if (abertas.length || feitasHoje.length) {
       const total = abertas.length + feitasHoje.length;
       const pct = Math.round((feitasHoje.length / total) * 100);
@@ -2505,8 +2505,18 @@
     const ev = (S.eventos || []).filter((e) => e.data === d).sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
     const tar = doTipo('tarefa').filter((t) => t.prazo === d);
     const lem = S.lembretes.filter((l) => l.data === d).sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
-    return { ev, tar, lem, total: ev.length + tar.length + lem.length };
+    // Tarefa e lembrete ligados ao mesmo item aparecem uma vez só, com os dois selos.
+    const ligadas = new Set(tar.map((t) => t.id));
+    const lemSoltos = lem.filter((l) => !(l.itemId && ligadas.has(l.itemId)));
+    const lemDe = (t) => lem.find((l) => l.itemId === t.id);
+    const linhas = [
+      ...ev.map((e) => ({ k: 'ev', id: e.id, titulo: e.titulo, hora: e.hora || '', nota: e.nota || '', selos: ['ev'], feito: false })),
+      ...tar.map((t) => { const l = lemDe(t); return { k: 'tar', id: t.id, titulo: tituloItem(t), hora: l ? (l.hora || '') : '', selos: l ? ['tar', 'lem'] : ['tar'], feito: !!t.concluida }; }),
+      ...lemSoltos.map((l) => ({ k: 'lem', id: l.id, titulo: l.texto, hora: l.hora || '', selos: ['lem'], feito: !!l.concluido }))
+    ];
+    return { ev, tar, lem, linhas, total: linhas.length };
   }
+  const SELO_NOME = { ev: 'evento', tar: 'tarefa', lem: 'lembrete' };
   function renderAgenda() {
     const h = hoje();
     if (!UI.agDia) UI.agDia = h;
@@ -2516,24 +2526,25 @@
     const celulas = [];
     for (let k = 0; k < semanas * 7; k++) celulas.push(dataLocal(new Date(ano, mm - 1, 1 - primeiro.getDay() + k)));
     const cel = (d) => {
-      const c = compromissosDoDia(d), fora = d.slice(0, 7) !== mes;
-      const chips = [...c.ev.map((e) => ['ev', e.titulo]), ...c.tar.map((t) => ['tar', tituloItem(t)]), ...c.lem.map((l) => ['lem', l.texto])];
-      const barras = [c.ev.length && 'ev', c.tar.length && 'tar', c.lem.length && 'lem'].filter(Boolean);
-      return `<button type="button" class="ag-dia ${fora ? 'fora' : ''} ${d === h ? 'hoje' : ''}" data-act="ag-dia" data-d="${d}" aria-pressed="${d === UI.agDia}"
+      const c = compromissosDoDia(d), fora = d.slice(0, 7) !== mes, stk = (S.stickers || {})[d] || [];
+      const foco = UI.agDia && UI.agDia.slice(0, 7) === mes ? d === UI.agDia : d === mes + '-01';
+      return `<button type="button" class="ag-dia ${fora ? 'fora' : ''} ${d === h ? 'hoje' : ''}" data-act="ag-dia" data-d="${d}" aria-pressed="${d === UI.agDia}" tabindex="${foco ? 0 : -1}"
         aria-label="${esc(fmtDia(d))}${c.total ? ', ' + c.total + (c.total === 1 ? ' compromisso' : ' compromissos') : ''}">
-        <span class="ag-num">${Number(d.slice(8))}</span>
-        ${((S.stickers || {})[d] || []).length ? `<span class="ag-stickers">${S.stickers[d].map((x) => stickerImg(x)).join('')}</span>` : ''}
-        <span class="ag-chips">${chips.slice(0, 2).map(([k, t]) => `<span class="ag-chip ${k}">${esc(t)}</span>`).join('')}${chips.length > 2 ? `<span class="ag-mais">+${chips.length - 2}</span>` : ''}</span>
-        <span class="ag-barras" aria-hidden="true">${barras.map((k) => `<i class="${k}"></i>`).join('')}</span></button>`;
+        <span class="ag-cab"><span class="ag-num">${Number(d.slice(8))}</span>
+          ${stk.length ? `<span class="ag-stickers">${stk.slice(0, 3).map((x) => stickerImg(x)).join('')}${stk.length > 3 ? `<span class="ag-mais">+${stk.length - 3}</span>` : ''}</span>` : ''}</span>
+        <span class="ag-chips">${c.linhas.slice(0, 2).map((x) => `<span class="ag-chip ${x.k} ${x.feito ? 'feito' : ''}" title="${esc(x.titulo)}">${esc(x.titulo)}</span>`).join('')}${c.linhas.length > 2 ? `<span class="ag-mais">+${c.linhas.length - 2} mais</span>` : ''}</span>
+        <span class="ag-barras" aria-hidden="true">${[...new Set(c.linhas.map((x) => x.k))].map((k) => `<i class="${k}"></i>`).join('')}</span></button>`;
     };
     const nomeMes = maiuscula(primeiro.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }));
     const sem = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
     const dia = compromissosDoDia(UI.agDia);
-    const linhaEv = (e) => `<div class="ag-linha"><span class="ag-hora">${e.hora ? esc(e.hora) : 'dia todo'}</span>
-      <span class="ag-txt"><strong>${esc(e.titulo)}</strong>${e.nota ? `<small>${esc(e.nota)}</small>` : ''}</span>
-      ${menuMais([{ act: 'ev-editar', id: e.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'ev-excluir', id: e.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>`;
-    const linhaTar = (t) => `<a class="ag-linha ${t.concluida ? 'feito' : ''}" href="#/item/${t.id}"><span class="ag-hora">tarefa</span><span class="ag-txt"><strong>${esc(tituloItem(t))}</strong></span></a>`;
-    const linhaLem = (l) => `<button type="button" class="ag-linha ${l.concluido ? 'feito' : ''}" data-act="ag-lembrete" data-id="${l.id}"><span class="ag-hora">${l.hora ? esc(l.hora) : 'lembrete'}</span><span class="ag-txt"><strong>${esc(l.texto)}</strong></span></button>`;
+    const selos = (x) => `<span class="ag-selos">${x.selos.map((k) => `<span class="ag-chip ${k}">${SELO_NOME[k]}</span>`).join('')}</span>`;
+    const miolo = (x) => `<span class="ag-hora">${x.hora ? esc(x.hora) : 'dia todo'}</span>
+      <span class="ag-txt"><strong>${esc(x.titulo)}</strong>${x.nota ? `<small>${esc(x.nota)}</small>` : ''}${selos(x)}</span>`;
+    const linha = (x) => x.k === 'ev'
+      ? `<div class="ag-linha">${miolo(x)}${menuMais([{ act: 'ev-editar', id: x.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'ev-excluir', id: x.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>`
+      : x.k === 'tar' ? `<a class="ag-linha ${x.feito ? 'feito' : ''}" href="#/item/${x.id}">${miolo(x)}</a>`
+        : `<button type="button" class="ag-linha ${x.feito ? 'feito' : ''}" data-act="ag-lembrete" data-id="${x.id}">${miolo(x)}</button>`;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('calendar')}Agenda</h1>
         <div class="ferramentas">${btn('ev-novo', ic('plus') + 'Novo evento', '', 'btn-1')}</div>
         <p class="meta">Eventos, tarefas com prazo e lembretes, juntos no mês.</p></header>
@@ -2541,6 +2552,7 @@
         <section class="cartao ag-cal" aria-label="Calendário">
           <div class="ag-topo"><h2>${esc(nomeMes)}</h2><span class="espaco"></span>
             ${btnIco('ag-mes', 'nav-arrow-left', 'Mês anterior', 'data-v="-1"')}${btn('ag-mes', 'Hoje', 'data-v="hoje"', 'btn-f btn-p')}${btnIco('ag-mes', 'nav-arrow-right', 'Próximo mês', 'data-v="1"')}</div>
+          <p class="ag-legenda" aria-label="Legenda">${['ev', 'tar', 'lem'].map((k) => `<span class="ag-chip ${k}">${SELO_NOME[k]}</span>`).join('')}</p>
           <div class="ag-semana" aria-hidden="true">${sem.map((x) => `<span>${x}</span>`).join('')}</div>
           <div class="ag-grade">${celulas.map(cel).join('')}</div></section>
         <aside class="cartao ag-painel" aria-label="Dia selecionado">
@@ -2548,9 +2560,24 @@
           <div class="ag-stk" role="group" aria-label="Stickers do dia"><span class="rotulo">Stickers</span>
             <div class="ag-stk-linha">${STICKERS.map(([id, nome]) => { const on = ((S.stickers || {})[UI.agDia] || []).includes(id);
               return `<button type="button" class="ag-stk-btn" data-act="ag-sticker" data-v="${id}" aria-pressed="${on}" aria-label="${nome}" title="${nome}">${stickerImg(id)}</button>`; }).join('')}</div></div>
-          <div class="ag-lista">${dia.total ? dia.ev.map(linhaEv).join('') + dia.tar.map(linhaTar).join('') + dia.lem.map(linhaLem).join('') : '<p class="meta">Nada marcado para este dia.</p>'}</div>
+          <div class="ag-lista">${dia.total ? dia.linhas.map(linha).join('') : '<p class="meta">Nada marcado para este dia.</p>'}</div>
           ${btn('ev-novo', ic('plus') + 'Evento neste dia', `data-d="${UI.agDia}"`, 'btn-2 btn-p')}</aside></div>`;
+    if (UI.agFoco) { const alvo = main.querySelector(`.ag-dia[data-d="${UI.agFoco}"]`); UI.agFoco = ''; if (alvo) alvo.focus(); }
   }
+  /* Teclado no calendário: setas andam entre os dias, PageUp/PageDown trocam o mês, Enter abre o dia. */
+  document.addEventListener('keydown', (e) => {
+    const dia = e.target.closest && e.target.closest('.ag-dia'); if (!dia) return;
+    const passo = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+    if (passo === undefined && e.key !== 'PageUp' && e.key !== 'PageDown' && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const atual = dia.dataset.d; let alvo;
+    if (passo !== undefined) alvo = somaDias(atual, passo);
+    else if (e.key === 'Home' || e.key === 'End') { const d = deDia(atual); alvo = dataLocal(new Date(d.getFullYear(), d.getMonth() + (e.key === 'End' ? 1 : 0), e.key === 'End' ? 0 : 1)); }
+    else { const d = deDia(atual); alvo = dataLocal(new Date(d.getFullYear(), d.getMonth() + (e.key === 'PageUp' ? -1 : 1), 1)); }
+    const cel = main.querySelector(`.ag-dia[data-d="${alvo}"]`);
+    if (cel) { main.querySelectorAll('.ag-dia[tabindex="0"]').forEach((x) => { x.tabIndex = -1; }); cel.tabIndex = 0; cel.focus(); return; }
+    UI.agMes = alvo.slice(0, 7); UI.agFoco = alvo; render();
+  });
 
   /* ---------------- Lembretes ---------------- */
   function renderLembretes() {
@@ -3352,7 +3379,7 @@
       case 'ag-ir': e.preventDefault(); UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); location.hash = '#/agenda'; return;
       case 'ag-lembrete': return abrirModal({ tipo: 'editar', id });
       case 'ag-dia': {
-        UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); return render();
+        UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); UI.agFoco = b.dataset.d; return render();
       }
       case 'ag-mes': {
         const base = UI.agMes || (UI.agDia || hoje()).slice(0, 7);

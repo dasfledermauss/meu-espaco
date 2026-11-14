@@ -8,9 +8,16 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.22 — 13/11/2026 · Agenda refinada
+
+- Agenda: “hoje”, o destaque do dia atual e as contas de “feitas hoje” agora usam sempre o fuso do seu aparelho (antes, depois das 21h, parte delas olhava a data em UTC e virava o dia cedo demais).
+- Painel do dia: textos quebram dentro do card, o tipo (evento, tarefa, lembrete) aparece como selo com a mesma cor do calendário, e tarefa e lembrete ligados ao mesmo item aparecem uma vez só, com os dois selos. Itens concluídos ficam riscados e mais claros, tanto no painel quanto na célula.
+- Calendário: número do dia no canto esquerdo e stickers no direito, sem sobrepor; no máximo 2 itens por dia e “+N mais”, com o título completo ao passar o mouse; legenda de cores abaixo do mês; dias fora do mês mais suaves e sem borda; “hoje” em círculo e dia selecionado com borda na cor do tema.
+- Teclado no calendário: setas andam entre os dias, PageUp/PageDown trocam o mês, Enter abre o dia, com foco bem visível.
+
 ## 5.21 — 13/11/2026 · Agenda e barra enxuta
 
-- Três cliques no logo agora trocam também a fonte dos títulos para a Lora (e voltam ao normal no próximo trio de cliques).
+- Três cliques no logo agora trocam também a fonte do site todo para a Lora (e voltam ao normal no próximo trio de cliques).
 - Início ganhou o widget “Próximos eventos”: os próximos compromissos com “hoje”, “amanhã” ou “em N dias”. Marque “Contar os dias no Início” num evento para ele aparecer como contagem regressiva em destaque.
 - Calendário com 7 stickers (aniversário, viagem, saúde, trabalho, festa, coração e destaque), até 3 por dia, escolhidos no painel do dia.
 - Barra lateral enxuta, com 8 áreas: Início, Agenda, Mural, Músicas, Biblioteca, Gastos, Wishlist e Currículo.

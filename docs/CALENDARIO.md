@@ -14,3 +14,9 @@ Grade do mês (semana começa no domingo). Em cada dia aparecem os **eventos**, 
 
 ## Início: próximos eventos e contagem
 O widget **Próximos eventos** (coluna da direita, arrastável como os outros) lista os próximos 3–4 eventos com “hoje / amanhã / em N dias”. Um evento marcado com **Contar os dias no Início** (`contagem: true`) vira a contagem regressiva em destaque no topo do widget (o mais próximo, se houver vários).
+
+## Datas e fuso (regra do projeto)
+Dias são sempre textos `AAAA-MM-DD` no **fuso local** (`hoje()`, `dataLocal()`, `deDia()`). Carimbos de tempo (`criadoEm`, `editadoEm`) são ISO em UTC e, ao compará-los com um dia, passam por `dataLocal(...)`; nunca `slice(0, 10)` neles nem `new Date('AAAA-MM-DD')` sem hora.
+
+## Teclado
+No calendário: ← → andam um dia, ↑ ↓ uma semana, PageUp/PageDown o mês, Home/End o primeiro/último dia do mês, Enter ou espaço abre o dia.

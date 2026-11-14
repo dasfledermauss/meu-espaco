@@ -1328,8 +1328,6 @@ input[type="range"][data-act="som-vol"]:disabled { opacity: .45; cursor: default
 .ag-dia[aria-pressed="true"] { outline: 2px solid var(--marca); outline-offset: -2px; background: var(--marca-leve); }
 .ag-num { font-size: 13px; font-weight: 500; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; }
 .ag-dia.hoje .ag-num { background: var(--marca); color: var(--marca-texto); }
-.ag-dia { position: relative; }
-.ag-stickers { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; }
 .sticker { width: 18px; height: 18px; display: block; }
 .ag-stk { display: flex; flex-direction: column; gap: 8px; }
 .ag-stk .rotulo { font-size: 12px; color: var(--tinta-3); }
@@ -1338,7 +1336,7 @@ input[type="range"][data-act="som-vol"]:disabled { opacity: .45; cursor: default
 .ag-stk-btn .sticker { width: 22px; height: 22px; }
 .ag-stk-btn:hover { background: var(--hover-2); }
 .ag-stk-btn[aria-pressed="true"] { background: var(--marca-leve); box-shadow: inset 0 0 0 2px var(--marca); }
-@media (max-width: 640px) { .ag-stickers { position: static; } .sticker { width: 16px; height: 16px; } }
+@media (max-width: 640px) { .sticker { width: 16px; height: 16px; } }
 .ag-chips { display: flex; flex-direction: column; gap: 3px; width: 100%; min-width: 0; }
 .ag-chip { display: block; max-width: 100%; font-size: 11.5px; line-height: 16px; padding: 0 6px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ag-chip.ev { background: var(--marca-leve); color: var(--marca-escura); }
@@ -1376,12 +1374,47 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .contagem span { display: flex; flex-direction: column; font-size: 12px; min-width: 0; }
 .contagem strong { font-size: 14px; font-weight: 600; color: var(--tinta); overflow-wrap: anywhere; }
 
-/* ---------- títulos em Lora (modo do logo alternativo, 3 cliques no logo) ---------- */
+/* ---------- site todo em Lora (modo do logo alternativo, 3 cliques no logo) ---------- */
 @font-face { font-family: Lora; src: url("../fonts/lora.woff2") format("woff2"); font-weight: 400 700; font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: Lora; src: url("../fonts/lora-ext.woff2") format("woff2"); font-weight: 400 700; font-display: swap;
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-:root[data-logo="2"] :is(h1, h2, h3, .modal-cab h2, .cartao-cab h2) { font-family: Lora, Georgia, serif; letter-spacing: 0; }
+:root[data-logo="2"], :root[data-logo="2"] :is(body, h1, h2, h3, button, input, select, textarea) { font-family: Lora, Georgia, serif; }
+:root[data-logo="2"] :is(h1, h2, h3) { letter-spacing: 0; }
+
+/* ---------- Agenda refinada (v5.22) ---------- */
+.ag-semana span { color: var(--tinta-3); font-weight: 500; }
+.ag-legenda { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.ag-legenda .ag-chip { display: inline-block; max-width: none; }
+.ag-dia { border: 1px solid var(--linha); padding: 8px; gap: 8px; }
+.ag-dia:hover { background: var(--hover-2); }
+.ag-dia.fora { border-color: transparent; background: none; }
+.ag-dia.fora { color: var(--tinta); }
+.ag-dia.fora .ag-cab, .ag-dia.fora .ag-chips { opacity: .6; }
+.ag-dia[aria-pressed="true"] { background: none; outline: 0; border-color: var(--marca); box-shadow: inset 0 0 0 1px var(--marca); }
+.ag-dia:focus-visible { outline: 2px solid var(--tinta); outline-offset: 2px; }
+.ag-dia.hoje .ag-num { background: var(--marca); color: var(--marca-texto); }
+.ag-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; width: 100%; min-width: 0; }
+.ag-stickers { position: static; display: flex; align-items: center; gap: 2px; flex: none; min-height: 26px; }
+.ag-chip.feito { text-decoration: line-through; opacity: .55; }
+.ag-dia[aria-pressed="true"] .ag-chip.ev { background: var(--marca-leve); }
+.ag-linha { align-items: flex-start; overflow: hidden; }
+.ag-linha .menu { align-self: center; }
+.ag-txt, .ag-txt strong, .ag-txt small { overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
+.ag-selos { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.ag-selos .ag-chip { display: inline-block; max-width: none; }
+.ag-linha.feito .ag-txt { opacity: .55; }
+.ag-linha.feito .ag-txt strong { color: var(--tinta); text-decoration: line-through; }
+@media (max-width: 640px) { .ag-dia { padding: 4px; gap: 2px; } .ag-cab { flex-direction: column; align-items: center; } .ag-stickers { min-height: 0; } }
+
+.ag-layout { grid-template-columns: minmax(0, 1fr) 312px; }
+.ag-cal { padding: 24px 16px; }
+.ag-dia { padding: 6px; }
+.ag-cab .ag-num { width: 24px; height: 24px; }
+.ag-cab .sticker { width: 14px; height: 14px; }
+@media (max-width: 1000px) { .ag-layout { grid-template-columns: 1fr; } }
+
+@media (max-width: 640px) { .ag-dia { min-height: 60px; } }
 
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
