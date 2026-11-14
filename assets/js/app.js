@@ -2616,7 +2616,8 @@
         : `<p class="meta">Desligado. Links e produtos ficam aguardando captura e os PDFs abrem em nova guia.</p>
            <p class="meta" style="margin-top:8px">Abra pelo <code>iniciar.bat</code> (ou <code>python servidor.py</code>) e use o endereço <code>http://localhost:8000</code>, ou acesse o site publicado.</p>`)}
       ${cartao(ic('undo') + 'Recomeçar', `<p class="meta">Apaga tudo o que está neste navegador e recarrega os dados de exemplo. Exporte um backup antes.</p>
-        <div class="acoes-form" style="margin-top:14px">${btn('resetar', 'Restaurar dados de exemplo', '', 'btn-perigo btn-2')}</div>`)}`;
+        <div class="acoes-form" style="margin-top:14px">${btn('resetar', 'Restaurar dados de exemplo', '', 'btn-perigo btn-2')}</div>`)}
+      ${cartao(ic('settings') + 'Sobre', `<p class="meta">Tyba · seus registros ficam neste navegador e, com a sincronização ligada, também na sua conta. Ícones: <a href="https://iconoir.com/" target="_blank" rel="noopener">Iconoir</a>.</p>`)}`;
   }
 
   /* ---------------- ficha ---------------- */
@@ -2918,7 +2919,7 @@
     if (rota === 'item') renderFicha(id); else { ROTAS[rota](); prepararSelecao(rota); empacotarTudo(); }
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
-    renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho(); pintarRodape();
+    renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho();
     { const ms = document.getElementById('menu-selecao'); if (ms && !String(getSelection() || '').trim()) ms.hidden = true; }
     if (buscaTopo.value !== UI.busca && document.activeElement !== buscaTopo) buscaTopo.value = UI.busca;
     if (focar) main.focus({ preventScroll: true });
@@ -4067,12 +4068,7 @@
       pintarNuvem();
     }, espera);
   }
-  function pintarRodape() {
-    const r = document.getElementById('rodape-nuvem');
-    if (r) r.innerHTML = textoNuvem().replace(/<br>.*$/, '').replace('Só neste navegador', 'Dados só neste navegador (sem sincronizar)');
-  }
   function pintarNuvem() {
-    pintarRodape();
     if ((rotaAtual()[0] || '') === 'config' && !UI.modal) { UI.pularColheita = true; return render(); }
     const el = document.getElementById('estado-nuvem');
     if (el) el.innerHTML = textoNuvem();
