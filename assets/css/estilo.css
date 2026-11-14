@@ -67,6 +67,7 @@ img { max-width: 100%; }
 .marca { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; color: var(--tinta); letter-spacing: -.02em; }
 .marca:hover { text-decoration: none; }
 .logo-tyba { display: block; width: 62px; height: 34px; background: var(--marca); -webkit-mask: url(../img/tyba-logo.svg) left center / contain no-repeat; mask: url(../img/tyba-logo.svg) left center / contain no-repeat; }
+:root[data-logo="2"] .logo-tyba { -webkit-mask-image: url(../img/tyba-logo-2.svg); mask-image: url(../img/tyba-logo-2.svg); }
 .logo-tyba.grande { width: 132px; height: 73px; -webkit-mask-position: center; mask-position: center; }
 .marca-selo { width: 32px; height: 32px; border-radius: 10px; background: var(--marca); color: #fff; display: grid; place-items: center; }
 .marca-selo .ico { width: 18px; height: 18px; }

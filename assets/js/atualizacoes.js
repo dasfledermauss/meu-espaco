@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.16',
+    data: '2026-11-13',
+    titulo: 'Segundo logo do Tyba',
+    itens: [
+      'Novo logo alternativo do Tyba: clique 3 vezes no logo (canto superior esquerdo) para alternar entre as duas versões; a escolha fica salva neste aparelho.'
+    ]
+  },
+  {
     versao: '5.15',
     data: '2026-11-13',
     titulo: 'Refinamento visual do Início',

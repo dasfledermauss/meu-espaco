@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.16 — 13/11/2026 · Segundo logo do Tyba
+
+- Novo logo alternativo do Tyba: clique 3 vezes no logo (canto superior esquerdo) para alternar entre as duas versões; a escolha fica salva neste aparelho.
+
 ## 5.15 — 13/11/2026 · Refinamento visual do Início
 
 - Correção: nas coleções (ex.: A organizar), o card de Tarefas não fica mais coberto pelo card de baixo.
