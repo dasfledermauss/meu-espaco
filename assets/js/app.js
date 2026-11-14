@@ -1901,8 +1901,7 @@
     if (!topoMusica) return;
     const i = UI.tocando && item(UI.tocando);
     const rotulo = i ? 'Tocando: ' + tituloItem(i) : 'Músicas';
-    topoMusica.innerHTML = `<button type="button" class="ico-btn btn-trabalho ${UI.modoTrabalho ? 'ativo' : ''}" data-act="trabalho" title="Modo trabalho (Shift + Espaço)" aria-label="Modo trabalho">${ic('list')}</button>`
-      + `<button type="button" class="disco ${i ? 'girando' : ''}" data-act="abrir-musica" title="${esc(rotulo)}" aria-label="${esc(rotulo)}"><span></span></button>`;
+    topoMusica.innerHTML = `<button type="button" class="ico-btn btn-musica ${i ? 'ativo' : ''}" data-act="abrir-musica" title="${esc(rotulo)}" aria-label="${esc(rotulo)}">${ic('ytmusic')}</button>`;
   }
   function renderTopo() {
     const p = S.perfil, h = p.humores[hoje()] || {};
