@@ -2918,7 +2918,7 @@
     if (rota === 'item') renderFicha(id); else { ROTAS[rota](); prepararSelecao(rota); empacotarTudo(); }
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
-    renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho();
+    renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho(); pintarRodape();
     { const ms = document.getElementById('menu-selecao'); if (ms && !String(getSelection() || '').trim()) ms.hidden = true; }
     if (buscaTopo.value !== UI.busca && document.activeElement !== buscaTopo) buscaTopo.value = UI.busca;
     if (focar) main.focus({ preventScroll: true });
@@ -4067,7 +4067,12 @@
       pintarNuvem();
     }, espera);
   }
+  function pintarRodape() {
+    const r = document.getElementById('rodape-nuvem');
+    if (r) r.innerHTML = textoNuvem().replace(/<br>.*$/, '').replace('Só neste navegador', 'Dados só neste navegador (sem sincronizar)');
+  }
   function pintarNuvem() {
+    pintarRodape();
     if ((rotaAtual()[0] || '') === 'config' && !UI.modal) { UI.pularColheita = true; return render(); }
     const el = document.getElementById('estado-nuvem');
     if (el) el.innerHTML = textoNuvem();
