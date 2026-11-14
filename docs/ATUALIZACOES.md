@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.20 — 13/11/2026 · Menu do perfil refinado
+
+- Menu do perfil reorganizado em seções com divisor fino: Conta (Editar perfil, Configurações e backup), Ajuda (Primeiros passos, O que há de novo) e App (Instalar o app, só quando o app ainda não está instalado).
+- “Aparência” virou título de seção, com o mesmo estilo de “Como estou hoje”; o seletor Claro/Escuro/Sistema continua igual.
+- Novo item “Sair” no fim do menu, em vermelho suave e sem ícone: encerra a sessão e volta para a tela de login (aparece quando há login).
+- Itens com hover suave e raio do menu, sem mudar a altura; teclado com setas, Home/End, Esc para fechar e foco visível; contraste AA nos dois modos.
+
 ## 5.19 — 13/11/2026 · Sons ambiente no mini player
 
 - Sons ambiente sem repetição audível: trechos longos com emenda em crossfade (sem queda de volume no laço) e duas camadas de tamanhos diferentes tocando juntas.

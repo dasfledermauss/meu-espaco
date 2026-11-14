@@ -1954,17 +1954,42 @@
             <button class="btn-1 btn-p" type="submit" aria-label="Salvar humor">${ic('check')}</button></div>
         </form>
         <hr>
-        <a href="#/perfil">${ic('user')}<span>Editar perfil</span></a>
-        <a href="#/config">${ic('settings')}<span>Configurações e backup</span></a>
-        ${podeInstalar() ? `<button type="button" data-act="pwa-instalar">${ic('download')}<span>Instalar o app</span></button>` : ''}
-        <button type="button" data-act="onboarding">${ic('home-simple')}<span>Primeiros passos</span></button>
-        <button type="button" data-act="novidades">${ic('page-star')}<span>O que há de novo</span>${temNovidade() ? '<em class="novid-selo">novo</em>' : ''}</button>
-        <div class="menu-modo"><span>${ic(modoAtual() === 'escuro' ? 'half-moon' : 'sun-light')}Aparência</span>
+        <div class="mp-grupo" role="group" aria-label="Conta">
+          <a href="#/perfil">${ic('user')}<span>Editar perfil</span></a>
+          <a href="#/config">${ic('settings')}<span>Configurações e backup</span></a></div>
+        <hr>
+        <div class="mp-grupo" role="group" aria-label="Ajuda">
+          <button type="button" data-act="onboarding">${ic('home-simple')}<span>Primeiros passos</span></button>
+          <button type="button" data-act="novidades">${ic('page-star')}<span>O que há de novo</span>${temNovidade() ? '<em class="novid-selo">novo</em>' : ''}</button></div>
+        ${podeInstalar() ? `<hr><div class="mp-grupo" role="group" aria-label="App">
+          <button type="button" data-act="pwa-instalar">${ic('download')}<span>Instalar o app</span></button></div>` : ''}
+        <hr>
+        <div class="menu-modo"><span class="mp-titulo">${ic(modoAtual() === 'escuro' ? 'half-moon' : 'sun-light')}Aparência</span>
           <span class="segmento pequeno" role="group" aria-label="Aparência">
             ${[['claro', 'Claro'], ['escuro', 'Escuro'], ['sistema', 'Sistema']].map(([v, n]) =>
               `<button type="button" data-act="modo" data-v="${v}" aria-pressed="${(p.modo || 'sistema') === v}">${n}</button>`).join('')}</span></div>
+        ${logado() ? `<hr><div class="mp-grupo"><button type="button" class="mp-sair" data-act="sair"><span>Sair</span></button></div>` : ''}
       </div></details>`;
   }
+  /* Teclado no menu do perfil: setas entre os itens, Home/End, Esc fecha e devolve o foco. */
+  document.addEventListener('keydown', (e) => {
+    const m = document.querySelector('.menu-perfil[open]');
+    const sum = document.querySelector('.menu-perfil > summary');
+    if (!m) return;
+    if (e.key === 'Escape') { m.removeAttribute('open'); if (sum) sum.focus(); e.stopPropagation(); return; }
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    if (e.target.closest && e.target.closest('.humor-rapido') && !['ArrowDown'].includes(e.key)) return;
+    const itens = [...m.querySelectorAll('.mp-grupo a, .mp-grupo button, .menu-modo .segmento button')].filter((x) => x.offsetParent);
+    if (!itens.length) return;
+    e.preventDefault();
+    const k = itens.indexOf(document.activeElement);
+    const alvo = e.key === 'Home' ? 0 : e.key === 'End' ? itens.length - 1 : e.key === 'ArrowDown' ? (k + 1) % itens.length : (k <= 0 ? itens.length - 1 : k - 1);
+    itens[alvo].focus();
+  }, true);
+  document.addEventListener('keydown', (e) => {
+    const sum = document.querySelector('.menu-perfil:not([open]) > summary');
+    if (sum && e.target === sum && e.key === 'ArrowDown') { e.preventDefault(); sum.parentElement.setAttribute('open', ''); const p1 = sum.parentElement.querySelector('.mp-grupo a, .mp-grupo button'); if (p1) p1.focus(); }
+  });
   /* A ordem das áreas fica no perfil: arrastar muda, e áreas novas entram no fim. */
   const AREAS = () => [['inicio', 'Início', 'home-simple', ''], ['tarefas', 'Tarefas', 'list', tarefasAbertas().length],
     ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['imagens', 'Imagens', 'media-image', doTipo('imagem').length], ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length],

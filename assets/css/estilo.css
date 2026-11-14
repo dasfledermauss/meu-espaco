@@ -1291,6 +1291,20 @@ input[type="range"][data-act="som-vol"]:disabled { opacity: .45; cursor: default
 .amb-sep { border: 0; border-top: 1px solid var(--linha); margin: 6px 0; }
 .mini-app.min .ma-amb { display: none; }
 
+/* ---------- menu do perfil refinado (v5.20) ---------- */
+.menu-perfil .menu-corpo { gap: 0; padding: 8px; }
+.menu-perfil .menu-corpo hr { margin: 8px 4px; }
+.menu-perfil .mp-grupo { display: flex; flex-direction: column; gap: 2px; }
+.menu-perfil .menu-corpo .mp-grupo a, .menu-perfil .menu-corpo .mp-grupo button { min-height: 40px; padding: 0 12px; border-radius: var(--r-m); font-weight: 400; transition: background-color .15s ease-out; }
+.menu-perfil .menu-corpo .mp-grupo a:hover, .menu-perfil .menu-corpo .mp-grupo button:hover { background: var(--hover-2); }
+.menu-perfil .menu-modo { padding: 4px 12px 8px; gap: 8px; }
+.menu-perfil .menu-modo > .mp-titulo { font-size: 12px; font-weight: 600; color: var(--tinta-3); gap: 8px; }
+.menu-perfil .menu-modo .ico { width: 16px; height: 16px; }
+.menu-corpo .mp-grupo .mp-sair, .menu-corpo .mp-grupo .mp-sair:hover { color: #b03a3a; }
+.menu-corpo :is(a, button, summary):focus-visible { outline: 2px solid var(--marca); outline-offset: -2px; }
+.menu-perfil .menu-corpo .segmento button:focus-visible { outline-offset: 1px; }
+:root[data-modo="escuro"] .menu-corpo .mp-grupo .mp-sair, :root[data-modo="escuro"] .menu-corpo .mp-grupo .mp-sair:hover { color: #ff9a9a; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
