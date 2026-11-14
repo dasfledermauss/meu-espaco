@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.28 — 13/11/2026 · Anotações dos artigos à vista
+
+- As anotações dos artigos agora aparecem: no feed, as 2 últimas ficam abaixo do artigo (com link para ver todas) e, na janela do artigo, um painel lateral lista tudo, com contador no ícone, botão “Nova” e exclusão; ao guardar uma anotação, ela surge na hora.
+
 ## 5.27 — 13/11/2026 · Artigos em janela flutuante
 
 - Artigos agora abrem numa janela flutuante: com título, botão de fechar (ou Esc), ícone para abrir em nova guia, e dá para mover pela barra e redimensionar pelo canto. Se o site não permitir abrir ali, use “Abrir em nova guia”.

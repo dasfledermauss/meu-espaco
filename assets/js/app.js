@@ -1943,7 +1943,8 @@
       return `<div class="artigo"><span class="tipo ${i.ehPdf ? 'pdf' : ''}">${ic(i.ehPdf ? 'page' : 'link')}</span>
         <div class="link-dados"><h3><a href="#" data-act="abrir-artigo" data-id="${i.id}">${esc(tituloItem(i))}</a></h3>
           <p class="fonte">${ic('shop')}${esc(dominio(i.url))}${p ? ' · ' + esc(p.nome) : ''}${i.ehPdf ? ' · PDF' : ''}</p>
-          ${i.descricao ? `<p class="descricao">${esc(i.descricao)}</p>` : ''}</div></div>`;
+          ${i.descricao ? `<p class="descricao">${esc(i.descricao)}</p>` : ''}
+          ${anotacoesDoFeed(i)}</div></div>`;
     }
     if (i.tipo === 'desejo') {
       const h = i.historicoPreco || [], dif = h.length >= 2 ? i.preco - h[h.length - 2].preco : 0;
@@ -1985,6 +1986,13 @@
           <em>${e.hora ? esc(e.hora) + ' · ' : ''}${n >= 0 ? quandoEvento(n) : 'já passou'}</em></span>
         <span class="evt-corte" aria-hidden="true"><i></i><hr><i></i></span>
         <span class="evt-data"><small>${esc(dow)}</small><b>${d.getDate()}</b><small>${esc(mes)}</small></span></button></article>`;
+  }
+  /** Últimas anotações de um artigo, direto no feed (as demais ficam na página do item). */
+  function anotacoesDoFeed(i) {
+    const l = (i.anotacoes || []).slice().sort((a, b) => (b.em || '').localeCompare(a.em || ''));
+    if (!l.length) return '';
+    return `<div class="anot-feed">${l.slice(0, 2).map((a) => `<div class="anotacao ${a.citacao ? 'citacao' : ''}"><p>${esc(corta(a.texto, 220))}</p><div class="cab">${a.pagina ? 'p. ' + a.pagina + ' · ' : ''}${fmtDataHora(a.em)}</div></div>`).join('')}
+      <a class="anot-mais" href="#/item/${i.id}">${l.length > 2 ? 'Ver as ' + l.length + ' anotações' : 'Abrir anotações'}</a></div>`;
   }
   function postHTML(i, opts = {}) {
     if (i.tipo === 'evento' && i.ev) return eventoPostHTML(i, opts);
@@ -3065,19 +3073,36 @@
         el.id = j.id; el.className = 'janela'; el.tabIndex = -1;
         el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', j.titulo);
         el.innerHTML = `<header class="janela-barra" data-move="${j.id}">${ic(j.leitor ? 'page' : 'link')}<strong>${esc(j.titulo)}</strong>
-            ${btnIco('janela-anotar', 'quote', 'Anotar sobre este documento', `data-j="${j.id}"`)}
+            <button type="button" class="ico-btn" data-act="janela-notas" data-j="${j.id}" aria-label="Ver anotações" title="Ver anotações" aria-pressed="false">${ic('page-edit')}<em class="janela-qtd" data-qtd="${j.id}"></em></button>
+            ${btnIco('janela-anotar', 'quote', 'Nova anotação sobre este documento', `data-j="${j.id}"`)}
             <a class="ico-btn" href="${esc(j.url)}" target="_blank" rel="noopener" title="Abrir em nova guia" aria-label="Abrir em nova guia">${ic('open-new-window')}</a>
             ${btnIco('janela-fechar', 'xmark', 'Fechar', `data-j="${j.id}"`)}</header>
-          ${j.leitor ? `<div class="janela-corpo" data-corpo="${j.id}"><p class="meta">Carregando…</p></div>
-          <footer class="janela-pe"><span data-pe="${j.id}">—</span><span class="espaco" style="flex:1"></span>
-            <span class="meta">Selecione um trecho para guardar como anotação</span></footer>`
-            : `<div class="janela-corpo janela-pagina"><iframe src="${esc(j.url)}" title="${esc(j.titulo)}" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe></div>
-          <footer class="janela-pe"><span class="meta">Se a página não aparecer, o site não permite abrir aqui: use “Abrir em nova guia”.</span></footer>`}
+          <div class="janela-meio">${j.leitor ? `<div class="janela-corpo" data-corpo="${j.id}"><p class="meta">Carregando…</p></div>`
+            : `<div class="janela-corpo janela-pagina"><iframe src="${esc(j.url)}" title="${esc(j.titulo)}" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe></div>`}
+            <aside class="janela-notas" data-notas="${j.id}" hidden aria-label="Anotações"></aside></div>
+          <footer class="janela-pe">${j.leitor ? `<span data-pe="${j.id}">—</span><span class="espaco" style="flex:1"></span>
+            <span class="meta">Selecione um trecho para guardar como anotação</span>` : `<span class="meta">Se a página não aparecer, o site não permite abrir aqui: use “Abrir em nova guia”.</span>`}</footer>
           <span class="redimensiona" data-resize="${j.id}">${ic('expand')}</span>`;
         c.appendChild(el);
       }
       el.style.cssText += `;left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.h}px`;
+      pintarNotas(j);
     });
+  }
+  /** Lista de anotações dentro da janela do artigo (abre sozinha se já houver anotações). */
+  function pintarNotas(j) {
+    const el = document.getElementById(j.id), it = item(j.itemId);
+    if (!el || !it) return;
+    const lista = (it.anotacoes || []).slice().sort((a, b) => (b.em || '').localeCompare(a.em || ''));
+    if (j.notas === undefined) j.notas = lista.length > 0;
+    const painel = el.querySelector('[data-notas]'), qtd = el.querySelector('[data-qtd]'), tgl = el.querySelector('[data-act="janela-notas"]');
+    qtd.textContent = lista.length || ''; qtd.hidden = !lista.length;
+    tgl.setAttribute('aria-pressed', String(!!j.notas));
+    painel.hidden = !j.notas;
+    painel.innerHTML = `<div class="jn-cab"><strong>Anotações (${lista.length})</strong>${btn('janela-anotar', ic('plus') + 'Nova', `data-j="${j.id}"`, 'btn-f btn-p')}</div>
+      ${lista.length ? lista.map((a) => `<div class="anotacao ${a.citacao ? 'citacao' : ''}"><div class="cab">${a.pagina ? 'p. ' + a.pagina : ''}<span class="espaco"></span><time>${fmtDataHora(a.em)}</time>
+        ${btnIco('anot-excluir', 'trash', 'Excluir anotação', `data-id="${it.id}" data-anot="${a.id}"`)}</div><p>${esc(a.texto)}</p></div>`).join('')
+        : '<p class="nada">Nenhuma anotação ainda. Use “Nova” ou, no PDF, selecione um trecho.</p>'}`;
   }
   async function desenharPdf(j) {
     const corpo = document.querySelector(`[data-corpo="${j.id}"]`);
@@ -3528,6 +3553,7 @@
       case 'anot-excluir': {
         const it = item(id);
         it.anotacoes = it.anotacoes.filter((a) => a.id !== b.dataset.anot);
+        UI.janelas.forEach(pintarNotas);
         return passa();
       }
       case 'lembrar-item': fecharMenu(); return abrirModal({ tipo: 'criar', t: 'lembrete', itemId: id });
@@ -3558,6 +3584,7 @@
         return abrirJanela(i);
       }
       case 'janela-fechar': UI.janelas = UI.janelas.filter((j) => j.id !== b.dataset.j); return renderJanelas();
+      case 'janela-notas': { const j = UI.janelas.find((x) => x.id === b.dataset.j); j.notas = !j.notas; return pintarNotas(j); }
       case 'janela-anotar': { const j = UI.janelas.find((x) => x.id === b.dataset.j); return abrirModal({ tipo: 'anotar', id: j.itemId }); }
       case 'anot-selecao': {
         const s = document.getElementById('menu-selecao');
@@ -3936,7 +3963,9 @@
       if (!d.texto.trim()) return;
       it.anotacoes = it.anotacoes || [];
       it.anotacoes.push({ id: uid('an'), texto: d.texto.trim(), pagina: d.pagina ? +d.pagina : null, citacao: !!d.citacao, em: t });
-      UI.modal = null; ok('Anotação guardada.', 'quote'); return render();
+      UI.modal = null; ok('Anotação guardada.', 'quote');
+      UI.janelas.forEach((j) => { if (j.itemId === it.id) j.notas = true; pintarNotas(j); });
+      return render();
     }
     if (tipo === 'progresso') {
       const it = item(f.dataset.id);

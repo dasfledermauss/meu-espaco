@@ -1512,6 +1512,21 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .janela .redimensiona { touch-action: none; display: grid; place-items: center; }
 body.janela-arrastando .janela iframe { pointer-events: none; }
 body.janela-arrastando { user-select: none; }
+/* anotações do artigo: na janela e no feed (v5.28) */
+.janela-meio { flex: 1; min-height: 0; display: flex; }
+.janela-meio .janela-corpo { min-width: 0; }
+.janela-notas { flex: 0 0 272px; overflow: auto; border-left: 1px solid var(--linha); background: var(--cartao); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.janela-notas[hidden] { display: none; }
+.jn-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
+.janela-barra .ico-btn { position: relative; }
+.janela-qtd { position: absolute; top: -2px; right: -2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--marca); color: #fff; font-style: normal; font-size: 10px; font-weight: 700; line-height: 16px; text-align: center; }
+.janela-qtd[hidden] { display: none; }
+.janela-barra [aria-pressed="true"] { background: var(--hover-2); }
+.anot-feed { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.anot-feed .anotacao { padding: 10px 14px; }
+.anot-feed .anotacao .cab { order: 2; }
+.anot-mais { font-size: 13px; font-weight: 500; }
+@media (max-width: 640px) { .janela-notas { position: absolute; inset: 50px 0 36px 0; flex: none; z-index: 2; border-left: 0; } }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
@@ -1590,3 +1605,4 @@ body.janela-arrastando { user-select: none; }
 .pagina-cab.cab-linha { flex-wrap: wrap; }
 .pagina-cab.cab-linha > h1 { flex: 1 1 0; min-width: 0; }
 .pagina-cab.cab-linha .meta { flex: 0 0 100%; }
+.janela-notas .anotacao .cab time { white-space: nowrap; }
