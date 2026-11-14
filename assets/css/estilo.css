@@ -1274,6 +1274,9 @@ a[aria-current] .pino.destaque { background: var(--marca); color: var(--marca-te
 .produto .pe .menu[open] > summary::after { display: none !important; }
 :root[data-modo="escuro"] .produto .pe [aria-label]::after { background: #2b323f; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
 
+input[type="range"][data-act="som-vol"] { width: 100%; max-width: 320px; padding: 0; accent-color: var(--marca); cursor: pointer; }
+input[type="range"][data-act="som-vol"]:disabled { opacity: .45; cursor: default; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

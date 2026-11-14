@@ -152,7 +152,9 @@
     grupoImagem: '', origens: {}, wlFiltro: 'desejos', wlOrdem: 'recentes', muralCol: 'todas', pastaAberta: null, extras: {}, imagens: {}, servidor: false, janelas: [], sessao: { modo: 'local' }, nuvem: { estado: 'local', em: '', erro: '' } };
   let RASC = {};
 
+  function aplicarSons() { if (window.SONS && typeof S !== 'undefined' && S && S.perfil) SONS.config(S.perfil.somUI !== false, S.perfil.somVolume == null ? 40 : S.perfil.somVolume); }
   function salvar() {
+    aplicarSons();
     try { localStorage.setItem(CHAVE, JSON.stringify(S)); if (typeof agendarSync === 'function') agendarSync(); return true; }
     catch (e) { toast('Não consegui salvar: o armazenamento do navegador está cheio. Exporte um backup e limpe o que não usa.'); return false; }
   }
@@ -557,7 +559,7 @@
     else Object.assign(i, { moeda: 'BRL', historicoPreco: [], comprado: false, preco: null });
     S.itens.push(i);
     if (!salvar()) { S.itens.pop(); return; }
-    UI.pularColheita = true; render(); toast('Link guardado.', 'check-circle-solid');
+    UI.pularColheita = true; render(); if (window.SONS) SONS.tocar('guardar'); toast('Link guardado.', 'check-circle-solid');
     return capturar(i, true);
   }
 
@@ -888,7 +890,7 @@
     }
     return '';
   }
-  function abrirModal(m) { colherRascunhos(); UI.modal = m; render(); }
+  function abrirModal(m) { colherRascunhos(); UI.modal = m; if (window.SONS) SONS.tocar('abrir'); render(); }
   function fecharModal() {
     if (UI.modal && UI.modal.tipo === 'novidades') marcarNovidadesVistas();
     if (UI.modal && UI.modal.tipo === 'onboarding') { onboardingSalvaNome(); return encerrarOnboarding(); }
@@ -2637,6 +2639,10 @@
            <p class="meta" style="margin-top:8px">Abra pelo <code>iniciar.bat</code> (ou <code>python servidor.py</code>) e use o endereço <code>http://localhost:8000</code>, ou acesse o site publicado.</p>`)}
       ${cartao(ic('undo') + 'Recomeçar', `<p class="meta">Apaga tudo o que está neste navegador e recarrega os dados de exemplo. Exporte um backup antes.</p>
         <div class="acoes-form" style="margin-top:14px">${btn('resetar', 'Restaurar dados de exemplo', '', 'btn-perigo btn-2')}</div>`)}
+      ${cartao(ic('play') + 'Sons', `
+        <p class="meta">Sons curtos e suaves ao guardar, concluir, favoritar e excluir. Feitos no próprio aparelho, sem baixar nada.</p>
+        <div class="acoes-form" style="margin-top:14px">${btn('som-ui', S.perfil.somUI === false ? 'Ligar os sons' : 'Desligar os sons', '', 'btn-f')}</div>
+        <label class="campo" style="margin-top:14px"><span>Volume</span><input type="range" min="0" max="100" step="5" value="${S.perfil.somVolume == null ? 40 : S.perfil.somVolume}" data-act="som-vol" ${S.perfil.somUI === false ? 'disabled' : ''}></label>`)}
       ${cartao(ic('settings') + 'Sobre', `<p class="meta">Tyba · seus registros ficam neste navegador e, com a sincronização ligada, também na sua conta. Ícones: <a href="https://iconoir.com/" target="_blank" rel="noopener">Iconoir</a>.</p>`)}`;
   }
 
@@ -2984,18 +2990,20 @@
     if (!(await confirmar(`Excluir “${tituloItem(i)}”?\n\nSai do feed, da busca e das coleções.` + (lembs ? `\n${lembs} lembrete(s) viram avulsos.` : '')))) return;
     S.itens = S.itens.filter((x) => x.id !== i.id);
     S.lembretes.forEach((l) => { if (l.itemId === i.id) l.itemId = null; });
+    if (window.SONS) SONS.tocar('excluir');
     salvar(); toast('Excluído.');
     if (rotaAtual()[0] === 'item') location.hash = '#/' + ({ nota: 'mural', midia: 'biblioteca', desejo: 'wishlist', gasto: 'gastos', link: 'links', artigo: 'estudos' }[i.tipo] || 'inicio');
     else render();
   }
 
+  aplicarSons();
   /* Três cliques no logo trocam entre as duas versões (fica salvo neste aparelho). */
   const aplicarLogo = (v) => { document.documentElement.dataset.logo = v; };
   try { aplicarLogo(localStorage.getItem('meuEspaco.logo') || '1'); } catch (e) { aplicarLogo('1'); }
   document.addEventListener('click', (e) => {
     if (e.detail !== 3 || !e.target.closest('.logo-tyba')) return;
     const v = document.documentElement.dataset.logo === '2' ? '1' : '2';
-    aplicarLogo(v); try { localStorage.setItem('meuEspaco.logo', v); } catch (x) { /* sem armazenamento */ }
+    aplicarLogo(v); if (window.SONS) SONS.tocar('logo'); try { localStorage.setItem('meuEspaco.logo', v); } catch (x) { /* sem armazenamento */ }
   });
 
   document.addEventListener('click', async (e) => {
@@ -3023,6 +3031,15 @@
     const fecharMenu = () => { const d = b.closest('details.menu'); if (d) d.removeAttribute('open'); };
     const passa = () => { salvar(); render(); };
     if (b.tagName === 'A' && ['criar', 'abrir-pasta', 'abrir-artigo', 'nova-colecao', 'col-ir'].includes(act)) e.preventDefault();
+    if (window.SONS) {
+      const T = (n) => SONS.tocar(n);
+      if (act === 'fav') T(i && i.favorito ? 'desfazer' : 'favoritar');
+      else if (act === 'tar-ok') T(i && i.concluida ? 'desfazer' : 'concluir');
+      else if (act === 'comprei') T(i && i.comprado ? 'desfazer' : 'concluir');
+      else if (act === 'midia-concluir') T(i && i.status === 'concluido' ? 'desfazer' : 'concluir');
+      else if (act === 'lemb-concluir') T('concluir');
+      else if (act === 'lemb-reabrir') T('desfazer');
+    }
     switch (act) {
       case 'comp-mais': UI.compMais = !UI.compMais; return render();
       case 'sel-ligar': UI.sel = []; UI.selRota = rotaAtual()[0]; return render();
@@ -3047,6 +3064,7 @@
       case 'trabalho': e.preventDefault(); return alternarTrabalho();
       case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
       case 'atalho': e.preventDefault(); if (!matchMedia('(hover: none)').matches) return; UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
+      case 'som-ui': e.preventDefault(); S.perfil.somUI = S.perfil.somUI === false; salvar(); UI.pularColheita = true; render(); if (S.perfil.somUI !== false) SONS.tocar('guardar'); return;
       case 'pet-som': e.preventDefault(); S.perfil.petMudo = !S.perfil.petMudo; salvar(); UI.pularColheita = true; render(); if (!S.perfil.petMudo) petLatido(); return;
       case 'pet-config': { e.preventDefault(); const pn = document.querySelector('#pet-cena .pet-config'); if (pn) { pn.hidden = !pn.hidden; UI.petConfig = !pn.hidden; } return; }
       case 'pet-escolher': e.preventDefault(); S.perfil.petTipo = b.dataset.tipo; UI.petConfig = false; salvar(); PET.estado = 'parado'; PET.alvo = null; UI.pularColheita = true; render(); petFalar(petDef().fala, 1); petLatido(); return;
@@ -3283,7 +3301,7 @@
         toast(l.motivo === 'tarefa' ? 'Tarefa concluída.' : 'Lembrete concluído.', 'check-circle-solid'); return passa(); }
       case 'lemb-reabrir': { const l = lembrete(id); l.concluido = false; return passa(); }
       case 'lemb-adiar': { const l = lembrete(id); return abrirModal({ tipo: 'editar', id: l.id }); }
-      case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!(await confirmar(`Excluir o lembrete “${l.texto}”?`))) return; S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
+      case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!(await confirmar(`Excluir o lembrete “${l.texto}”?`))) return; if (window.SONS) SONS.tocar('excluir'); S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
       case 'modo': {
         S.perfil.modo = b.dataset.v; UI.modoPrevia = null;
         salvar(); aplicarTema(); renderTopo();
@@ -3357,6 +3375,7 @@
     if (act === 'mural-col') { UI.muralCol = t.value; return render(); }
     if (act === 'col-select') { UI.colSel = t.value; return render(); }
     if (act === 'col-tipo') { UI.colTipo = t.value; return render(); }
+    if (act === 'som-vol') { S.perfil.somVolume = Number(t.value); salvar(); return SONS.tocar('favoritar'); }
     if (act === 'wl-ordem') { UI.wlOrdem = t.value; return render(); }
     if (act === 'gasto-mes' && t.value) { UI.gastoMes = t.value; return render(); }
     if (act === 'cv-add-sec') { UI.cvAddSec = t.value; return; }
@@ -3578,6 +3597,7 @@
       limparRascunho(k); UI.modal = null; UI.colPadrao = null; UI.pularColheita = true;
       if (novo && (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo' || alvo === 'musica')) { render(); return capturar(i); }
       render();
+      if (window.SONS) SONS.tocar('guardar');
       return toast(novo ? 'Guardado.' : 'Alterações salvas.', 'check-circle-solid');
     }
 
