@@ -1305,6 +1305,77 @@ input[type="range"][data-act="som-vol"]:disabled { opacity: .45; cursor: default
 .menu-perfil .menu-corpo .segmento button:focus-visible { outline-offset: 1px; }
 :root[data-modo="escuro"] .menu-corpo .mp-grupo .mp-sair, :root[data-modo="escuro"] .menu-corpo .mp-grupo .mp-sair:hover { color: #ff9a9a; }
 
+/* ---------- abas de Agenda e Biblioteca (v5.21) ---------- */
+.abas-pag { display: flex; gap: 4px; flex-wrap: wrap; margin: 0 0 24px; background: var(--campo); border-radius: 999px; padding: 4px; width: fit-content; max-width: 100%; }
+.abas-pag a { display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 400; color: var(--tinta-2); transition: background-color .15s ease-out, color .15s ease-out; }
+.abas-pag a:hover { background: var(--hover-2); text-decoration: none; color: var(--tinta); }
+.abas-pag a[aria-current="page"] { background: var(--cartao); color: var(--tinta); font-weight: 500; }
+.abas-pag em { font-style: normal; font-size: 12px; color: var(--tinta-3); margin-left: 8px; }
+.abas-pag a:focus-visible { outline: 2px solid var(--marca); outline-offset: -2px; }
+@media (max-width: 640px) { .abas-pag { border-radius: var(--r-m); overflow-x: auto; flex-wrap: nowrap; } .abas-pag a { flex: none; } }
+
+/* ---------- calendário da Agenda ---------- */
+.ag-layout { display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 24px; align-items: start; }
+.ag-cal, .ag-painel { padding: 24px; }
+.ag-topo { display: flex; align-items: center; gap: 4px; margin-bottom: 16px; }
+.ag-topo h2 { font-size: 18px; font-weight: 600; margin: 0; }
+.ag-topo .espaco { flex: 1; }
+.ag-semana, .ag-grade { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.ag-semana { margin-bottom: 4px; font-size: 12px; color: var(--tinta-3); text-align: center; text-transform: uppercase; letter-spacing: .04em; }
+.ag-dia { min-height: 96px; padding: 8px; border-radius: var(--r-m); background: none; border: 1px solid var(--linha); display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 4px; text-align: left; font-weight: 400; color: var(--tinta); min-width: 0; }
+.ag-dia:hover { background: var(--hover-2); }
+.ag-dia.fora { color: var(--tinta-3); border-color: transparent; }
+.ag-dia[aria-pressed="true"] { outline: 2px solid var(--marca); outline-offset: -2px; background: var(--marca-leve); }
+.ag-num { font-size: 13px; font-weight: 500; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; }
+.ag-dia.hoje .ag-num { background: var(--marca); color: var(--marca-texto); }
+.ag-dia { position: relative; }
+.ag-stickers { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; }
+.sticker { width: 18px; height: 18px; display: block; }
+.ag-stk { display: flex; flex-direction: column; gap: 8px; }
+.ag-stk .rotulo { font-size: 12px; color: var(--tinta-3); }
+.ag-stk-linha { display: flex; flex-wrap: wrap; gap: 4px; }
+.ag-stk-btn { width: 36px; height: 36px; padding: 0; border-radius: var(--r-m); background: none; border: 1px solid var(--linha); justify-content: center; }
+.ag-stk-btn .sticker { width: 22px; height: 22px; }
+.ag-stk-btn:hover { background: var(--hover-2); }
+.ag-stk-btn[aria-pressed="true"] { background: var(--marca-leve); box-shadow: inset 0 0 0 2px var(--marca); }
+@media (max-width: 640px) { .ag-stickers { position: static; } .sticker { width: 16px; height: 16px; } }
+.ag-chips { display: flex; flex-direction: column; gap: 3px; width: 100%; min-width: 0; }
+.ag-chip { display: block; max-width: 100%; font-size: 11.5px; line-height: 16px; padding: 0 6px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ag-chip.ev { background: var(--marca-leve); color: var(--marca-escura); }
+.ag-chip.tar { background: var(--campo); color: var(--tinta-2); box-shadow: inset 0 0 0 1px var(--linha); }
+.ag-chip.lem { background: var(--alerta-leve); color: #8a5a00; }
+.ag-dia[aria-pressed="true"] .ag-chip.ev { background: var(--cartao); }
+.ag-mais { font-size: 11.5px; color: var(--tinta-3); padding-left: 2px; }
+.ag-barras { display: none; gap: 2px; }
+.ag-barras i { width: 14px; height: 3px; border-radius: 2px; background: var(--marca); }
+.ag-barras i.tar { background: var(--tinta-3); }
+.ag-barras i.lem { background: var(--alerta); }
+.ag-painel { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; }
+.ag-painel h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.ag-lista { display: flex; flex-direction: column; gap: 8px; }
+.ag-linha { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border-radius: var(--r-m); background: none; border: 1px solid var(--linha); text-align: left; font-weight: 400; color: var(--tinta); min-width: 0; }
+a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decoration: none; }
+.ag-hora { flex: none; min-width: 56px; font-size: 12px; color: var(--tinta-3); }
+.ag-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ag-txt strong { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.ag-txt small { font-size: 12.5px; color: var(--tinta-2); overflow-wrap: anywhere; }
+.ag-linha.feito .ag-txt strong { text-decoration: line-through; color: var(--tinta-3); }
+.ag-linha .menu { flex: none; }
+:root[data-modo="escuro"] .ag-chip.lem { background: rgba(234,168,0,.16); color: #e6b85c; }
+@media (max-width: 1000px) { .ag-layout { grid-template-columns: 1fr; } .ag-painel { position: static; } }
+@media (max-width: 640px) {
+  .ag-cal, .ag-painel { padding: 16px; }
+  .ag-dia { min-height: 48px; padding: 4px; align-items: center; }
+  .ag-chips { display: none; }
+  .ag-barras { display: flex; }
+}
+
+.contagem { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; margin-bottom: 8px; border-radius: var(--r-m); background: var(--marca-leve); color: var(--marca-escura); text-align: left; font-weight: 400; }
+.contagem:hover { background: var(--hover-2); }
+.contagem b { font-size: 32px; font-weight: 600; line-height: 1; letter-spacing: -.02em; }
+.contagem span { display: flex; flex-direction: column; font-size: 12px; min-width: 0; }
+.contagem strong { font-size: 14px; font-weight: 600; color: var(--tinta); overflow-wrap: anywhere; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

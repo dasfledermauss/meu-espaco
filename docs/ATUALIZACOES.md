@@ -8,6 +8,15 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.21 — 13/11/2026 · Agenda e barra enxuta
+
+- Início ganhou o widget “Próximos eventos”: os próximos compromissos com “hoje”, “amanhã” ou “em N dias”. Marque “Contar os dias no Início” num evento para ele aparecer como contagem regressiva em destaque.
+- Calendário com 7 stickers (aniversário, viagem, saúde, trabalho, festa, coração e destaque), até 3 por dia, escolhidos no painel do dia.
+- Barra lateral enxuta, com 8 áreas: Início, Agenda, Mural, Músicas, Biblioteca, Gastos, Wishlist e Currículo.
+- Nova Agenda: um calendário do mês onde aparecem seus eventos, as tarefas com prazo e os lembretes. Clique num dia para ver a lista dele e use “Novo evento” (título, dia, horário e nota) para marcar o que vai fazer.
+- Agenda e Biblioteca viraram abas: Calendário, Tarefas e Lembretes; Livros e filmes, Links, Imagens e Estudos. As páginas e os atalhos de antes continuam funcionando.
+- A ordem da barra voltou ao padrão novo (dá para arrastar de novo); os eventos também sincronizam com a conta.
+
 ## 5.20 — 13/11/2026 · Menu do perfil refinado
 
 - Menu do perfil reorganizado em seções com divisor fino: Conta (Editar perfil, Configurações e backup), Ajuda (Primeiros passos, O que há de novo) e App (Instalar o app, só quando o app ainda não está instalado).

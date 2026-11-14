@@ -225,6 +225,7 @@
     // Quem já tinha registros não precisa da listinha de começo.
     if (st.perfil.passosFim === undefined) st.perfil.passosFim = (st.itens || []).length > 0;
     (st.itens || []).forEach((i, k) => { if (i.tipo === 'musica' && i.ordem === undefined) i.ordem = k; });
+    st.eventos = st.eventos || []; st.stickers = st.stickers || {};
     st.lembretes = st.lembretes || []; st.pastas = st.pastas || []; st.colecoes = st.colecoes || [];
     st.perfil.corCustom = st.perfil.corCustom || '';
     st.perfil.modo = st.perfil.modo || 'sistema';
@@ -417,6 +418,7 @@
   const pasta = (id) => S.pastas.find((c) => c.id === id);
   const item = (id) => S.itens.find((i) => i.id === id);
   const lembrete = (id) => S.lembretes.find((l) => l.id === id);
+  const evento = (id) => (S.eventos || []).find((e) => e.id === id);
   const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], imagem: ['Imagem', 'media-image'], musica: ['Música', 'ytmusic'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
   /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
   const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
@@ -736,6 +738,19 @@
       return `<form class="modal" method="dialog" data-form="foto-perfil">
         <header class="modal-cab">${ic('user')}<h2>Foto do perfil</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
         <div class="modal-corpo"><div class="form">${envioImagem('foto-perfil', 'Foto', 'quadrada', S.perfil.foto)}</div></div>
+        <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
+          <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
+    }
+    if (m.tipo === 'evento') {
+      const e = m.id ? evento(m.id) : null, v = e || { data: m.dia || hoje() };
+      return `<form class="modal" method="dialog" data-form="evento" data-id="${m.id || ''}">
+        <header class="modal-cab">${ic('calendar')}<h2>${e ? 'Editar evento' : 'Novo evento'}</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
+        <div class="modal-corpo"><div class="form">
+          ${campo('f-titulo', 'O que vai acontecer', txt('f-titulo', 'titulo', v.titulo, 'required placeholder="ex.: reunião com o cliente"'))}
+          <div class="linha">${campo('f-data', 'Dia', `<input type="date" id="f-data" name="data" required value="${esc(v.data)}">`, 'medio')}
+            ${campo('f-hora', 'Horário <span class="opcional">(opcional)</span>', `<input type="time" id="f-hora" name="hora" value="${esc(v.hora || '')}">`, 'curto')}</div>
+          ${campo('f-nota', 'Nota <span class="opcional">(opcional)</span>', txt('f-nota', 'nota', v.nota))}
+          <label class="check"><input type="checkbox" name="contagem" ${v.contagem ? 'checked' : ''}> Contar os dias no Início</label></div></div>
         <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
     }
@@ -1991,21 +2006,34 @@
     if (sum && e.target === sum && e.key === 'ArrowDown') { e.preventDefault(); sum.parentElement.setAttribute('open', ''); const p1 = sum.parentElement.querySelector('.mp-grupo a, .mp-grupo button'); if (p1) p1.focus(); }
   });
   /* A ordem das áreas fica no perfil: arrastar muda, e áreas novas entram no fim. */
-  const AREAS = () => [['inicio', 'Início', 'home-simple', ''], ['tarefas', 'Tarefas', 'list', tarefasAbertas().length],
-    ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['imagens', 'Imagens', 'media-image', doTipo('imagem').length], ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length],
-    ['estudos', 'Estudos', 'folder', doTipo('artigo').length], ['links', 'Links', 'link', doTipo('link').length],
-    ['musicas', 'Músicas', 'ytmusic', musicas().length], ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
-    ['gastos', 'Gastos', 'wallet', ''], ['lembretes', 'Lembretes', 'alarm', pendentes().length], ['curriculo', 'Currículo', 'suitcase', '']];
+  /* A barra tem 8 áreas. Agenda e Biblioteca reúnem várias páginas, que aparecem como abas no alto da tela. */
+  const GRUPO_DE = { agenda: 'agenda', tarefas: 'agenda', lembretes: 'agenda', biblioteca: 'biblioteca', links: 'biblioteca', imagens: 'biblioteca', estudos: 'biblioteca' };
+  const ABAS = { agenda: ['agenda', 'tarefas', 'lembretes'], biblioteca: ['biblioteca', 'links', 'imagens', 'estudos'] };
+  const ABA_NOME = { agenda: 'Calendário', tarefas: 'Tarefas', lembretes: 'Lembretes', biblioteca: 'Livros e filmes', links: 'Links', imagens: 'Imagens', estudos: 'Estudos' };
+  const ABA_QTD = () => ({ agenda: '', tarefas: tarefasAbertas().length, lembretes: pendentes().length, biblioteca: doTipo('midia').length,
+    links: doTipo('link').length, imagens: doTipo('imagem').length, estudos: doTipo('artigo').length });
+  const AREAS = () => [['inicio', 'Início', 'home-simple', ''], ['agenda', 'Agenda', 'calendar', tarefasAbertas().length + pendentes().length],
+    ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['musicas', 'Músicas', 'ytmusic', musicas().length],
+    ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length + doTipo('link').length + doTipo('imagem').length + doTipo('artigo').length],
+    ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
+    ['gastos', 'Gastos', 'wallet', ''], ['curriculo', 'Currículo', 'suitcase', '']];
+  /** Abas no alto das páginas que fazem parte de Agenda ou Biblioteca. */
+  function abasPagina(rota) {
+    const g = GRUPO_DE[rota]; if (!g) return;
+    const q = ABA_QTD();
+    main.insertAdjacentHTML('afterbegin', `<nav class="abas-pag" aria-label="${g === 'agenda' ? 'Agenda' : 'Biblioteca'}">${ABAS[g].map((r) =>
+      `<a href="#/${r}" ${r === rota ? 'aria-current="page"' : ''}>${ABA_NOME[r]}${q[r] !== '' && q[r] ? `<em>${q[r]}</em>` : ''}</a>`).join('')}</nav>`);
+  }
   function areasOrdenadas() {
     const todas = AREAS();
-    const guardada = (S.perfil.ordemNav || []).filter((r) => todas.some((a) => a[0] === r));
+    const salva = S.perfil.ordemNav || [], guardada = salva.every((r) => todas.some((a) => a[0] === r)) ? salva : [];   // ordem de antes da Agenda: recomeça do padrão
     const ordem = guardada.concat(todas.map((a) => a[0]).filter((r) => !guardada.includes(r)));
     return ordem.map((r) => todas.find((a) => a[0] === r));
   }
   function renderNav(rota) {
     const nv = vencidos().length;
     navLateral.innerHTML = `<h2 class="sr-only">Navegação</h2>
-      <div class="nav-areas">${areasOrdenadas().map(([r, n, icone, q]) => `<a href="#/${r}" draggable="false" data-ordena="areas" data-oid="${r}" data-area="${r}" ${rota === r ? 'aria-current="page"' : ''}>${icAtivo(icone, rota === r)}<span>${n}</span>${q ? `<em class="pino ${r === 'lembretes' && nv ? 'alerta' : ''}">${q}</em>` : ''}</a>`).join('')}</div>
+      <div class="nav-areas">${areasOrdenadas().map(([r, n, icone, q]) => `<a href="#/${r}" draggable="false" data-ordena="areas" data-oid="${r}" data-area="${r}" ${(GRUPO_DE[rota] || rota) === r ? 'aria-current="page"' : ''}>${icAtivo(icone, (GRUPO_DE[rota] || rota) === r)}<span>${n}</span>${q ? `<em class="pino ${r === 'agenda' && nv ? 'alerta' : ''}">${q}</em>` : ''}</a>`).join('')}</div>
       <p class="nav-sep">Coleções</p>
       ${S.colecoes.map((c) => `<a class="sub" href="#/colecao/${c.id}" ${rota === 'colecao' && rotaAtual()[1] === c.id ? 'aria-current="true"' : ''}><span>${esc(c.nome)}</span><em class="pino">${S.itens.filter((i) => i.colecoes.some((x) => x.id === c.id)).length}</em></a>`).join('')}
       <a class="sub" href="#/colecao/soltos" ${rota === 'colecao' && rotaAtual()[1] === 'soltos' ? 'aria-current="true"' : ''}><span>A organizar</span><em class="pino ${S.itens.some((i) => !i.colecoes.length) ? 'destaque' : ''}">${S.itens.filter((i) => !i.colecoes.length).length}</em></a>
@@ -2013,15 +2041,33 @@
   }
   /* ---------------- coluna da direita ----------------
      Cada bloco tem um id; a ordem fica no perfil e pode ser mudada arrastando. */
-  const BLOCOS_DIR = ['clima', 'tarefas', 'lembretes', 'lendo', 'vitrine', 'fila', 'favoritos'];
+  const BLOCOS_DIR = ['clima', 'eventos', 'tarefas', 'lembretes', 'lendo', 'vitrine', 'fila', 'favoritos'];
   const ordemDireita = () => {
     const g = (S.perfil.ordemDireita || []).filter((x) => BLOCOS_DIR.includes(x));
-    return (g.includes('clima') ? [] : ['clima']).concat(g, BLOCOS_DIR.filter((x) => !g.includes(x) && x !== 'clima'));
+    const base = (g.includes('clima') ? [] : ['clima']).concat(g, BLOCOS_DIR.filter((x) => !g.includes(x) && x !== 'clima' && x !== 'eventos'));
+    if (!base.includes('eventos')) base.splice(base.indexOf('clima') + 1, 0, 'eventos');   // quem já tinha uma ordem vê os eventos logo abaixo do clima
+    return base;
   };
+  /** Widget do Início: contagem regressiva (evento marcado) e os próximos eventos. */
+  const diasAte = (d) => Math.round((deDia(d) - deDia(hoje())) / 864e5);
+  const quandoEvento = (n) => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : 'em ' + n + ' dias';
+  function eventosHTML() {
+    const prox = (S.eventos || []).filter((e) => e.data >= hoje()).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
+    const dest = prox.find((e) => e.contagem);
+    const lista = prox.filter((e) => e !== dest).slice(0, dest ? 3 : 4);
+    const corpo = !prox.length ? `<p class="meta">Nada marcado por vir. <a href="#/agenda">Abrir a agenda</a></p>` : `
+      ${dest ? `<button type="button" class="contagem" data-act="ag-ir" data-d="${dest.data}"><b>${diasAte(dest.data) === 0 ? 'Hoje' : diasAte(dest.data)}</b>
+        <span>${diasAte(dest.data) === 0 ? '' : diasAte(dest.data) === 1 ? 'dia para' : 'dias para'}<strong>${esc(dest.titulo)}</strong></span></button>` : ''}
+      <div class="mini-lista">${lista.map((e) => `<button type="button" class="mini-item" data-act="ag-ir" data-d="${e.data}">
+        <span class="mini-txt">${esc(e.titulo)}</span><span class="meta num">${quandoEvento(diasAte(e.data))}${e.hora ? ' · ' + esc(e.hora) : ''}</span></button>`).join('')}</div>`;
+    return cartao(ic('calendar') + 'Próximos eventos', corpo, '<a href="#/agenda">ver todas</a>', 'fino');
+  }
   function renderDireita(rota) {
     if (rota !== 'inicio') { direita.innerHTML = ''; direita.hidden = true; layout.classList.add('sem-direita'); return; }
     direita.hidden = false; layout.classList.remove('sem-direita');
     const blocos = { clima: climaHTML() };
+
+    blocos.eventos = eventosHTML();
 
     const abertas = tarefasAbertas();
     const feitasHoje = tarefas().filter((i) => i.concluida && (i.editadoEm || i.criadoEm).slice(0, 10) === hoje());
@@ -2450,6 +2496,62 @@
         : vazio('wallet', 'Nenhum gasto neste mês.')}`;
   }
 
+  /* ---------------- Agenda: calendário do mês, com a lista do dia ---------------- */
+  const maiuscula = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+  /* Os 7 stickers do calendário (Twemoji, CC-BY 4.0). Cada dia aceita até 3. */
+  const STICKERS = [['bolo', 'Aniversário'], ['viagem', 'Viagem'], ['saude', 'Saúde'], ['trabalho', 'Trabalho'], ['festa', 'Festa'], ['coracao', 'Coração'], ['estrela', 'Destaque']];
+  const stickerImg = (id, cls = '') => `<img class="sticker ${cls}" src="assets/img/stickers/${id}.svg" alt="" draggable="false">`;
+  function compromissosDoDia(d) {
+    const ev = (S.eventos || []).filter((e) => e.data === d).sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+    const tar = doTipo('tarefa').filter((t) => t.prazo === d);
+    const lem = S.lembretes.filter((l) => l.data === d).sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+    return { ev, tar, lem, total: ev.length + tar.length + lem.length };
+  }
+  function renderAgenda() {
+    const h = hoje();
+    if (!UI.agDia) UI.agDia = h;
+    const mes = UI.agMes || UI.agDia.slice(0, 7), [ano, mm] = mes.split('-').map(Number);
+    const primeiro = new Date(ano, mm - 1, 1), ultimo = new Date(ano, mm, 0);
+    const semanas = Math.ceil((primeiro.getDay() + ultimo.getDate()) / 7);
+    const celulas = [];
+    for (let k = 0; k < semanas * 7; k++) celulas.push(dataLocal(new Date(ano, mm - 1, 1 - primeiro.getDay() + k)));
+    const cel = (d) => {
+      const c = compromissosDoDia(d), fora = d.slice(0, 7) !== mes;
+      const chips = [...c.ev.map((e) => ['ev', e.titulo]), ...c.tar.map((t) => ['tar', tituloItem(t)]), ...c.lem.map((l) => ['lem', l.texto])];
+      const barras = [c.ev.length && 'ev', c.tar.length && 'tar', c.lem.length && 'lem'].filter(Boolean);
+      return `<button type="button" class="ag-dia ${fora ? 'fora' : ''} ${d === h ? 'hoje' : ''}" data-act="ag-dia" data-d="${d}" aria-pressed="${d === UI.agDia}"
+        aria-label="${esc(fmtDia(d))}${c.total ? ', ' + c.total + (c.total === 1 ? ' compromisso' : ' compromissos') : ''}">
+        <span class="ag-num">${Number(d.slice(8))}</span>
+        ${((S.stickers || {})[d] || []).length ? `<span class="ag-stickers">${S.stickers[d].map((x) => stickerImg(x)).join('')}</span>` : ''}
+        <span class="ag-chips">${chips.slice(0, 2).map(([k, t]) => `<span class="ag-chip ${k}">${esc(t)}</span>`).join('')}${chips.length > 2 ? `<span class="ag-mais">+${chips.length - 2}</span>` : ''}</span>
+        <span class="ag-barras" aria-hidden="true">${barras.map((k) => `<i class="${k}"></i>`).join('')}</span></button>`;
+    };
+    const nomeMes = maiuscula(primeiro.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }));
+    const sem = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    const dia = compromissosDoDia(UI.agDia);
+    const linhaEv = (e) => `<div class="ag-linha"><span class="ag-hora">${e.hora ? esc(e.hora) : 'dia todo'}</span>
+      <span class="ag-txt"><strong>${esc(e.titulo)}</strong>${e.nota ? `<small>${esc(e.nota)}</small>` : ''}</span>
+      ${menuMais([{ act: 'ev-editar', id: e.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'ev-excluir', id: e.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>`;
+    const linhaTar = (t) => `<a class="ag-linha ${t.concluida ? 'feito' : ''}" href="#/item/${t.id}"><span class="ag-hora">tarefa</span><span class="ag-txt"><strong>${esc(tituloItem(t))}</strong></span></a>`;
+    const linhaLem = (l) => `<button type="button" class="ag-linha ${l.concluido ? 'feito' : ''}" data-act="ag-lembrete" data-id="${l.id}"><span class="ag-hora">${l.hora ? esc(l.hora) : 'lembrete'}</span><span class="ag-txt"><strong>${esc(l.texto)}</strong></span></button>`;
+    main.innerHTML = `<header class="pagina-cab"><h1>${ic('calendar')}Agenda</h1>
+        <div class="ferramentas">${btn('ev-novo', ic('plus') + 'Novo evento', '', 'btn-1')}</div>
+        <p class="meta">Eventos, tarefas com prazo e lembretes, juntos no mês.</p></header>
+      <div class="ag-layout">
+        <section class="cartao ag-cal" aria-label="Calendário">
+          <div class="ag-topo"><h2>${esc(nomeMes)}</h2><span class="espaco"></span>
+            ${btnIco('ag-mes', 'nav-arrow-left', 'Mês anterior', 'data-v="-1"')}${btn('ag-mes', 'Hoje', 'data-v="hoje"', 'btn-f btn-p')}${btnIco('ag-mes', 'nav-arrow-right', 'Próximo mês', 'data-v="1"')}</div>
+          <div class="ag-semana" aria-hidden="true">${sem.map((x) => `<span>${x}</span>`).join('')}</div>
+          <div class="ag-grade">${celulas.map(cel).join('')}</div></section>
+        <aside class="cartao ag-painel" aria-label="Dia selecionado">
+          <h2>${esc(maiuscula(fmtDia(UI.agDia)))}</h2>
+          <div class="ag-stk" role="group" aria-label="Stickers do dia"><span class="rotulo">Stickers</span>
+            <div class="ag-stk-linha">${STICKERS.map(([id, nome]) => { const on = ((S.stickers || {})[UI.agDia] || []).includes(id);
+              return `<button type="button" class="ag-stk-btn" data-act="ag-sticker" data-v="${id}" aria-pressed="${on}" aria-label="${nome}" title="${nome}">${stickerImg(id)}</button>`; }).join('')}</div></div>
+          <div class="ag-lista">${dia.total ? dia.ev.map(linhaEv).join('') + dia.tar.map(linhaTar).join('') + dia.lem.map(linhaLem).join('') : '<p class="meta">Nada marcado para este dia.</p>'}</div>
+          ${btn('ev-novo', ic('plus') + 'Evento neste dia', `data-d="${UI.agDia}"`, 'btn-2 btn-p')}</aside></div>`;
+  }
+
   /* ---------------- Lembretes ---------------- */
   function renderLembretes() {
     const h = hoje(), sem = somaDias(h, 7), pend = pendentes(), feitos = S.lembretes.filter((l) => l.concluido);
@@ -2693,7 +2795,7 @@
         <p class="meta">Sons curtos e suaves ao guardar, concluir, favoritar e excluir. Feitos no próprio aparelho, sem baixar nada.</p>
         <div class="acoes-form" style="margin-top:14px">${btn('som-ui', S.perfil.somUI === false ? 'Ligar os sons' : 'Desligar os sons', '', 'btn-f')}</div>
         <label class="campo" style="margin-top:14px"><span>Volume</span><input type="range" min="0" max="100" step="5" value="${S.perfil.somVolume == null ? 40 : S.perfil.somVolume}" data-act="som-vol" ${S.perfil.somUI === false ? 'disabled' : ''}></label>`)}
-      ${cartao(ic('settings') + 'Sobre', `<p class="meta">Tyba · seus registros ficam neste navegador e, com a sincronização ligada, também na sua conta. Ícones: <a href="https://iconoir.com/" target="_blank" rel="noopener">Iconoir</a>.</p>`)}`;
+      ${cartao(ic('settings') + 'Sobre', `<p class="meta">Tyba · seus registros ficam neste navegador e, com a sincronização ligada, também na sua conta. Stickers do calendário: Twemoji (CC-BY 4.0). Ícones: <a href="https://iconoir.com/" target="_blank" rel="noopener">Iconoir</a>.</p>`)}`;
   }
 
   /* ---------------- ficha ---------------- */
@@ -2981,7 +3083,7 @@
 
   /* ---------------- roteamento ---------------- */
   const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, imagens: renderImagens, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
-    wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
+    agenda: renderAgenda, wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
   function rotaAtual() { return location.hash.replace(/^#\/?/, '').split('/'); }
   function render(focar) {
     // durante um arraste o DOM não pode ser recriado (sincronização, carregamentos): deixa para depois
@@ -2992,7 +3094,7 @@
     const rota = r === 'item' ? 'item' : (ROTAS[r] ? r : 'inicio');
     aplicarTema();
     renderTopo(); renderDisco(); renderNav(rota); renderDireita(rota);
-    if (rota === 'item') renderFicha(id); else { ROTAS[rota](); prepararSelecao(rota); empacotarTudo(); }
+    if (rota === 'item') renderFicha(id); else { ROTAS[rota](); abasPagina(rota); prepararSelecao(rota); empacotarTudo(); }
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
     renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho();
@@ -3232,6 +3334,31 @@
         if (!campoL.value.trim()) return toast('Cole o link de uma imagem.');
         const v = campoL.value; campoL.value = '';
         return definirImagem(campoL.dataset.k, campoL.dataset.formato, v);
+      }
+      case 'ev-novo': e.preventDefault(); return abrirModal({ tipo: 'evento', dia: b.dataset.d || (UI.agDia || hoje()) });
+      case 'ev-editar': fecharMenu(); return abrirModal({ tipo: 'evento', id });
+      case 'ev-excluir': {
+        fecharMenu(); const ev = evento(id); if (!ev) return;
+        if (!(await confirmar(`Excluir “${ev.titulo}”?`))) return;
+        S.eventos = S.eventos.filter((x) => x.id !== id); if (window.SONS) SONS.tocar('excluir'); salvar(); toast('Evento excluído.'); return render();
+      }
+      case 'ag-sticker': {
+        S.stickers = S.stickers || {}; const lista = S.stickers[UI.agDia] || [], k = lista.indexOf(b.dataset.v);
+        if (k >= 0) lista.splice(k, 1);
+        else { if (lista.length >= 3) return toast('Cada dia aceita até 3 stickers.'); lista.push(b.dataset.v); }
+        if (lista.length) S.stickers[UI.agDia] = lista; else delete S.stickers[UI.agDia];
+        if (window.SONS) SONS.tocar('favoritar'); return passa();
+      }
+      case 'ag-ir': e.preventDefault(); UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); location.hash = '#/agenda'; return;
+      case 'ag-lembrete': return abrirModal({ tipo: 'editar', id });
+      case 'ag-dia': {
+        UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); return render();
+      }
+      case 'ag-mes': {
+        const base = UI.agMes || (UI.agDia || hoje()).slice(0, 7);
+        if (b.dataset.v === 'hoje') { UI.agDia = hoje(); UI.agMes = UI.agDia.slice(0, 7); return render(); }
+        const [a, m2] = base.split('-').map(Number), x = new Date(a, m2 - 1 + Number(b.dataset.v), 1);
+        UI.agMes = x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); return render();
       }
       case 'novo-grupo-musica': e.preventDefault(); return abrirModal({ tipo: 'grupo-musica' });
       case 'musica-grupo': fecharMenu(); return abrirModal({ tipo: 'musica-grupo', id });
@@ -3506,6 +3633,20 @@
       else S.perfil.humores[hoje()] = { emoji, texto };
       document.querySelectorAll('details.menu[open]').forEach((x) => x.removeAttribute('open'));
       ok('Anotado.', 'check-circle-solid'); return render();
+    }
+    if (tipo === 'evento') {
+      const titulo = (d.titulo || '').trim();
+      if (!titulo) return toast('Dê um nome ao evento.');
+      if (!d.data) return toast('Escolha o dia.');
+      S.eventos = S.eventos || [];
+      const e = f.dataset.id ? evento(f.dataset.id) : null;
+      if (e) Object.assign(e, { titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem });
+      else S.eventos.push({ id: uid('ev'), titulo, data: d.data, hora: d.hora || '', nota: (d.nota || '').trim(), contagem: !!d.contagem, criadoEm: agora() });
+      UI.agDia = d.data; UI.agMes = d.data.slice(0, 7); UI.modal = null;
+      if (window.SONS) SONS.tocar('guardar');
+      salvar(); toast(e ? 'Evento salvo.' : 'Evento guardado.', 'check-circle-solid');
+      if (rotaAtual()[0] !== 'agenda') { location.hash = '#/agenda'; return; }
+      return render();
     }
     if (tipo === 'grupo-musica') {
       const nome = (d.nome || '').trim();
@@ -4157,7 +4298,7 @@
   const quando = (x) => x.atualizadoEm || x.editadoEm || x.criadoEm || '';
   const nuvemLigada = () => UI.nuvem.estado === 'ligada' || UI.nuvem.estado === 'enviando';
   const baseNuvem = () => limpo({ perfil: S.perfil, colecoes: S.colecoes, pastas: S.pastas,
-    destinoPadrao: S.destinoPadrao, curriculo: S.curriculo, versao: S.versao, atualizadoEm: S.baseEm || '' });
+    destinoPadrao: S.destinoPadrao, curriculo: S.curriculo, eventos: S.eventos || [], stickers: S.stickers || {}, versao: S.versao, atualizadoEm: S.baseEm || '' });
 
   function diferencas() {
     const b = baseNuvem();
@@ -4218,7 +4359,7 @@
     if (!r) return false;
     let mudou = false;
     if (r.base && (r.base.atualizadoEm || '') > (S.baseEm || '')) {
-      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo'].forEach((k) => { if (r.base[k] !== undefined) S[k] = r.base[k]; });
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (r.base[k] !== undefined) S[k] = r.base[k]; });
       S.baseEm = r.base.atualizadoEm; mudou = true;
     }
     [['itens', r.itens], ['lembretes', r.lembretes]].forEach(([nome, remotos]) => {
@@ -4243,7 +4384,7 @@
   function aplicarRemoto(d) {
     let mudou = false;
     if (d.base && (d.base.atualizadoEm || '') > (S.baseEm || '')) {
-      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo'].forEach((k) => { if (d.base[k] !== undefined) S[k] = d.base[k]; });
+      ['perfil', 'colecoes', 'pastas', 'destinoPadrao', 'curriculo', 'eventos', 'stickers'].forEach((k) => { if (d.base[k] !== undefined) S[k] = d.base[k]; });
       S.baseEm = d.base.atualizadoEm; ULTIMO.base = canon(baseNuvem()); mudou = true;
     }
     [['itens', d.itens, d.apagarItens], ['lembretes', d.lembretes, d.apagarLembretes]].forEach(([nome, novos, fora]) => {
