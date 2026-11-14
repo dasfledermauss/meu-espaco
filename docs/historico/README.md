@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.14 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Selecionar em lote, pontinhos centralizados e captura do Mercado Livre/Shopee. | — |
+| v5.15 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Refinamento visual do Início: card de guardar com 5 chips, hierarquia tipográfica, contraste AA, pet com chips translúcidos, widgets padronizados. | — |
+| v5.14 | `2026-11-13_v5.14-antes-do-refinamento/` | Selecionar em lote, pontinhos centralizados e captura do Mercado Livre/Shopee. | — |
 | v5.13 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.12 com Ctrl+V de link criando cards e a captura da Shopee. | — |
 | v5.12 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.11 com o arraste mais estável (sem mudança visual). | — |
 | v5.11 | sem captura ainda; registrar aqui antes da próxima mudança visual | A v5.10 com campo de comentário maior e playlist como tela principal no mini app. | — |

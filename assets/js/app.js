@@ -1854,7 +1854,7 @@
           ${p !== null ? `<p class="progresso"><span class="barra"><i style="width:${p}%"></i></span> ${unidade(i)} ${i.paginaAtual} de ${i.paginas} · ${p}%</p>` : ''}
           <p class="tags"><span class="tag">${esc(STATUS[i.formato][i.status])}</span>${(i.generos || []).map((g) => `<span class="tag">${esc(g)}</span>`).join('')}
             ${(i.anotacoes || []).length ? `<span class="tag on">${i.anotacoes.length} anotação${i.anotacoes.length > 1 ? 'es' : ''}</span>` : ''}</p>
-          ${i.comentario ? `<p class="porque">${esc(corta(i.comentario, 220))}</p>` : ''}</div></div>`;
+          ${(i.resumo || i.comentario) ? `<p class="midia-resumo">${esc(corta(i.resumo || i.comentario, 220))}</p>` : ''}</div></div>`;
     }
     if (i.tipo === 'artigo') {
       const p = pasta(i.pastaId);
@@ -1900,7 +1900,7 @@
   function renderDisco() {
     if (!topoMusica) return;
     const i = UI.tocando && item(UI.tocando);
-    const rotulo = i ? 'Tocando: ' + tituloItem(i) : 'Músicas';
+    const rotulo = i ? 'Tocando: ' + tituloItem(i) + ' · abrir músicas' : 'Abrir músicas';
     topoMusica.innerHTML = `<button type="button" class="ico-btn btn-musica ${i ? 'ativo' : ''}" data-act="abrir-musica" title="${esc(rotulo)}" aria-label="${esc(rotulo)}">${ic('ytmusic')}</button>`;
   }
   function renderTopo() {
@@ -1951,7 +1951,7 @@
       <div class="nav-areas">${areasOrdenadas().map(([r, n, icone, q]) => `<a href="#/${r}" draggable="false" data-ordena="areas" data-oid="${r}" data-area="${r}" ${rota === r ? 'aria-current="page"' : ''}>${icAtivo(icone, rota === r)}<span>${n}</span>${q ? `<em class="pino ${r === 'lembretes' && nv ? 'alerta' : ''}">${q}</em>` : ''}</a>`).join('')}</div>
       <p class="nav-sep">Coleções</p>
       ${S.colecoes.map((c) => `<a class="sub" href="#/colecao/${c.id}" ${rota === 'colecao' && rotaAtual()[1] === c.id ? 'aria-current="true"' : ''}><span>${esc(c.nome)}</span><em class="pino">${S.itens.filter((i) => i.colecoes.some((x) => x.id === c.id)).length}</em></a>`).join('')}
-      <a class="sub" href="#/colecao/soltos" ${rota === 'colecao' && rotaAtual()[1] === 'soltos' ? 'aria-current="true"' : ''}><span>A organizar</span><em class="pino">${S.itens.filter((i) => !i.colecoes.length).length}</em></a>
+      <a class="sub" href="#/colecao/soltos" ${rota === 'colecao' && rotaAtual()[1] === 'soltos' ? 'aria-current="true"' : ''}><span>A organizar</span><em class="pino ${S.itens.some((i) => !i.colecoes.length) ? 'destaque' : ''}">${S.itens.filter((i) => !i.colecoes.length).length}</em></a>
       <a class="sub" href="#" data-act="nova-colecao"><span>${ic('plus')} Nova coleção</span></a>`;
   }
   /* ---------------- coluna da direita ----------------
@@ -1972,19 +1972,22 @@
       const total = abertas.length + feitasHoje.length;
       const pct = Math.round((feitasHoje.length / total) * 100);
       const proximas = abertas.slice().sort((x, y) => (x.prazo || '9999').localeCompare(y.prazo || '9999')).slice(0, 4);
+      const feitas = feitasHoje.slice(0, 3), escondidas = total - proximas.length - feitas.length;
       blocos.tarefas = cartao(ic('list') + 'Tarefas', `<p class="progresso compacto">
           <span class="barra"><i style="width:${pct}%"></i></span><b>${feitasHoje.length}/${total}</b></p>
         <div class="mini-lista">${proximas.map((i) => `<button type="button" class="mini-item" data-act="tarefa-ver" data-id="${i.id}">
           <em class="ponto ${atrasada(i) ? 'vence' : ''}"></em><span class="mini-txt">${esc(i.titulo)}</span>
-          ${i.prazo ? `<span class="meta num">${fmtNum(i.prazo)}</span>` : ''}</button>`).join('')}</div>`,
+          ${i.prazo ? `<span class="meta num">${fmtNum(i.prazo)}</span>` : ''}</button>`).join('')}${feitas.map((i) => `<button type="button" class="mini-item feito" data-act="tarefa-ver" data-id="${i.id}">
+          <em class="ponto ok"></em><span class="mini-txt">${esc(i.titulo)}</span><span class="meta num">feita</span></button>`).join('')}
+          ${escondidas > 0 ? `<a class="meta mais-n" href="#/tarefas">+${escondidas} em Tarefas</a>` : ''}</div>`,
         '<a href="#/tarefas">ver todas</a>', 'fino');
     }
     const pend = pendentes().slice(0, 3);
-    if (pend.length) blocos.lembretes = cartao(ic('alarm') + 'Lembretes', `<div class="mini-lista">${pend.map((l) => `<p class="mini-item"><em class="ponto ${venc(l) <= Date.now() ? 'vence' : ''}"></em><span class="mini-txt">${esc(l.texto)}</span><span class="meta num">${fmtNum(l.data)}</span></p>`).join('')}</div>`, '<a href="#/lembretes">quadro</a>', 'fino');
+    if (pend.length) blocos.lembretes = cartao(ic('alarm') + 'Lembretes', `<div class="mini-lista">${pend.map((l) => `<p class="mini-item"><em class="ponto ${venc(l) <= Date.now() ? 'vence' : ''}"></em><span class="mini-txt">${esc(l.texto)}</span><span class="meta num">${fmtNum(l.data)}</span></p>`).join('')}</div>`, '<a href="#/lembretes">ver todas</a>', 'fino');
     const and = doTipo('midia').filter((i) => i.status === 'andamento').slice(0, 4);
-    if (and.length) blocos.lendo = cartao(ic('book') + 'Lendo agora', `<div class="mini-capas">${and.map((i) => `<a href="#/item/${i.id}" title="${esc(i.titulo)}">${capaHTML(i, 'p')}</a>`).join('')}</div>`, '<a href="#/biblioteca">biblioteca</a>', 'fino');
+    if (and.length) blocos.lendo = cartao(ic('book') + 'Lendo agora', `<div class="mini-capas">${and.map((i) => `<a href="#/item/${i.id}" title="${esc(i.titulo)}">${capaHTML(i, 'p')}</a>`).join('')}</div>`, '<a href="#/biblioteca">ver todas</a>', 'fino');
     const d = doTipo('desejo').filter((i) => !i.comprado).sort((a, x) => x.criadoEm.localeCompare(a.criadoEm))[0];
-    if (d) blocos.vitrine = cartao(ic('shopping-bag') + 'Na vitrine', `<a class="vitrine-mini" href="#/item/${d.id}">${fotoProduto(d)}<span><strong>${esc(corta(tituloItem(d), 46))}</strong>${precoHTML(d)}</span></a>`, '<a href="#/wishlist">wishlist</a>', 'fino');
+    if (d) blocos.vitrine = cartao(ic('shopping-bag') + 'Na vitrine', `<a class="vitrine-mini" href="#/item/${d.id}">${fotoProduto(d)}<span><strong>${esc(corta(tituloItem(d), 46))}</strong>${precoHTML(d)}</span></a>`, '<a href="#/wishlist">ver todas</a>', 'fino');
     const fila = S.itens.filter((i) => i.lerDepois && !i.lido).slice(0, 4);
     if (fila.length) blocos.fila = cartao(ic('bookmark-solid') + 'Fila de leitura', `<div class="lista-links">${fila.map((i) => `<a href="${esc(i.url)}" target="_blank" rel="noopener">${ic(icoTipo(i))}<span>${esc(tituloItem(i))}</span></a>`).join('')}</div>`, '', 'fino');
     const favs = ordenados().filter((i) => i.favorito).slice(0, 5);
@@ -2007,8 +2010,15 @@
       ${v.length > 1 ? `<a class="meta" href="#/lembretes">+${v.length - 1}</a>` : ''}
       ${btn('lemb-adiar', 'Adiar', `data-id="${l.id}"`, 'btn-2 btn-p')}${btn('lemb-concluir', 'Concluir', `data-id="${l.id}"`, 'btn-1 btn-p')}</div>`;
   }
-  const compositor = () => `<section class="cartao compositor"><h2>O que você quer guardar?</h2>
-    ${TIPOS_CRIAR.map(([v, n, i]) => `<button type="button" class="tipo-chip" data-act="criar" data-t="${v}">${ic(i)}${n}${temRascunho('criar:' + v) ? ' ·' : ''}</button>`).join('')}</section>`;
+  const CHIPS_PRINCIPAIS = ['nota', 'link', 'tarefa', 'imagem', 'lembrete'];
+  const compositor = () => {
+    const chip = ([v, n, i]) => `<button type="button" class="tipo-chip" data-act="criar" data-t="${v}">${ic(i)}${n}${temRascunho('criar:' + v) ? ' ·' : ''}</button>`;
+    const principais = CHIPS_PRINCIPAIS.map((v) => TIPOS_CRIAR.find((t) => t[0] === v)).filter(Boolean);
+    const demais = TIPOS_CRIAR.filter((t) => !CHIPS_PRINCIPAIS.includes(t[0]));
+    return `<section class="cartao compositor"><h2>O que você quer guardar?</h2>
+      ${principais.map(chip).join('')}${UI.compMais ? demais.map(chip).join('') : ''}
+      <button type="button" class="tipo-chip chip-mais" data-act="comp-mais" aria-expanded="${!!UI.compMais}">${UI.compMais ? 'Menos' : 'Mais'}</button></section>`;
+  };
 
   function blocosFeed(lista, opts) {
     const imp = lista.filter(ehImportado);
@@ -2995,6 +3005,7 @@
     const passa = () => { salvar(); render(); };
     if (b.tagName === 'A' && ['criar', 'abrir-pasta', 'abrir-artigo', 'nova-colecao', 'col-ir'].includes(act)) e.preventDefault();
     switch (act) {
+      case 'comp-mais': UI.compMais = !UI.compMais; return render();
       case 'sel-ligar': UI.sel = []; UI.selRota = rotaAtual()[0]; return render();
       case 'sel-sair': UI.sel = null; return render();
       case 'sel-todos': { const todos = cartoesSel().map(idCartao); UI.sel = UI.sel.length === todos.length ? [] : todos; return render(); }
