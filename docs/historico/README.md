@@ -10,7 +10,7 @@
 | v5.27 | sem captura ainda; registrar aqui antes da próxima mudança visual | Artigos abrem em janela flutuante móvel e redimensionável. |
 | v5.26 | sem captura ainda; registrar aqui antes da próxima mudança visual | Desejo no feed como etiqueta horizontal (foto, info, picote, preço). |
 | v5.25 | sem captura ainda; registrar aqui antes da próxima mudança visual | Card de evento no feed como ticket horizontal (foto, info, picote, data). |
-| v5.24 | sem captura ainda; registrar aqui antes da próxima mudança visual | Cabeçalho da Agenda: título+ação, subtítulo, abas e conteúdo no grid de 24px; aba ativa com sombra e sublinhado; legenda do calendário como filtro. |
+| v5.24 | sem captura ainda; registrar aqui antes da próxima mudança visual | Cabeçalho da Agenda: título+ação, subtítulo, abas e conteúdo no grid de 24px; aba ativa com sombra; legenda do calendário como filtro. |
 | v5.23 | `2026-11-13_v5.23-antes-do-cabecalho-agenda/` | Eventos com foto no feed, ticket ao clicar no evento, abas de Agenda e Biblioteca reordenáveis por arrasto, menu do evento sem corte. |
 | v5.22 | sem captura ainda; registrar aqui antes da próxima mudança visual | Agenda refinada: fuso local, painel do dia com selos, células, legenda, teclado. | — |
 | v5.21 | `2026-11-13_v5.21-antes-do-refinamento-agenda/` | Barra com 8 áreas; Agenda (calendário) e abas em Agenda/Biblioteca. | — |
