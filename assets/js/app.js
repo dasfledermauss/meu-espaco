@@ -1079,7 +1079,7 @@
   }
   const abrirMusica = () => { UI.painelMusica = true; UI.pularColheita = true; render(); };
   // Fechar guarda o player no canto sem parar a música; sem nada tocando, some de vez.
-  const fecharMusica = () => { UI.painelMusica = false; if (!UI.tocando) UI.playerMin = false; UI.pularColheita = true; render(); };
+  const fecharMusica = () => { UI.painelMusica = false; UI.tocando = null; UI.pausado = false; UI.playerMin = false; UI.ambAberto = false; if (window.SONS) SONS.ambiente.parar(); UI.pularColheita = true; render(); };
 
   function listaMiniApp() {
     const aberta = UI.listaMini && item(UI.listaMini);
@@ -1181,7 +1181,7 @@
           ${btnIco('player-pausar', 'play', 'Tocar')}
           ${btnIco('player-proxima', 'skip-next', 'Próxima')}
           ${btnIco('player-min', 'nav-arrow-down', 'Modo MP3')}
-          ${btnIco('player-fechar', 'xmark', 'Guardar no canto')}</header>
+          ${btnIco('player-fechar', 'xmark', 'Fechar')}</header>
         <div class="ma-video" id="ma-video"></div>
         <div class="ma-barra">${cabecalhoMiniApp()}
           ${btnIco('amb-abrir', 'ambiente', 'Sons ambiente', 'aria-pressed="false"', 'ma-amb-btn')}
