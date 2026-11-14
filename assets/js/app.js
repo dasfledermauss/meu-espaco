@@ -2110,10 +2110,13 @@
     const a = g.atual, d = g.dia, [txt, ico] = CLIMA_COD(a.weather_code), chuva = d.precipitation_probability_max[0] || 0;
     const dias = d.time.slice(1, 6).map((t, k) => { const x = new Date(t + 'T12:00'); return `<li><span>${x.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}</span>${climaIco(CLIMA_COD(d.weather_code[k + 1])[1])}<b>${graus(d.temperature_2m_max[k + 1])}</b><span class="min">${graus(d.temperature_2m_min[k + 1])}</span></li>`; }).join('');
     const dica = chuva >= 50 ? 'Leve guarda-chuva.' : a.temperature_2m >= 32 ? 'Dia quente: água por perto.' : a.temperature_2m <= 14 ? 'Frio: leve um casaco.' : '';
-    return `<section class="cartao clima" id="clima-card" aria-label="Previsão do tempo em ${esc(l.nome)}">${cab}
-      <div class="clima-corpo"><div class="clima-agora">${climaIco(ico, 'grande')}<div><p class="clima-temp">${graus(a.temperature_2m)}</p><p class="clima-txt">${txt}</p></div></div>
-        <ul class="clima-fatos"><li><span>Máx / mín</span><b>${graus(d.temperature_2m_max[0])} / ${graus(d.temperature_2m_min[0])}</b></li><li><span>Sensação</span><b>${graus(a.apparent_temperature)}</b></li><li><span>Chuva</span><b>${chuva}%</b></li><li><span>Vento</span><b>${Math.round(a.wind_speed_10m)} km/h</b></li></ul>
-        <ul class="clima-dias">${dias}</ul></div>${dica ? `<p class="clima-dica">${dica}</p>` : ''}</section>`;
+    const aberto = !!UI.climaAberto;
+    const fatos = `<ul class="clima-fatos"><li><span>Máx / mín</span><b>${graus(d.temperature_2m_max[0])} / ${graus(d.temperature_2m_min[0])}</b></li><li><span>Sensação</span><b>${graus(a.apparent_temperature)}</b></li><li><span>Chuva</span><b>${chuva}%</b></li><li><span>Vento</span><b>${Math.round(a.wind_speed_10m)} km/h</b></li></ul>`;
+    return `<section class="cartao clima ${aberto ? 'aberto' : ''}" id="clima-card" aria-label="Previsão do tempo em ${esc(l.nome)}">${cab}
+      <div class="clima-corpo" data-act="clima-alternar" role="button" tabindex="0" aria-expanded="${aberto}" title="${aberto ? 'Recolher' : 'Ver mais'}">
+        <div class="clima-agora">${climaIco(ico, 'grande')}<div><p class="clima-temp">${graus(a.temperature_2m)}</p><p class="clima-txt">${txt}</p></div>
+          <span class="clima-mm">${graus(d.temperature_2m_max[0])} / ${graus(d.temperature_2m_min[0])}</span><span class="clima-seta">${ic('nav-arrow-down')}</span></div>
+        ${aberto ? `${fatos}<ul class="clima-dias">${dias}</ul>${dica ? `<p class="clima-dica">${dica}</p>` : ''}` : ''}</div></section>`;
   }
   async function climaBuscar(cidade) {
     const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=pt&name=' + encodeURIComponent(cidade));
@@ -2995,6 +2998,7 @@
       case 'pet-banho': e.preventDefault(); PET.interagiu = true; PET.fila = 'banho'; PET.visita = null; if (PET.bola) { if (PET.bola.el) PET.bola.el.remove(); PET.bola = null; } petFalar('Banho!', 1); return;
       case 'pet-nome': e.preventDefault(); return abrirModal({ tipo: 'pet-nome' });
       case 'clima-local': e.preventDefault(); UI.climaMsg = ''; return abrirModal({ tipo: 'clima-local' });
+      case 'clima-alternar': UI.climaAberto = !UI.climaAberto; return render();
       case 'clima-atualizar': e.preventDefault(); return carregarClima(true);
       case 'clima-gps': {
         e.preventDefault(); const msg = document.getElementById('clima-msg');

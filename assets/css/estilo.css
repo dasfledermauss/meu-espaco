@@ -1122,7 +1122,13 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .clima-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-right: 18px; }
 .clima-cidade { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--tinta-2); min-width: 0; }
 .clima-acoes { display: flex; gap: 2px; }
-.clima-corpo { display: flex; flex-direction: column; gap: 14px; }
+.clima-corpo { display: flex; flex-direction: column; gap: 14px; cursor: pointer; }
+.clima-mm { margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--tinta-2); white-space: nowrap; }
+.clima-seta .ico { width: 16px; height: 16px; color: var(--tinta-3); transition: transform .2s ease-out; }
+.clima.aberto .clima-seta .ico { transform: rotate(180deg); }
+.clima:not(.aberto) .clima-ico.grande { width: 34px; height: 34px; }
+.clima:not(.aberto) .clima-temp { font-size: 26px; }
+.clima:not(.aberto) { gap: 8px; }
 .clima-agora { display: flex; align-items: center; gap: 12px; }
 .clima-ico { width: 22px; height: 22px; color: var(--tinta-2); flex: none; }
 .clima-ico.grande { width: 46px; height: 46px; color: var(--marca); }
