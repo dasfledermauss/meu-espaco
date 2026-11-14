@@ -457,6 +457,11 @@
     return `<span class="capa capa-ph ${cls}" style="--c1:hsl(${h} 32% 44%);--c2:hsl(${(h + 40) % 360} 36% 24%)" aria-hidden="true">${esc(corta(i.titulo, 40))}</span>`;
   }
   const fotoProduto = (i, cls = '') => `<span class="foto-produto ${cls}">${ic('media-image')}${i.imagem ? `<img src="${esc(i.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}</span>`;
+  /* O que ainda falta de verdade (a lista guardada na captura pode estar velha: o dado pode ter sido corrigido depois). */
+  const faltouAgora = (i) => (i.faltando || []).filter((k) => {
+    const v = k === 'nome' ? i.titulo : k === 'foto' ? i.imagem : k === 'preço' ? i.preco : undefined;
+    return v === undefined || v === null || v === '';
+  });
   function precoHTML(i) {
     if (i.preco === null || i.preco === undefined) return `<span class="preco sem">${i.capturaStatus === 'capturando' ? 'Capturando…' : 'Preço não capturado'}</span>`;
     const h = i.historicoPreco || [];
@@ -2213,7 +2218,7 @@
   /* ---------------- Links ---------------- */
   /* ---------------- Mosaico: os cards se encaixam nos vãos ----------------
      Cada card ocupa tantas linhas finas (1px) quanto a sua altura; o grid então preenche o espaço vazio embaixo dos mais baixos. */
-  const MOSAICO = '.mural, .grade, .vitrine, .bento';
+  const MOSAICO = '.mural, .grade, .bento';
   const roMosaico = typeof ResizeObserver === 'function' ? new ResizeObserver(() => agendarMosaico()) : null;
   let rafMosaico = 0;
   function agendarMosaico() { cancelAnimationFrame(rafMosaico); rafMosaico = requestAnimationFrame(empacotarTudo); }
@@ -2346,28 +2351,33 @@
     const total = ds.reduce((s, i) => s + (i.preco || 0), 0);
     const selo = (i) => i.capturaStatus === 'capturando' ? '<span class="tag">Capturando…</span>'
       : i.capturaStatus === 'pendente' ? '<span class="tag">Aguardando captura</span>'
-        : i.capturaStatus === 'falhou' ? '<span class="tag">Não consegui ler a página</span>'
-          : (i.faltando || []).length ? `<span class="tag">Faltou: ${esc(i.faltando.join(', '))}</span>` : '';
+        : i.capturaStatus === 'falhou' ? '<span class="tag">Não consegui ler a página</span>' : '';
+    const aviso = (i) => { const f = faltouAgora(i); return f.length ? `<p class="prod-aviso">Faltou: ${esc(f.join(', '))}</p>` : '<p class="prod-aviso vazio"></p>'; };
     const prod = (i) => `<article class="produto ${i.comprado ? 'comprado' : ''}" data-id="${i.id}">
       <a href="#/item/${i.id}" aria-label="Abrir ${esc(tituloItem(i))}">${fotoProduto(i)}</a>
       <p class="fonte">${ic('shop')}${esc(i.loja || dominio(i.url))}</p>
       <h3><a href="#/item/${i.id}">${esc(tituloItem(i))}</a></h3>
-      ${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ')' : '')}
-      <p>${precoHTML(i)}</p>${selo(i)}
-      <a class="btn btn-1 btn-p produto-ir" href="${esc(i.url)}" target="_blank" rel="noopener">Ver na loja ${ic('open-new-window')}</a>
-      <div class="pe">${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorito', 'Favoritar', 'estrela')}
-        ${btnAlterna('comprei', i.id, i.comprado, 'check-circle', 'Comprado', 'Marcar como comprado')}
-        ${btnIco('recapturar', 'refresh', 'Atualizar preço', `data-id="${i.id}"`)}
-        ${btnIco('copiar-link', 'copy', 'Copiar endereço', `data-id="${i.id}"`)}<span class="espaco"></span>
-        ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Corrigir dados' }, '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></article>`;
+      ${aviso(i)}
+      <div class="prod-aval">${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ')' : '')}</div>
+      <p class="prod-preco">${precoHTML(i)}${selo(i)}</p>
+      <div class="prod-rodape">
+        <a class="btn btn-marca btn-p produto-ir" href="${esc(i.url)}" target="_blank" rel="noopener">Ver na loja ${ic('open-new-window')}</a>
+        <div class="pe">${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorito', 'Favoritar', 'estrela')}
+          ${btnAlterna('comprei', i.id, i.comprado, 'check-circle', 'Comprado', 'Marcar como comprado')}
+          ${btnIco('recapturar', 'refresh', 'Atualizar preço', `data-id="${i.id}"`)}
+          ${btnIco('copiar-link', 'copy', 'Copiar endereço', `data-id="${i.id}"`)}<span class="espaco"></span>
+          ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Corrigir dados' }, '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></div></article>`;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('shopping-bag')}Wishlist</h1>
         <div class="ferramentas">${btn('criar', ic('plus') + 'Colar link', 'data-t="desejo"', 'btn-1')}</div>
-        <p class="meta">${ds.length} produto(s)${total ? ' · ' + brl(total) + ' somados' : ''}</p></header>
-      <div class="ferramentas"><span class="segmento" role="group">${[['desejos', 'Quero'], ['comprados', 'Comprados']].map(([v, n]) => `<button type="button" data-act="wl-filtro" data-v="${v}" aria-pressed="${UI.wlFiltro === v}">${n}</button>`).join('')}</span>
+        <p class="meta wl-resumo">${ds.length} ${ds.length === 1 ? 'produto' : 'produtos'}${total ? ` · <strong>${brl(total)}</strong> no total` : ''}</p></header>
+      <div class="ferramentas barra-wl"><span class="segmento" role="group">${[['desejos', 'Quero'], ['comprados', 'Comprados']].map(([v, n]) => `<button type="button" data-act="wl-filtro" data-v="${v}" aria-pressed="${UI.wlFiltro === v}">${n}</button>`).join('')}</span>
         ${selectHTML('wl-ord', '', [['recentes', 'Mais recentes'], ['menor', 'Menor preço'], ['maior', 'Maior preço']], UI.wlOrdem).replace('<select', '<select data-act="wl-ordem" style="width:auto"')}
         ${doTipo('desejo').some((i) => !i.comprado) ? btnTxt('recapturar-todos', 'refresh', 'Atualizar todos os preços') : ''}</div>
       ${UI.conferindo ? `<p class="meta">${ic('refresh')} Conferindo os preços…</p>` : ''}
       ${ds.length ? `<div class="vitrine">${ds.map(prod).join('')}</div>` : vazio('shopping-bag', UI.wlFiltro === 'comprados' ? 'Nada marcado como comprado.' : 'Cole o link de um produto para começar.', btn('criar', 'Colar link', 'data-t="desejo"', 'btn-1'))}`;
+    /* o balão de dica é do CSS (aria-label); tira o title nativo para não aparecer duas vezes */
+    main.querySelectorAll('.produto .menu > summary').forEach((b) => b.setAttribute('aria-label', 'Mais opções'));
+    main.querySelectorAll('.produto .pe [title]').forEach((b) => b.removeAttribute('title'));
   }
 
   /* ---------------- Gastos ---------------- */
@@ -2653,7 +2663,7 @@
           ${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ' avaliações)' : '')}
           <p>${precoHTML(i)}</p>
           <div class="acoes-form"><a class="btn btn-1" href="${esc(i.url)}" target="_blank" rel="noopener">Ver na loja ${ic('open-new-window')}</a>${btn('comprei', i.comprado ? 'Desmarcar comprado' : 'Comprei', `data-id="${i.id}"`, 'btn-2')}</div>
-          <p class="meta">${i.capturaEm ? 'Capturado em ' + fmtDataHora(i.capturaEm) : 'Ainda não capturado'}${(i.faltando || []).length ? ' · faltou: ' + esc(i.faltando.join(', ')) : ''}</p>
+          <p class="meta">${i.capturaEm ? 'Capturado em ' + fmtDataHora(i.capturaEm) : 'Ainda não capturado'}${faltouAgora(i).length ? ' · faltou: ' + esc(faltouAgora(i).join(', ')) : ''}</p>
           ${h.length > 1 ? `<div class="mini-lista" style="margin-top:8px">${h.slice().reverse().map((x) => `<p class="mini-item"><span>${brl(x.preco, i.moeda)}</span><span class="meta">${fmtDataHora(x.em)}</span></p>`).join('')}</div>` : ''}</div></div>`;
     } else topo = corpoPost(i);
     const anot = (i.anotacoes || []).slice().sort((a, b) => (b.pagina || 0) - (a.pagina || 0));
