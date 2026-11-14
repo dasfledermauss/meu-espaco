@@ -1398,7 +1398,7 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .ag-stickers { position: static; display: flex; align-items: center; gap: 2px; flex: none; min-height: 26px; }
 .ag-chip.feito { text-decoration: line-through; opacity: .55; }
 .ag-dia[aria-pressed="true"] .ag-chip.ev { background: var(--marca-leve); }
-.ag-linha { align-items: flex-start; overflow: hidden; }
+.ag-linha { align-items: flex-start;  }
 .ag-linha .menu { align-self: center; }
 .ag-txt, .ag-txt strong, .ag-txt small { overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
 .ag-selos { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
@@ -1415,6 +1415,42 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 @media (max-width: 1000px) { .ag-layout { grid-template-columns: 1fr; } }
 
 @media (max-width: 640px) { .ag-dia { min-height: 60px; } }
+
+/* ---------- evento com foto: feed e ticket (v5.23) ---------- */
+.ev-foto-area { display: flex; }
+.ev-foto-prev { position: relative; width: 100%; border-radius: var(--r-m); overflow: hidden; border: 1px solid var(--linha); }
+.ev-foto-prev img { display: block; width: 100%; max-height: 180px; object-fit: cover; }
+.ev-foto-prev .btn { position: absolute; right: 8px; bottom: 8px; }
+.ev-foto-add { cursor: pointer; }
+.ag-clicavel { cursor: pointer; }
+.ag-clicavel:hover { background: var(--hover-2); }
+.post-evento .ev-feed { display: flex; flex-direction: column; width: 100%; padding: 0; background: none; border: 0; text-align: left; font: inherit; color: var(--tinta); cursor: pointer; border-radius: var(--r-m); overflow: hidden; }
+.ev-feed img { display: block; width: 100%; max-height: 280px; object-fit: cover; border-radius: var(--r-m); }
+.ev-feed-txt { display: flex; flex-direction: column; gap: 2px; padding: 12px 0 0; }
+.ev-feed-txt strong { font-size: 16px; font-weight: 600; }
+.ev-feed-txt small { color: var(--tinta-2); font-size: 14px; }
+.ev-feed-txt em { font-style: normal; font-size: 13px; color: var(--tinta-2); }
+.modal-ticket { max-width: 400px; }
+.ticket { display: flex; flex-direction: column; background: var(--fundo); border: 1px solid var(--linha); border-radius: var(--r-m); overflow: hidden; }
+.tk-topo { position: relative; height: 160px; background: var(--hover-2); display: flex; align-items: center; justify-content: center; }
+.tk-topo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tk-vazio svg { width: 40px; height: 40px; color: var(--tinta-3); }
+.tk-selo { position: absolute; left: 12px; top: 12px; padding: 4px 10px; border-radius: 999px; background: var(--cartao); color: var(--tinta); font-size: 12px; font-weight: 600; }
+.tk-meio { padding: 16px 20px; display: flex; flex-direction: column; gap: 6px; }
+.tk-titulo { margin: 0; font-size: 20px; font-weight: 600; overflow-wrap: anywhere; }
+.tk-nota { margin: 0; color: var(--tinta-2); font-size: 14px; }
+.tk-corte { position: relative; display: flex; align-items: center; height: 0; }
+.tk-corte hr { flex: 1; border: 0; border-top: 2px dashed var(--linha); margin: 0 18px; }
+.tk-corte i { position: absolute; top: -10px; width: 20px; height: 20px; border-radius: 50%; background: var(--cartao); border: 1px solid var(--linha); }
+.tk-corte i:first-child { left: -11px; } .tk-corte i:last-child { right: -11px; }
+.tk-pe { display: flex; align-items: center; gap: 16px; padding: 20px; flex-wrap: wrap; }
+.tk-data { display: flex; flex-direction: column; align-items: center; min-width: 52px; line-height: 1; }
+.tk-data b { font-size: 32px; font-weight: 700; }
+.tk-data span { font-size: 12px; text-transform: uppercase; color: var(--tinta-2); margin-top: 4px; }
+.tk-info { display: flex; gap: 16px; margin: 0; flex: 1; }
+.tk-info dt { font-size: 12px; color: var(--tinta-2); } .tk-info dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+.tk-info dd::first-letter { text-transform: uppercase; }
+.tk-falta { width: 100%; font-size: 13px; color: var(--tinta-2); }
 
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {

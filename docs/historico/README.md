@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.22 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Agenda refinada: fuso local, painel do dia com selos, células, legenda, teclado. | — |
+| v5.23 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Eventos com foto no feed, ticket ao clicar no evento, abas de Agenda e Biblioteca reordenáveis por arrasto, menu do evento sem corte. |
+| v5.22 | sem captura ainda; registrar aqui antes da próxima mudança visual | Agenda refinada: fuso local, painel do dia com selos, células, legenda, teclado. | — |
 | v5.21 | `2026-11-13_v5.21-antes-do-refinamento-agenda/` | Barra com 8 áreas; Agenda (calendário) e abas em Agenda/Biblioteca. | — |
 | v5.20 | `2026-11-13_v5.20-antes-da-agenda/` | Menu do perfil em seções, Aparência como título, Sair, teclado. | — |
 | v5.19 | `2026-11-13_v5.19-antes-do-menu-perfil/` | Mini player sem botão Grupo, “+” só ícone; painel de sons ambiente. | — |

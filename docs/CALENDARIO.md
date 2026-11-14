@@ -12,6 +12,16 @@ Grade do mês (semana começa no domingo). Em cada dia aparecem os **eventos**, 
 
 **Stickers:** 7 opções (aniversário, viagem, saúde, trabalho, festa, coração, destaque), até 3 por dia, escolhidos no painel do dia. Ficam em `S.stickers` (`{ 'AAAA-MM-DD': ['bolo', ...] }`). Imagens: Twemoji (© Twitter/X, CC-BY 4.0), em `assets/img/stickers/`.
 
+## Foto e ticket do evento
+
+- No cadastro do evento a foto é opcional. Com foto, o evento vira um card no feed (Início e dia), e a foto é reduzida a 960×600.
+- Clicar no evento (Agenda, feed ou “Próximos eventos”) abre um ticket: foto, título, dia, horário e quantos dias faltam, com Editar e Excluir.
+- A foto **não vai para a nuvem** (limite de tamanho do documento): fica só no aparelho onde foi escolhida.
+
+## Abas reordenáveis
+
+As abas no topo de Agenda e Biblioteca se reordenam arrastando; a ordem fica em `perfil.ordemAbas` (por área) e sincroniza com o perfil.
+
 ## Início: próximos eventos e contagem
 O widget **Próximos eventos** (coluna da direita, arrastável como os outros) lista os próximos 3–4 eventos com “hoje / amanhã / em N dias”. Um evento marcado com **Contar os dias no Início** (`contagem: true`) vira a contagem regressiva em destaque no topo do widget (o mais próximo, se houver vários).
 
