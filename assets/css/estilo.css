@@ -1504,6 +1504,14 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
   .dt-info { padding: 16px 16px 16px 20px; }
   .dt-preco { flex-basis: 128px; padding: 12px 8px; }
 }
+/* artigos em janela flutuante (v5.27) */
+.janela { box-shadow: 0 12px 40px rgba(20, 28, 48, .22); touch-action: none; }
+.janela-barra { touch-action: none; user-select: none; }
+.janela-pagina { padding: 0; background: var(--cartao); }
+.janela-pagina iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+.janela .redimensiona { touch-action: none; display: grid; place-items: center; }
+body.janela-arrastando .janela iframe { pointer-events: none; }
+body.janela-arrastando { user-select: none; }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

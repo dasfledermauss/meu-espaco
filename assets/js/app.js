@@ -3045,10 +3045,14 @@
     if (UI.janelas.some((j) => j.itemId === it.id)) { foco(UI.janelas.find((j) => j.itemId === it.id).id); return; }
     const n = UI.janelas.length;
     UI.janelas.push({ id: uid('jan'), itemId: it.id, titulo: tituloItem(it), url: it.url,
-      x: 90 + n * 34, y: 70 + n * 28, w: Math.min(880, innerWidth - 140), h: Math.min(660, innerHeight - 130), estado: 'carregando', paginas: 0 });
+      x: 90 + n * 34, y: 70 + n * 28, w: Math.min(880, innerWidth - 140), h: Math.min(660, innerHeight - 130), estado: 'carregando', paginas: 0,
+      leitor: it.ehPdf && UI.servidor });
     renderJanelas();
-    desenharPdf(UI.janelas[UI.janelas.length - 1]);
+    const nova = UI.janelas[UI.janelas.length - 1];
+    if (nova.leitor) desenharPdf(nova);
   }
+  document.addEventListener('pointerdown', (e) => { const w = e.target.closest && e.target.closest('.janela'); if (w) foco(w.id); }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !UI.modal) { const w = document.activeElement && document.activeElement.closest && document.activeElement.closest('.janela'); if (w) { UI.janelas = UI.janelas.filter((j) => j.id !== w.id); renderJanelas(); } } });
   const foco = (id) => { const el = document.getElementById(id); if (el) { el.style.zIndex = 50 + (++foco.z || 1); el.focus(); } };
   function renderJanelas() {
     const c = document.getElementById('janelas');
@@ -3059,13 +3063,16 @@
       if (!el) {
         el = document.createElement('section');
         el.id = j.id; el.className = 'janela'; el.tabIndex = -1;
-        el.innerHTML = `<header class="janela-barra" data-move="${j.id}">${ic('page')}<strong>${esc(j.titulo)}</strong>
+        el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', j.titulo);
+        el.innerHTML = `<header class="janela-barra" data-move="${j.id}">${ic(j.leitor ? 'page' : 'link')}<strong>${esc(j.titulo)}</strong>
             ${btnIco('janela-anotar', 'quote', 'Anotar sobre este documento', `data-j="${j.id}"`)}
             <a class="ico-btn" href="${esc(j.url)}" target="_blank" rel="noopener" title="Abrir em nova guia" aria-label="Abrir em nova guia">${ic('open-new-window')}</a>
             ${btnIco('janela-fechar', 'xmark', 'Fechar', `data-j="${j.id}"`)}</header>
-          <div class="janela-corpo" data-corpo="${j.id}"><p class="meta">Carregando…</p></div>
+          ${j.leitor ? `<div class="janela-corpo" data-corpo="${j.id}"><p class="meta">Carregando…</p></div>
           <footer class="janela-pe"><span data-pe="${j.id}">—</span><span class="espaco" style="flex:1"></span>
-            <span class="meta">Selecione um trecho para guardar como anotação</span></footer>
+            <span class="meta">Selecione um trecho para guardar como anotação</span></footer>`
+            : `<div class="janela-corpo janela-pagina"><iframe src="${esc(j.url)}" title="${esc(j.titulo)}" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe></div>
+          <footer class="janela-pe"><span class="meta">Se a página não aparecer, o site não permite abrir aqui: use “Abrir em nova guia”.</span></footer>`}
           <span class="redimensiona" data-resize="${j.id}">${ic('expand')}</span>`;
         c.appendChild(el);
       }
@@ -3548,10 +3555,7 @@
       }
       case 'abrir-artigo': {
         e.preventDefault();
-        if (i.ehPdf && UI.servidor) return abrirJanela(i);
-        window.open(i.url, '_blank', 'noopener');
-        if (i.ehPdf) toast('Sem o servidor, o PDF abre em nova guia.');
-        return;
+        return abrirJanela(i);
       }
       case 'janela-fechar': UI.janelas = UI.janelas.filter((j) => j.id !== b.dataset.j); return renderJanelas();
       case 'janela-anotar': { const j = UI.janelas.find((x) => x.id === b.dataset.j); return abrirModal({ tipo: 'anotar', id: j.itemId }); }
@@ -4275,13 +4279,14 @@
 
   /* ---------------- janelas: mover e redimensionar ---------------- */
   let movendo = null;
-  document.addEventListener('mousedown', (e) => {
+  document.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     const barra = e.target.closest('[data-move]'), canto = e.target.closest('[data-resize]');
     if (e.target.closest('.ico-btn, a')) return;
-    if (barra) { const j = UI.janelas.find((x) => x.id === barra.dataset.move); movendo = { j, modo: 'mover', x: e.clientX - j.x, y: e.clientY - j.y }; foco(j.id); e.preventDefault(); }
-    else if (canto) { const j = UI.janelas.find((x) => x.id === canto.dataset.resize); movendo = { j, modo: 'tamanho', x: e.clientX - j.w, y: e.clientY - j.h }; e.preventDefault(); }
+    if (barra) { const j = UI.janelas.find((x) => x.id === barra.dataset.move); movendo = { j, modo: 'mover', x: e.clientX - j.x, y: e.clientY - j.y }; foco(j.id); document.body.classList.add('janela-arrastando'); e.preventDefault(); }
+    else if (canto) { const j = UI.janelas.find((x) => x.id === canto.dataset.resize); movendo = { j, modo: 'tamanho', x: e.clientX - j.w, y: e.clientY - j.h }; document.body.classList.add('janela-arrastando'); e.preventDefault(); }
   });
-  document.addEventListener('mousemove', (e) => {
+  document.addEventListener('pointermove', (e) => {
     if (!movendo) return;
     const { j, modo } = movendo;
     if (modo === 'mover') { j.x = Math.max(0, Math.min(innerWidth - 120, e.clientX - movendo.x)); j.y = Math.max(0, Math.min(innerHeight - 60, e.clientY - movendo.y)); }
@@ -4289,7 +4294,8 @@
     const el = document.getElementById(j.id);
     if (el) el.style.cssText += `;left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.h}px`;
   });
-  document.addEventListener('mouseup', () => { movendo = null; });
+  const soltarJanela = () => { movendo = null; document.body.classList.remove('janela-arrastando'); };
+  document.addEventListener('pointerup', soltarJanela); document.addEventListener('pointercancel', soltarJanela);
 
   /* seleção de texto no PDF -> anotação */
   function mostrarMenuSelecao(e) {

@@ -105,3 +105,7 @@ Sem as chaves, só o nome sai do link; foto e preço ficam para preencher em Cor
 ## Desejo no feed
 
 No feed, o desejo é uma etiqueta horizontal: foto à esquerda, título (até 2 linhas), loja e avaliação no meio e, depois do picote tracejado, o preço com a variação. No celular a foto fica em cima.
+
+## Artigos em janela flutuante
+
+Clicar num artigo abre uma janela flutuante com o título, botão de fechar (ou Esc), ícone para abrir em nova guia e botão de anotar. Dá para mover pela barra e redimensionar pelo canto (com mouse ou toque); várias janelas podem ficar abertas e a clicada vem para a frente. PDF com o servidor ligado usa o leitor interno; o resto abre a página num quadro. Sites que proíbem ser embutidos não aparecem ali: use "Abrir em nova guia". No celular a janela ocupa quase toda a tela.
