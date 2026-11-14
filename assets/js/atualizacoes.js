@@ -10,6 +10,20 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.17',
+    data: '2026-11-13',
+    titulo: 'Refinamento visual da Wishlist',
+    itens: [
+      'Wishlist: o aviso “Faltou: …” agora lista só o que realmente falta (card com preço não diz mais “Faltou: preço”) e virou um texto pequeno, discreto, logo abaixo do título.',
+      'Cards da Wishlist com altura igual por linha: imagem, loja, título (2 linhas), avaliação, preço e, presos no rodapé, o botão e as ações; grade responsiva a partir de 240 px.',
+      '“Ver na loja” virou botão secundário (fundo suave da cor do tema, preenche ao passar o mouse); “Colar link” segue como único botão principal.',
+      'Imagens dos produtos em quadro 100% branco, sem cortes e com margem interna igual.',
+      'Filtros alinhados: o seletor de ordem ficou com a mesma altura, formato e fundo do Quero/Comprados, e “Atualizar todos os preços” ficou centralizado na linha.',
+      'Ações dos cards com balão de dica (Favoritar, Marcar como comprado, Atualizar preço, Copiar endereço, Mais opções) e cinzas com contraste AA.',
+      'Resumo do topo com singular/plural (“1 produto”) e o valor total em destaque.'
+    ]
+  },
+  {
     versao: '5.16',
     data: '2026-11-13',
     titulo: 'Segundo logo do Tyba',

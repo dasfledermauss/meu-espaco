@@ -1237,6 +1237,43 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .pino.destaque { background: var(--marca); color: var(--marca-texto); }
 a[aria-current] .pino.destaque { background: var(--marca); color: var(--marca-texto); }
 
+/* ---------- Wishlist refinada (v5.17) ---------- */
+.vitrine { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; align-items: stretch; }
+.produto { padding: 16px; gap: 0; }
+.produto .foto-produto, .produto .foto-produto img { background: #fff; }
+.produto .foto-produto { height: 168px; }
+.produto .foto-produto img { padding: 12px; box-sizing: border-box; object-fit: contain; }
+:root[data-modo="escuro"] .produto .foto-produto img { background: #fff; }
+.produto .fonte { margin-top: 12px; color: var(--tinta-3); }
+.produto h3 { margin-top: 4px; min-height: 2.7em; font-size: 14.5px; }
+.prod-aviso { margin: 2px 0 0; height: 16px; line-height: 16px; font-size: 12px; color: #8a5a00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root[data-modo="escuro"] .prod-aviso { color: #e6b85c; }
+.prod-aval { margin-top: 8px; height: 20px; display: flex; align-items: center; }
+.prod-preco { margin: 8px 0 0; min-height: 28px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+.prod-rodape { margin-top: auto; padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.produto .produto-ir { margin-top: 0; justify-content: center; }
+.btn.btn-marca { background: color-mix(in srgb, var(--marca) 12%, transparent); color: var(--marca-escura); font-weight: 600; transition: background-color .2s ease-out, color .2s ease-out; }
+.btn.btn-marca:hover { background: var(--marca); color: var(--marca-texto); }
+:root[data-modo="escuro"] .btn.btn-marca { background: color-mix(in srgb, var(--marca) 22%, transparent); color: var(--marca-escura); }
+:root[data-modo="escuro"] .btn.btn-marca:hover { background: var(--marca); color: var(--marca-texto); }
+.barra-wl { align-items: center; gap: 12px; }
+.barra-wl .segmento { height: 44px; box-sizing: border-box; align-items: stretch; }
+.barra-wl .segmento button { padding: 0 16px; }
+.barra-wl select { height: 44px; box-sizing: border-box; border-radius: 999px; background-color: var(--campo); border: 0; padding: 0 40px 0 18px; font-size: 13px; font-weight: 500; color: var(--tinta); cursor: pointer; }
+.barra-wl select:hover { background-color: var(--hover-2); }
+.barra-wl .ico-btn.txt { height: 44px; color: var(--tinta-2); }
+.wl-resumo { font-size: 14px; color: var(--tinta-2); }
+.wl-resumo strong { font-size: 18px; font-weight: 600; color: var(--tinta); }
+.produto .pe .ico-btn, .produto .pe .menu > summary { position: relative; }
+.produto .pe [aria-label]::after { content: attr(aria-label); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%) translateY(2px); white-space: nowrap; background: #151924; color: #fff; font-size: 12px; font-weight: 500; line-height: 1; padding: 7px 10px; border-radius: 8px; opacity: 0; pointer-events: none; z-index: 30; transition: opacity .15s ease-out, transform .15s ease-out; }
+.produto .pe [aria-label]:hover::after, .produto .pe [aria-label]:focus-visible::after { opacity: 1; transform: translateX(-50%); }
+.produto .pe > .ico-btn:nth-child(-n+2)::after { left: 0; transform: translateY(2px); }
+.produto .pe > .ico-btn:nth-child(-n+2):hover::after, .produto .pe > .ico-btn:nth-child(-n+2):focus-visible::after { transform: none; }
+.produto .pe .menu > summary::after { left: auto; right: 0; transform: translateY(2px); }
+.produto .pe .menu > summary:hover::after, .produto .pe .menu > summary:focus-visible::after { transform: none; }
+.produto .pe .menu[open] > summary::after { display: none; }
+:root[data-modo="escuro"] .produto .pe [aria-label]::after { background: #2b323f; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

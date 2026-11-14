@@ -46,6 +46,8 @@ Tudo é preenchido pela própria pessoa. Nada é buscado em catálogos externos.
 
 A pessoa só cola o **link do produto**. O resto é capturado da página.
 
+**Como os cards se comportam (v5.17).** Grade de colunas a partir de 240 px, todos com a mesma altura por linha. Ordem fixa: imagem (quadro branco, sem corte) → loja → título (2 linhas) → aviso → avaliação (espaço reservado mesmo sem estrelas) → preço → botão “Ver na loja” (secundário) e ações presos ao rodapé. O aviso “Faltou: …” é calculado na hora, só com o que está realmente vazio (nome, foto, preço). Cada ação tem balão de dica. “Colar link” é o único botão principal da página.
+
 | Dado | De onde vem |
 |---|---|
 | Nome | Dados de produto da página (schema.org Product), depois `og:title`, depois o título da página. |
