@@ -42,7 +42,7 @@
 [data-tema="grafite"] { --marca: #3b4252; --marca-escura: #2b313e; --marca-leve: #edeff4; }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-y: scroll; scrollbar-gutter: stable; }
 body { margin: 0; background: var(--fundo); color: var(--tinta); font: 15px/1.55 Lexend, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: -.005em; }
 h1, h2, h3, h4, p, figure { margin: 0; }
 em, i, address, cite, dfn { font-style: normal; }

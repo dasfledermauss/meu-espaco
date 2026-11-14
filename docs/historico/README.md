@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.28 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Anotações de artigos no feed e em painel na janela. |
+| v5.29 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Barra de rolagem sempre visível (sem a página quicar). |
+| v5.28 | sem captura ainda; registrar aqui antes da próxima mudança visual | Anotações de artigos no feed e em painel na janela. |
 | v5.27 | sem captura ainda; registrar aqui antes da próxima mudança visual | Artigos abrem em janela flutuante móvel e redimensionável. |
 | v5.26 | sem captura ainda; registrar aqui antes da próxima mudança visual | Desejo no feed como etiqueta horizontal (foto, info, picote, preço). |
 | v5.25 | sem captura ainda; registrar aqui antes da próxima mudança visual | Card de evento no feed como ticket horizontal (foto, info, picote, data). |
