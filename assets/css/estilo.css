@@ -104,7 +104,8 @@ img { max-width: 100%; }
 main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 #conteudo:focus, #conteudo:focus-visible { outline: 0; }
 .direita { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 78px; max-height: calc(100vh - 94px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
-.nav-lateral { position: sticky; top: 78px; display: flex; flex-direction: column; gap: 3px; max-height: calc(100vh - 94px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.nav-lateral { position: sticky; top: 78px; display: flex; flex-direction: column; gap: 3px; max-height: calc(100vh - 90px); overflow-y: auto; scrollbar-width: none; }
+.nav-lateral::-webkit-scrollbar { display: none; }
 .nav-lateral a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 13px; color: var(--tinta-2); font-size: 14.5px; font-weight: 500; }
 .nav-lateral a:hover { background: var(--hover); text-decoration: none; color: var(--tinta); }
 .nav-lateral a[aria-current] { background: var(--cartao); color: var(--marca); font-weight: 600; }
@@ -1179,6 +1180,11 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 :root[data-modo="escuro"] .aviso-pwa .aviso-x { color: var(--tinta); }
 :root[data-modo="escuro"] .menu-selecao { background: #2b323f; color: var(--tinta); }
 :root[data-modo="escuro"] .menu-selecao button { color: var(--tinta); }
+
+/* barra lateral sempre inteira na tela, sem rolagem: encolhe o espaçamento conforme a altura */
+@media (min-width: 861px) and (max-height: 880px) { .nav-lateral { gap: 1px; } .nav-lateral a { padding: 7px 14px; } .nav-lateral .sub { padding: 5px 14px; } .nav-lateral .nav-rotulo, .nav-lateral p { margin-top: 6px; } }
+@media (min-width: 861px) and (max-height: 760px) { .nav-lateral { gap: 0; } .nav-lateral a { padding: 4px 14px; font-size: 14px; } .nav-lateral .sub { padding: 3px 14px; font-size: 13px; } }
+@media (min-width: 861px) and (max-height: 640px) { .nav-lateral a { padding: 2px 14px; font-size: 13px; } .nav-lateral .sub { padding: 1px 14px; font-size: 12.5px; } }
 
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
