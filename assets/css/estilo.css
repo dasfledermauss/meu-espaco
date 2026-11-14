@@ -1154,7 +1154,8 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .sel-modo.sel-marcada { box-shadow: 0 0 0 2px var(--tinta); }
 .sel-caixa { position: absolute; top: 12px; left: 12px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; background: var(--cartao); border: 2px solid var(--tinta-3); display: grid; place-items: center; color: transparent; }
 .sel-caixa .ico { width: 14px; height: 14px; }
-.sel-marcada .sel-caixa { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+.sel-marcada .sel-caixa { background: var(--tinta); border-color: var(--tinta); color: var(--cartao); }
+.post.sel-modo .post-cab { padding-left: 32px; }
 .barra-sel { position: sticky; bottom: 16px; z-index: 40; margin: 18px auto 0; width: fit-content; max-width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px 10px 18px; background: var(--cartao); border-radius: 999px; box-shadow: 0 8px 28px rgba(20,24,40,.18); }
 .barra-sel strong { font-size: 14px; margin-right: 4px; }
 .barra-sel button[disabled] { opacity: .45; pointer-events: none; }
@@ -1163,6 +1164,13 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 /* ---------- mosaico (cards se encaixam nos vãos) ---------- */
 .mosaico { row-gap: 0 !important; grid-auto-rows: 1px !important; align-items: start !important; }
 .mosaico > * { margin-bottom: var(--gap-m, 16px); align-self: start; }
+
+/* ---------- modo escuro: avisos e menus que eram claros sobre escuro ---------- */
+:root[data-modo="escuro"] .aviso-pwa { background: #2b323f; color: var(--tinta); box-shadow: 0 8px 28px rgba(0,0,0,.5); }
+:root[data-modo="escuro"] .aviso-pwa .aviso-btn { background: var(--marca); color: var(--marca-texto); }
+:root[data-modo="escuro"] .aviso-pwa .aviso-x { color: var(--tinta); }
+:root[data-modo="escuro"] .menu-selecao { background: #2b323f; color: var(--tinta); }
+:root[data-modo="escuro"] .menu-selecao button { color: var(--tinta); }
 
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
