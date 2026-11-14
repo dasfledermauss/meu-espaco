@@ -152,7 +152,11 @@
     grupoImagem: '', origens: {}, wlFiltro: 'desejos', wlOrdem: 'recentes', muralCol: 'todas', pastaAberta: null, extras: {}, imagens: {}, servidor: false, janelas: [], sessao: { modo: 'local' }, nuvem: { estado: 'local', em: '', erro: '' } };
   let RASC = {};
 
-  function aplicarSons() { if (window.SONS && typeof S !== 'undefined' && S && S.perfil) SONS.config(S.perfil.somUI !== false, S.perfil.somVolume == null ? 40 : S.perfil.somVolume); }
+  function aplicarSons() {
+    if (!(window.SONS && typeof S !== 'undefined' && S && S.perfil)) return;
+    SONS.config(S.perfil.somUI !== false, S.perfil.somVolume == null ? 40 : S.perfil.somVolume);
+    if (S.perfil.ambiente && !aplicarSons.ambiente) { aplicarSons.ambiente = true; SONS.ambiente.definir(S.perfil.ambiente.niveis, S.perfil.ambiente.geral); }
+  }
   function salvar() {
     aplicarSons();
     try { localStorage.setItem(CHAVE, JSON.stringify(S)); if (typeof agendarSync === 'function') agendarSync(); return true; }
@@ -1110,6 +1114,25 @@
       data-act="tocar-video" data-id="${i.id}" data-video="${esc(f.video)}">
       <em>${n + 1}</em><span>${esc(f.titulo)}</span></button>`).join('')}</div>`;
   }
+  /* Painel de sons ambiente: um controle de volume por camada. */
+  function ambienteHTML() {
+    const A = window.SONS && SONS.ambiente; if (!A) return '';
+    const sv = S.perfil.ambiente || {}, niveis = Object.assign(A.niveis(), sv.niveis || {}), geral = sv.geral == null ? A.volumeGeral() : sv.geral;
+    const linha = (id, nome, v) => `<label class="amb-linha"><span>${nome}</span><input type="range" min="0" max="100" step="1" value="${v}" data-act="amb-nivel" data-id="${id}" aria-label="${nome}"></label>`;
+    return `<div class="amb-topo">${btn('amb-tocar', A.tocando() ? 'Pausar' : 'Tocar', '', 'btn-1 btn-p')}${btn('amb-zerar', 'Zerar', '', 'btn-f btn-p')}</div>
+      ${linha('geral', 'Geral', geral)}<hr class="amb-sep">
+      ${A.camadas.map(([id, nome]) => linha(id, nome, niveis[id] || 0)).join('')}`;
+  }
+  function pintarAmbiente() {
+    const ap = document.querySelector('#player .mini-app'); if (!ap || !window.SONS) return;
+    const toca = SONS.ambiente.tocando();
+    ap.classList.toggle('amb-aberto', !!UI.ambAberto);
+    const bt = ap.querySelector('[data-act="amb-abrir"]'); if (bt) { bt.setAttribute('aria-pressed', String(!!UI.ambAberto)); bt.classList.toggle('toca', toca); }
+    const tc = ap.querySelector('[data-act="amb-tocar"]'); if (tc) tc.textContent = toca ? 'Pausar' : 'Tocar';
+  }
+  function salvarAmbiente() {
+    const A = SONS.ambiente; S.perfil.ambiente = { niveis: A.niveis(), geral: A.volumeGeral() }; salvar();
+  }
   function cabecalhoMiniApp() {
     const g = UI.grupoMusica || '';
     const ops = [['', 'Todas as músicas'], ...(S.gruposMusica || []).map((x) => [x.id, x.nome]), ['soltas', 'Sem grupo']];
@@ -1144,7 +1167,7 @@
   function renderMiniApp() {
     const caixa = document.getElementById('player');
     if (!caixa) return;
-    if (!UI.painelMusica && !UI.tocando) { caixa.innerHTML = ''; caixa.hidden = true; delete caixa.dataset.faixa; UI.faixaYT = ''; return; }
+    if (!UI.painelMusica && !UI.tocando && !(window.SONS && SONS.ambiente.tocando())) { caixa.innerHTML = ''; caixa.hidden = true; delete caixa.dataset.faixa; UI.faixaYT = ''; return; }
     caixa.hidden = false;
     caixa.classList.toggle('guardado', !UI.painelMusica);
     if (!caixa.querySelector('.mini-app')) {
@@ -1161,8 +1184,9 @@
           ${btnIco('player-fechar', 'xmark', 'Guardar no canto')}</header>
         <div class="ma-video" id="ma-video"></div>
         <div class="ma-barra">${cabecalhoMiniApp()}
-          ${btn('criar', ic('plus') + 'Música', 'data-t="musica"', 'btn-f btn-p')}
-          ${btn('novo-grupo-musica', ic('folder') + 'Grupo', '', 'btn-f btn-p')}</div>
+          ${btnIco('amb-abrir', 'ambiente', 'Sons ambiente', 'aria-pressed="false"', 'ma-amb-btn')}
+          ${btn('criar', ic('plus'), 'data-t="musica" aria-label="Nova música" title="Nova música"', 'btn-1 ma-novo')}</div>
+        <div class="ma-amb" id="ma-amb">${ambienteHTML()}</div>
         <div class="ma-lista" id="ma-lista"></div></div>
         <button type="button" class="ma-pega" data-act="player-abrir" aria-label="Abrir o player"><span class="disco girando"><span></span></span></button>`;
     }
@@ -1178,6 +1202,7 @@
     } else if (!i && caixa.dataset.faixa) { delete caixa.dataset.faixa; alvo.innerHTML = ''; }
     renderDisco();
     pintarMiniApp();
+    pintarAmbiente();
   }
   function renderMusicas() {
     const lista = musicas().slice().sort((a, b2) => b2.criadoEm.localeCompare(a.criadoEm));
@@ -3065,6 +3090,13 @@
       case 'trabalho-sair': e.preventDefault(); return alternarTrabalho(false);
       case 'atalho': e.preventDefault(); if (!matchMedia('(hover: none)').matches) return; UI.atalhoAberto = !UI.atalhoAberto; return renderAtalho();
       case 'som-ui': e.preventDefault(); S.perfil.somUI = S.perfil.somUI === false; salvar(); UI.pularColheita = true; render(); if (S.perfil.somUI !== false) SONS.tocar('guardar'); return;
+      case 'amb-abrir': e.preventDefault(); UI.ambAberto = !UI.ambAberto; return pintarAmbiente();
+      case 'amb-tocar': e.preventDefault(); if (SONS.ambiente.tocando()) SONS.ambiente.parar(); else SONS.ambiente.ligar(); return pintarAmbiente();
+      case 'amb-zerar': {
+        e.preventDefault(); const z = {}; SONS.ambiente.camadas.forEach(([k]) => { z[k] = 0; }); SONS.ambiente.definir(z);
+        document.querySelectorAll('#ma-amb input[data-id]').forEach((r) => { if (r.dataset.id !== 'geral') r.value = 0; });
+        return salvarAmbiente();
+      }
       case 'pet-som': e.preventDefault(); S.perfil.petMudo = !S.perfil.petMudo; salvar(); UI.pularColheita = true; render(); if (!S.perfil.petMudo) petLatido(); return;
       case 'pet-config': { e.preventDefault(); const pn = document.querySelector('#pet-cena .pet-config'); if (pn) { pn.hidden = !pn.hidden; UI.petConfig = !pn.hidden; } return; }
       case 'pet-escolher': e.preventDefault(); S.perfil.petTipo = b.dataset.tipo; UI.petConfig = false; salvar(); PET.estado = 'parado'; PET.alvo = null; UI.pularColheita = true; render(); petFalar(petDef().fala, 1); petLatido(); return;
@@ -3386,6 +3418,16 @@
     }
   });
 
+  document.addEventListener('input', (e) => {
+    const rg = e.target.closest && e.target.closest('input[data-act="amb-nivel"]');
+    if (rg && window.SONS) {
+      const A = SONS.ambiente;
+      if (rg.dataset.id === 'geral') A.geral(rg.value); else A.nivel(rg.dataset.id, rg.value);
+      if (!A.tocando() && Number(rg.value) > 0) { A.ligar(); pintarAmbiente(); }
+      return;
+    }
+  });
+  document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('input[data-act="amb-nivel"]')) salvarAmbiente(); });
   document.addEventListener('input', (e) => {
     if (e.target.matches && e.target.matches('.humor-rapido [name=humorEmoji]')) {
       const v = e.target.value.trim();

@@ -1277,6 +1277,20 @@ a[aria-current] .pino.destaque { background: var(--marca); color: var(--marca-te
 input[type="range"][data-act="som-vol"] { width: 100%; max-width: 320px; padding: 0; accent-color: var(--marca); cursor: pointer; }
 input[type="range"][data-act="som-vol"]:disabled { opacity: .45; cursor: default; }
 
+/* ---------- mini player: sons ambiente ---------- */
+.ma-barra .ma-novo { width: 34px; height: 34px; padding: 0; flex: none; justify-content: center; margin-left: 2px; }
+.ma-barra .ma-novo .ico { width: 18px; height: 18px; }
+.ma-barra .ma-amb-btn { width: 34px; height: 34px; flex: none; }
+.ma-amb-btn[aria-pressed="true"], .ma-amb-btn.toca { color: var(--marca); background: var(--marca-leve); }
+.ma-amb { display: none; overflow: auto; padding: 12px 14px 14px; flex: 1 1 auto; min-height: 0; }
+.mini-app.amb-aberto .ma-amb { display: block; }
+.mini-app.amb-aberto .ma-lista { display: none; }
+.amb-topo { display: flex; gap: 8px; margin-bottom: 12px; }
+.amb-linha { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 10px; padding: 7px 0; font-size: 13px; color: var(--tinta-2); }
+.amb-linha input[type="range"] { width: 100%; padding: 0; accent-color: var(--marca); cursor: pointer; background: none; border: 0; }
+.amb-sep { border: 0; border-top: 1px solid var(--linha); margin: 6px 0; }
+.mini-app.min .ma-amb { display: none; }
+
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

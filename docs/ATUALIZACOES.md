@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.19 — 13/11/2026 · Sons ambiente no mini player
+
+- Mini player de música: o botão “Grupo” saiu e o “+” virou só o ícone, em cor primária, no canto direito.
+- Novo painel de Sons ambiente no mini player: sliders de volume para chuva, vento, fogo, mato, ruído marrom e ruído branco, mais um volume geral e os botões Tocar/Pausar e Zerar. Os sons são gerados no aparelho e o equilíbrio fica salvo.
+
 ## 5.18 — 13/11/2026 · Universo sonoro
 
 - Universo sonoro: sons curtos e suaves ao guardar, concluir (tarefa, lembrete, comprado, mídia), favoritar, excluir, abrir janelas e ao trocar o logo; desfazer um deles toca um som descendente.
