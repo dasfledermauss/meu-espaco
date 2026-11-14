@@ -21,7 +21,7 @@ O disco ao lado da foto de perfil abre um painel no canto inferior direito, por 
 
 | Parte | O que faz |
 |---|---|
-| Barra de cima | capa, nome do que está tocando, **anterior**, **tocar/pausar**, **próxima**, **modo MP3** e **guardar no canto** |
+| Barra de cima | capa, nome do que está tocando, **anterior**, **tocar/pausar**, **próxima**, **modo MP3** e **fechar** |
 | Vídeo | aparece quando algo está tocando; no modo MP3 ele some e o som continua |
 | Seletor de grupo | Todas as músicas, cada grupo criado, ou Sem grupo |
 | Botões | **+ Música** (guarda uma nova) e **Grupo** (cria um grupo) |
@@ -33,7 +33,7 @@ O disco ao lado da foto de perfil abre um painel no canto inferior direito, por 
 
 **Modo MP3.** A barra fica na **cor do tema**, com capa quadrada e o nome passando devagar. Numa playlist, o nome que passa é o **do vídeo que está tocando**, não o do cartão: o player do YouTube avisa a cada troca de faixa. Clicar na capa ou num espaço vazio da barra volta para o painel inteiro.
 
-**Guardar no canto.** O X não para a música: o painel vira um disco girando, flutuando na borda direita. Um clique nele traz o painel de volta, com a música no mesmo ponto. Esconder, guardar e navegar **nunca recriam o vídeo** — o iframe é o mesmo do começo ao fim.
+**Fechar.** O X para a música e os sons ambiente e fecha o painel. Para voltar, use o botão de música ao lado do perfil.
 
 O embed usa `youtube-nocookie.com`. O YouTube é quem toca: o Meu Espaço não baixa nem hospeda nada, e vale o que estiver disponível na região.
 
