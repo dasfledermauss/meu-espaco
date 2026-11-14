@@ -10,6 +10,19 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.21',
+    data: '2026-11-13',
+    titulo: 'Agenda e barra enxuta',
+    itens: [
+      'Início ganhou o widget “Próximos eventos”: os próximos compromissos com “hoje”, “amanhã” ou “em N dias”. Marque “Contar os dias no Início” num evento para ele aparecer como contagem regressiva em destaque.',
+      'Calendário com 7 stickers (aniversário, viagem, saúde, trabalho, festa, coração e destaque), até 3 por dia, escolhidos no painel do dia.',
+      'Barra lateral enxuta, com 8 áreas: Início, Agenda, Mural, Músicas, Biblioteca, Gastos, Wishlist e Currículo.',
+      'Nova Agenda: um calendário do mês onde aparecem seus eventos, as tarefas com prazo e os lembretes. Clique num dia para ver a lista dele e use “Novo evento” (título, dia, horário e nota) para marcar o que vai fazer.',
+      'Agenda e Biblioteca viraram abas: Calendário, Tarefas e Lembretes; Livros e filmes, Links, Imagens e Estudos. As páginas e os atalhos de antes continuam funcionando.',
+      'A ordem da barra voltou ao padrão novo (dá para arrastar de novo); os eventos também sincronizam com a conta.'
+    ]
+  },
+  {
     versao: '5.20',
     data: '2026-11-13',
     titulo: 'Menu do perfil refinado',
