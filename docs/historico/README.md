@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.19 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Mini player sem botão Grupo, “+” só ícone; painel de sons ambiente. | — |
+| v5.20 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Menu do perfil em seções, Aparência como título, Sair, teclado. | — |
+| v5.19 | `2026-11-13_v5.19-antes-do-menu-perfil/` | Mini player sem botão Grupo, “+” só ícone; painel de sons ambiente. | — |
 | v5.18 | sem captura ainda (só áudio, sem mudança visual além do card Sons em Configurações) | Universo sonoro: sons de interface sintetizados, com liga/desliga e volume. | — |
 | v5.17 | sem captura ainda; registrar aqui antes da próxima mudança visual | Refinamento visual da Wishlist: cards alinhados, aviso discreto, botão secundário, tooltips, contraste AA. | — |
 | v5.16 | `2026-11-13_v5.16-antes-da-wishlist/` | Segundo logo do Tyba (3 cliques no logo alternam). | — |

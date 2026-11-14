@@ -10,6 +10,17 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.20',
+    data: '2026-11-13',
+    titulo: 'Menu do perfil refinado',
+    itens: [
+      'Menu do perfil reorganizado em seções com divisor fino: Conta (Editar perfil, Configurações e backup), Ajuda (Primeiros passos, O que há de novo) e App (Instalar o app, só quando o app ainda não está instalado).',
+      '“Aparência” virou título de seção, com o mesmo estilo de “Como estou hoje”; o seletor Claro/Escuro/Sistema continua igual.',
+      'Novo item “Sair” no fim do menu, em vermelho suave e sem ícone: encerra a sessão e volta para a tela de login (aparece quando há login).',
+      'Itens com hover suave e raio do menu, sem mudar a altura; teclado com setas, Home/End, Esc para fechar e foco visível; contraste AA nos dois modos.'
+    ]
+  },
+  {
     versao: '5.19',
     data: '2026-11-13',
     titulo: 'Sons ambiente no mini player',
