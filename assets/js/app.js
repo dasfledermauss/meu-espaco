@@ -2236,8 +2236,13 @@
   function prepararSelecao(rota) {
     if (!SEL_ROTAS.includes(rota)) return;
     if (!cartoesSel().length && !selAtiva()) return;
+    const linhaFeed = rota === 'inicio' ? main.querySelector('.feed .dia-nav, .feed .secao-tit:not(.so)') : null;
     const cab = main.querySelector('.pagina-cab .ferramentas') || main.querySelector('.pagina-cab');
-    if (cab) cab.insertAdjacentHTML('afterbegin', selBtn());
+    if (linhaFeed) {
+      linhaFeed.insertAdjacentHTML('beforeend', `<span class="sel-lado">${selBtn()}</span>`);
+      const bt = linhaFeed.querySelector('.sel-lado button'); if (bt) { bt.title = bt.textContent.trim(); bt.setAttribute('aria-label', bt.title); }
+    }
+    else if (cab) cab.insertAdjacentHTML('afterbegin', selBtn());
     else main.insertAdjacentHTML('afterbegin', `<div class="ferramentas" style="justify-content:flex-end">${selBtn()}</div>`);
     aplicarSelecao();
   }
