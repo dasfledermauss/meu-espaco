@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.25 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Card de evento no feed como ticket horizontal (foto, info, picote, data). |
+| v5.26 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Desejo no feed como etiqueta horizontal (foto, info, picote, preço). |
+| v5.25 | sem captura ainda; registrar aqui antes da próxima mudança visual | Card de evento no feed como ticket horizontal (foto, info, picote, data). |
 | v5.24 | sem captura ainda; registrar aqui antes da próxima mudança visual | Cabeçalho da Agenda: título+ação, subtítulo, abas e conteúdo no grid de 24px; aba ativa com sombra e sublinhado; legenda do calendário como filtro. |
 | v5.23 | `2026-11-13_v5.23-antes-do-cabecalho-agenda/` | Eventos com foto no feed, ticket ao clicar no evento, abas de Agenda e Biblioteca reordenáveis por arrasto, menu do evento sem corte. |
 | v5.22 | sem captura ainda; registrar aqui antes da próxima mudança visual | Agenda refinada: fuso local, painel do dia com selos, células, legenda, teclado. | — |

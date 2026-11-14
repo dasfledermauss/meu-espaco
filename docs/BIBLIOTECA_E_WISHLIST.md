@@ -101,3 +101,7 @@ O Mercado Livre bloqueia a leitura da página, então foto e preço vêm da API 
 5. Reinicie o `servidor.py` e use Atualizar preço nos cards.
 
 Sem as chaves, só o nome sai do link; foto e preço ficam para preencher em Corrigir dados.
+
+## Desejo no feed
+
+No feed, o desejo é uma etiqueta horizontal: foto à esquerda, título (até 2 linhas), loja e avaliação no meio e, depois do picote tracejado, o preço com a variação. No celular a foto fica em cima.

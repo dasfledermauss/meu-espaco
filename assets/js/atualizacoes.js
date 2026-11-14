@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.26',
+    data: '2026-11-13',
+    titulo: 'Desejo no feed como etiqueta',
+    itens: [
+      'Desejo no feed virou uma etiqueta horizontal: foto à esquerda, título, loja e avaliação no meio e, depois do picote tracejado, o preço em destaque com a variação (↓ caiu / ↑ subiu); no celular a foto vai para cima.'
+    ]
+  },
+  {
     versao: '5.25',
     data: '2026-11-13',
     titulo: 'Evento no feed como ticket',
