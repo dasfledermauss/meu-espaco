@@ -14,9 +14,9 @@ Grade do mês (semana começa no domingo). Em cada dia aparecem os **eventos**, 
 
 ## Foto e ticket do evento
 
-- No cadastro do evento a foto é opcional. Com foto, o evento vira um card no feed (Início e dia), e a foto é reduzida a 960×600.
+- A foto do evento é opcional e entra como nas capas dos livros: arquivo, arrastar, Ctrl + V ou link. Com foto, o evento vira um card no feed (Início e dia); a imagem é reduzida a 480×300.
 - Clicar no evento (Agenda, feed ou “Próximos eventos”) abre um ticket: foto, título, dia, horário e quantos dias faltam, com Editar e Excluir.
-- A foto **não vai para a nuvem** (limite de tamanho do documento): fica só no aparelho onde foi escolhida.
+- Como é pequena, a foto sincroniza com a nuvem junto do evento.
 
 ## Abas reordenáveis
 
