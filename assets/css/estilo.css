@@ -1265,13 +1265,13 @@ a[aria-current] .pino.destaque { background: var(--marca); color: var(--marca-te
 .wl-resumo { font-size: 14px; color: var(--tinta-2); }
 .wl-resumo strong { font-size: 18px; font-weight: 600; color: var(--tinta); }
 .produto .pe .ico-btn, .produto .pe .menu > summary { position: relative; }
-.produto .pe [aria-label]::after { content: attr(aria-label); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%) translateY(2px); white-space: nowrap; background: #151924; color: #fff; font-size: 12px; font-weight: 500; line-height: 1; padding: 7px 10px; border-radius: 8px; opacity: 0; pointer-events: none; z-index: 30; transition: opacity .15s ease-out, transform .15s ease-out; }
-.produto .pe [aria-label]:hover::after, .produto .pe [aria-label]:focus-visible::after { opacity: 1; transform: translateX(-50%); }
+.produto .pe [aria-label]::after { content: attr(aria-label); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%) translateY(2px); white-space: nowrap; background: #151924; color: #fff; font-size: 12px; font-weight: 500; line-height: 1; padding: 7px 10px; border-radius: 8px; display: none; pointer-events: none; z-index: 30; }
+.produto .pe [aria-label]:hover::after, .produto .pe [aria-label]:focus-visible::after { display: block; transform: translateX(-50%); }
 .produto .pe > .ico-btn:nth-child(-n+2)::after { left: 0; transform: translateY(2px); }
 .produto .pe > .ico-btn:nth-child(-n+2):hover::after, .produto .pe > .ico-btn:nth-child(-n+2):focus-visible::after { transform: none; }
 .produto .pe .menu > summary::after { left: auto; right: 0; transform: translateY(2px); }
 .produto .pe .menu > summary:hover::after, .produto .pe .menu > summary:focus-visible::after { transform: none; }
-.produto .pe .menu[open] > summary::after { display: none; }
+.produto .pe .menu[open] > summary::after { display: none !important; }
 :root[data-modo="escuro"] .produto .pe [aria-label]::after { background: #2b323f; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
 
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
