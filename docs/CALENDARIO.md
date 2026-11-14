@@ -18,7 +18,7 @@ Ordem: título + botão de ação (mesma linha) → subtítulo → abas → cont
 
 ## Foto e ticket do evento
 
-- A foto do evento é opcional e entra como nas capas dos livros: arquivo, arrastar, Ctrl + V ou link. Com foto, o evento vira um card no feed (Início e dia); a imagem é reduzida a 480×300.
+- A foto do evento é opcional e entra como nas capas dos livros: arquivo, arrastar, Ctrl + V ou link. Com foto, o evento vira um ticket horizontal no feed (Início e dia: foto, título, nota, horário, picote e o dia em destaque; no celular a foto fica em cima); a imagem é reduzida a 480×300.
 - Clicar no evento (Agenda, feed ou “Próximos eventos”) abre um ticket: foto, título, dia, horário e quantos dias faltam, com Editar e Excluir.
 - Como é pequena, a foto sincroniza com a nuvem junto do evento.
 

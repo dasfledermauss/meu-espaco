@@ -1968,12 +1968,16 @@
   }
 
   function eventoPostHTML(i, opts = {}) {
-    const e = i.ev, quando = opts.hora ? fmtHora(e.criadoEm) : fmtDataHora(e.criadoEm);
+    const e = i.ev, n = diasAte(e.data), d = deDia(e.data), quando = opts.hora ? fmtHora(e.criadoEm) : fmtDataHora(e.criadoEm);
+    const dow = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''), mes = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
     return `<article class="post post-evento" data-ev="${e.id}">
-      <header class="post-cab"><span class="selo">${ic('calendar')}Evento</span><span>${esc(fmtDiaCurto(e.data))}${e.hora ? ' · ' + esc(e.hora) : ''}</span><time>${quando}</time></header>
-      <button type="button" class="ev-feed" data-act="ev-ver" data-id="${e.id}" aria-label="Abrir o evento ${esc(e.titulo)}">
-        <img src="${e.foto}" alt="" loading="lazy">
-        <span class="ev-feed-txt"><strong>${esc(e.titulo)}</strong>${e.nota ? `<small>${esc(e.nota)}</small>` : ''}<em>${diasAte(e.data) >= 0 ? quandoEvento(diasAte(e.data)) : 'já passou'}</em></span></button></article>`;
+      <button type="button" class="ev-ticket ${n < 0 ? 'passou' : ''}" data-act="ev-ver" data-id="${e.id}" aria-label="Abrir o evento ${esc(e.titulo)}">
+        <span class="evt-foto"><img src="${e.foto}" alt="" loading="lazy"></span>
+        <span class="evt-info"><span class="evt-selo">${ic('calendar')}Evento<time>${quando}</time></span>
+          <strong>${esc(e.titulo)}</strong>${e.nota ? `<small>${esc(e.nota)}</small>` : ''}
+          <em>${e.hora ? esc(e.hora) + ' · ' : ''}${n >= 0 ? quandoEvento(n) : 'já passou'}</em></span>
+        <span class="evt-corte" aria-hidden="true"><i></i><hr><i></i></span>
+        <span class="evt-data"><small>${esc(dow)}</small><b>${d.getDate()}</b><small>${esc(mes)}</small></span></button></article>`;
   }
   function postHTML(i, opts = {}) {
     if (i.tipo === 'evento' && i.ev) return eventoPostHTML(i, opts);
