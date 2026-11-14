@@ -411,7 +411,7 @@
   const pasta = (id) => S.pastas.find((c) => c.id === id);
   const item = (id) => S.itens.find((i) => i.id === id);
   const lembrete = (id) => S.lembretes.find((l) => l.id === id);
-  const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], imagem: ['Imagem', 'media-image'], musica: ['Música', 'music-note'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
+  const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], imagem: ['Imagem', 'media-image'], musica: ['Música', 'ytmusic'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
   /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
   const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
   const etapa = (i) => i.concluida ? 'feito' : (i.etapa === 'fazendo' ? 'fazendo' : 'afazer');
@@ -558,7 +558,7 @@
 
   /* ---------------- formulários de criação e edição ---------------- */
   const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['tarefa', 'Tarefa', 'list'], ['imagem', 'Imagem', 'media-image'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
-    ['artigo', 'Artigo de estudo', 'page'], ['musica', 'Música', 'music-note'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
+    ['artigo', 'Artigo de estudo', 'page'], ['musica', 'Música', 'ytmusic'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
   const tituloCriar = { nota: 'Nova nota', tarefa: 'Nova tarefa', imagem: 'Guardar imagem', link: 'Guardar link', midia: 'Novo na biblioteca', artigo: 'Novo artigo', musica: 'Guardar música', desejo: 'Novo desejo', gasto: 'Novo gasto', lembrete: 'Novo lembrete' };
 
   /** Coleção do post: vira campo fixo quando a pessoa clicou em "Guardar aqui" dentro de uma coleção. */
@@ -1191,10 +1191,10 @@
               '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div>
           ${UI.listaAberta === i.id ? faixasHTML(i) : ''}</div></article>`;
     };
-    main.innerHTML = `<header class="pagina-cab"><h1>${ic('music-note')}Músicas</h1>
+    main.innerHTML = `<header class="pagina-cab"><h1>${ic('ytmusic')}Músicas</h1>
         <div class="ferramentas">${btn('criar', ic('plus') + 'Guardar música', 'data-t="musica"', 'btn-1')}</div></header>
       ${lista.length ? `<div class="grade-musicas">${lista.map(cartaoM).join('')}</div>`
-        : vazio('music-note', 'Nenhuma música ainda. Cole o link de um vídeo ou de uma playlist do YouTube.',
+        : vazio('ytmusic', 'Nenhuma música ainda. Cole o link de um vídeo ou de uma playlist do YouTube.',
           btn('criar', ic('plus') + 'Guardar música', 'data-t="musica"', 'btn-1'))}`;
   }
 
@@ -1689,7 +1689,7 @@
     const primeiro = (p.nome && p.nome !== 'Meu Nome') ? p.nome.split(' ')[0] : '';
     const tiles = [['journal-page', 'Notas', 'Ideias e textos soltos, em post-its ou listas.'], ['list', 'Tarefas', 'O que precisa ser feito, com prazo e quadro.'],
       ['media-image', 'Imagens', 'Referências em grade, coladas ou por link.'], ['link', 'Links', 'Páginas para ler depois, com prévia.'],
-      ['book', 'Livros e filmes', 'Sua estante, com progresso e anotações.'], ['music-note', 'Músicas', 'Playlists do YouTube num mini player.'],
+      ['book', 'Livros e filmes', 'Sua estante, com progresso e anotações.'], ['ytmusic', 'Músicas', 'Playlists do YouTube num mini player.'],
       ['shopping-bag', 'Desejos', 'Produtos com preço acompanhado.'], ['folder', 'Estudos', 'Artigos e PDFs com anotações.']];
     const tecla = (...t) => `<span class="teclas">${t.map((x) => `<kbd>${x}</kbd>`).join('<span class="mais">+</span>')}</span>`;
     const corpo = [
@@ -1938,7 +1938,7 @@
   const AREAS = () => [['inicio', 'Início', 'home-simple', ''], ['tarefas', 'Tarefas', 'list', tarefasAbertas().length],
     ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['imagens', 'Imagens', 'media-image', doTipo('imagem').length], ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length],
     ['estudos', 'Estudos', 'folder', doTipo('artigo').length], ['links', 'Links', 'link', doTipo('link').length],
-    ['musicas', 'Músicas', 'music-note', musicas().length], ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
+    ['musicas', 'Músicas', 'ytmusic', musicas().length], ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
     ['gastos', 'Gastos', 'wallet', ''], ['lembretes', 'Lembretes', 'alarm', pendentes().length], ['curriculo', 'Currículo', 'suitcase', '']];
   function areasOrdenadas() {
     const todas = AREAS();
@@ -2412,7 +2412,7 @@
       `<a href="#/imagens">${ima.length}</a>`) });
 
     const mus = de('musica');
-    if (mus.length) blocos.push({ cls: '', html: cartao(ic('music-note') + 'Músicas',
+    if (mus.length) blocos.push({ cls: '', html: cartao(ic('ytmusic') + 'Músicas',
       `<div class="mini-lista">${mus.slice(0, 4).map((i) => `<button type="button" class="mini-item" data-act="tocar" data-id="${i.id}">
         ${ic('play')}<span class="mini-txt">${esc(tituloItem(i))}</span></button>`).join('')}</div>`,
       `<a href="#/musicas">${mus.length}</a>`) });
