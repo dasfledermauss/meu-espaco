@@ -14,7 +14,7 @@ window.ATUALIZACOES = [
     data: '2026-11-13',
     titulo: 'Tyba, selecionar em lote, encaixe de cards e mais',
     itens: [
-      'Início: o Selecionar foi para a mesma linha de “Atividade recente” (e do seletor de dia). As barras laterais agora rolam quando o menu é maior que a tela.',
+      'Início: o Selecionar foi para a mesma linha de “Atividade recente” (e do seletor de dia). A barra lateral esquerda fica fixa e sempre inteira na tela, sem rolagem: o espaçamento encolhe conforme a altura da janela.',
       'O sistema agora se chama Tyba: o logo (que muda com a cor do tema, claro e escuro) aparece no topo e na tela de entrada no lugar do nome, e o título da aba e o nome do aplicativo instalado também mudaram.',
       'Modo escuro: o aviso “Há uma versão nova” e o menu de texto selecionado agora têm contraste legível (antes ficavam claro sobre claro).',
       'A previsão do tempo ficou compacta (cidade, temperatura e máx/mín) e abre os detalhes e os próximos dias ao clicar.',
