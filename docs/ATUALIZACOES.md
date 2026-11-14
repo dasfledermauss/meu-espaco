@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.27 — 13/11/2026 · Artigos em janela flutuante
+
+- Artigos agora abrem numa janela flutuante: com título, botão de fechar (ou Esc), ícone para abrir em nova guia, e dá para mover pela barra e redimensionar pelo canto. Se o site não permitir abrir ali, use “Abrir em nova guia”.
+
 ## 5.26 — 13/11/2026 · Desejo no feed como etiqueta
 
 - Desejo no feed virou uma etiqueta horizontal: foto à esquerda, título, loja e avaliação no meio e, depois do picote tracejado, o preço em destaque com a variação (↓ caiu / ↑ subiu); no celular a foto vai para cima.

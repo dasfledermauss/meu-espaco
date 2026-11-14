@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.27',
+    data: '2026-11-13',
+    titulo: 'Artigos em janela flutuante',
+    itens: [
+      'Artigos agora abrem numa janela flutuante: com título, botão de fechar (ou Esc), ícone para abrir em nova guia, e dá para mover pela barra e redimensionar pelo canto. Se o site não permitir abrir ali, use “Abrir em nova guia”.'
+    ]
+  },
+  {
     versao: '5.26',
     data: '2026-11-13',
     titulo: 'Desejo no feed como etiqueta',
