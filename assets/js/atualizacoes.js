@@ -14,8 +14,8 @@ window.ATUALIZACOES = [
     data: '2026-11-13',
     titulo: 'Eventos com foto e ticket',
     itens: [
-      'Evento com foto: no cadastro do evento dá para escolher uma foto; ela aparece como card no feed (no dia do evento) e o evento ganha um jeito de abrir.',
-      'Clicar num evento (na Agenda, no feed ou em “Próximos eventos”) abre um ticket com foto, título, dia, horário e quantos dias faltam, com Editar e Excluir. A foto fica só neste aparelho (não vai para a nuvem).',
+      'Evento com foto: escolha o arquivo, arraste, cole com Ctrl + V ou use um link, como nas capas dos livros; a foto (reduzida a 480×300) aparece como card no feed e sincroniza com a nuvem.',
+      'Clicar num evento (na Agenda, no feed ou em “Próximos eventos”) abre um ticket com foto, título, dia, horário e quantos dias faltam, com Editar e Excluir.',
       'Abas de Agenda e Biblioteca no topo: arraste para reordenar; a ordem fica salva no seu perfil.',
       'Menu “⋯” do evento na Agenda não fica mais cortado dentro do card.',
       'Pets: falas novas sobre eventos de hoje e de amanhã, contagem regressiva, semana cheia ou livre, stickers do calendário e sons de fundo.'
