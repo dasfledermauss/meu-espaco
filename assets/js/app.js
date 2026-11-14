@@ -2198,6 +2198,27 @@
   }
 
   /* ---------------- Links ---------------- */
+  /* ---------------- Mosaico: os cards se encaixam nos vãos ----------------
+     Cada card ocupa tantas linhas finas (1px) quanto a sua altura; o grid então preenche o espaço vazio embaixo dos mais baixos. */
+  const MOSAICO = '.mural, .grade, .vitrine, .bento';
+  const roMosaico = typeof ResizeObserver === 'function' ? new ResizeObserver(() => agendarMosaico()) : null;
+  let rafMosaico = 0;
+  function agendarMosaico() { cancelAnimationFrame(rafMosaico); rafMosaico = requestAnimationFrame(empacotarTudo); }
+  function empacotarTudo() {
+    main.querySelectorAll(MOSAICO).forEach((c) => {
+      if (getComputedStyle(c).display !== 'grid') return;
+      if (!c.dataset.gapM) c.dataset.gapM = String(parseFloat(getComputedStyle(c).rowGap) || 16);
+      const gap = Number(c.dataset.gapM);
+      c.classList.add('mosaico'); c.style.setProperty('--gap-m', gap + 'px');
+      [...c.children].forEach((ch) => {
+        if (getComputedStyle(ch).position === 'absolute' || getComputedStyle(ch).position === 'fixed') return;
+        ch.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil(ch.offsetHeight + gap));
+        if (roMosaico) roMosaico.observe(ch);
+      });
+      if (roMosaico) roMosaico.observe(c);
+    });
+  }
+
   /* ---------------- Seleção em lote (Wishlist e Links) ---------------- */
   const selAtiva = () => Array.isArray(UI.sel) && UI.selRota === rotaAtual()[0];
   const selBtn = () => selAtiva() ? btnTxt('sel-sair', 'xmark', 'Cancelar seleção') : btnTxt('sel-ligar', 'check-circle', 'Selecionar');
@@ -2886,7 +2907,7 @@
     const rota = r === 'item' ? 'item' : (ROTAS[r] ? r : 'inicio');
     aplicarTema();
     renderTopo(); renderDisco(); renderNav(rota); renderDireita(rota);
-    if (rota === 'item') renderFicha(id); else { ROTAS[rota](); prepararSelecao(rota); }
+    if (rota === 'item') renderFicha(id); else { ROTAS[rota](); prepararSelecao(rota); empacotarTudo(); }
     if (rota === 'wishlist' && !UI.conferindo) setTimeout(conferirPrecos, 400);
     restaurarRascunhos();
     renderModal(); renderJanelas(); renderMiniApp(); renderTrabalho(); renderAtalho();
@@ -3692,7 +3713,7 @@
     function animarTroca(els, mudar) {
       const antes = new Map(els.map((x) => [x, x.getBoundingClientRect()]));
       els.forEach((x) => { x.style.transition = 'none'; x.style.transform = ''; });
-      mudar();
+      mudar(); empacotarTudo();
       els.forEach((x) => {
         const a = antes.get(x), d = x.getBoundingClientRect(), dx = a.left - d.left, dy = a.top - d.top;
         if (!dx && !dy) return;
