@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.24 — 13/11/2026 · Cabeçalho da Agenda refinado
+
+- Cabeçalho da Agenda reorganizado: título e botão de ação na mesma linha, subtítulo logo abaixo, depois as abas (Calendário, Tarefas, Lembretes) e o conteúdo, tudo no grid de 24px, sem o vão que havia entre as abas e o título.
+- Cada aba tem seu subtítulo e seu botão: “Novo evento”, “Nova tarefa” e “Novo lembrete”.
+- Aba ativa mais clara nos dois temas (fundo do cartão, sombra leve e sublinhado na cor do tema) e texto das inativas com contraste AA; a aba aberta continua na URL (#/agenda, #/tarefas, #/lembretes) e volta igual ao recarregar.
+- Legenda do calendário virou filtro: toque em evento, tarefa ou lembrete para mostrar ou esconder no mês e na lista do dia; todos começam ativos e os desligados ficam opacos.
+
 ## 5.23 — 13/11/2026 · Eventos com foto e ticket
 
 - Evento com foto: escolha o arquivo, arraste, cole com Ctrl + V ou use um link, como nas capas dos livros; a foto (reduzida a 480×300) aparece como card no feed e sincroniza com a nuvem.
