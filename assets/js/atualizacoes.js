@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.19',
+    data: '2026-11-13',
+    titulo: 'Sons ambiente no mini player',
+    itens: [
+      'Mini player de música: o botão “Grupo” saiu e o “+” virou só o ícone, em cor primária, no canto direito.',
+      'Novo painel de Sons ambiente no mini player: sliders de volume para chuva, vento, fogo, mato, ruído marrom e ruído branco, mais um volume geral e os botões Tocar/Pausar e Zerar. Os sons são gerados no aparelho e o equilíbrio fica salvo.'
+    ]
+  },
+  {
     versao: '5.18',
     data: '2026-11-13',
     titulo: 'Universo sonoro',
