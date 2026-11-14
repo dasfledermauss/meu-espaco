@@ -2979,6 +2979,15 @@
     else render();
   }
 
+  /* Três cliques no logo trocam entre as duas versões (fica salvo neste aparelho). */
+  const aplicarLogo = (v) => { document.documentElement.dataset.logo = v; };
+  try { aplicarLogo(localStorage.getItem('meuEspaco.logo') || '1'); } catch (e) { aplicarLogo('1'); }
+  document.addEventListener('click', (e) => {
+    if (e.detail !== 3 || !e.target.closest('.logo-tyba')) return;
+    const v = document.documentElement.dataset.logo === '2' ? '1' : '2';
+    aplicarLogo(v); try { localStorage.setItem('meuEspaco.logo', v); } catch (x) { /* sem armazenamento */ }
+  });
+
   document.addEventListener('click', async (e) => {
     document.querySelectorAll('details.menu[open]').forEach((d) => { if (!d.contains(e.target)) d.removeAttribute('open'); });
     const sel = document.getElementById('menu-selecao');
