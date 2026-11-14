@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.18',
+    data: '2026-11-13',
+    titulo: 'Universo sonoro',
+    itens: [
+      'Universo sonoro: sons curtos e suaves ao guardar, concluir (tarefa, lembrete, comprado, mídia), favoritar, excluir, abrir janelas e ao trocar o logo; desfazer um deles toca um som descendente.',
+      'Os sons são feitos no próprio aparelho (sem arquivos) e funcionam offline. Em Configurações → Sons dá para ligar/desligar e ajustar o volume.'
+    ]
+  },
+  {
     versao: '5.17',
     data: '2026-11-13',
     titulo: 'Refinamento visual da Wishlist',

@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.18 — 13/11/2026 · Universo sonoro
+
+- Universo sonoro: sons curtos e suaves ao guardar, concluir (tarefa, lembrete, comprado, mídia), favoritar, excluir, abrir janelas e ao trocar o logo; desfazer um deles toca um som descendente.
+- Os sons são feitos no próprio aparelho (sem arquivos) e funcionam offline. Em Configurações → Sons dá para ligar/desligar e ajustar o volume.
+
 ## 5.17 — 13/11/2026 · Refinamento visual da Wishlist
 
 - Wishlist: o aviso “Faltou: …” agora lista só o que realmente falta (card com preço não diz mais “Faltou: preço”) e virou um texto pequeno, discreto, logo abaixo do título.

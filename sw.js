@@ -18,7 +18,7 @@ const CACHE = 'meu-espaco-' + VERSAO;
 const ESSENCIAIS = [
   'index.html', 'manifest.webmanifest',
   'assets/css/estilo.css',
-  'assets/js/config.js', 'assets/js/icones.js', 'assets/js/atualizacoes.js', 'assets/js/pet-frases.js', 'assets/js/nuvem.js', 'assets/js/app.js', 'assets/js/pwa.js',
+  'assets/js/config.js', 'assets/js/icones.js', 'assets/js/atualizacoes.js', 'assets/js/pet-frases.js', 'assets/js/sons.js', 'assets/js/nuvem.js', 'assets/js/app.js', 'assets/js/pwa.js',
   'assets/fonts/lexend.woff2', 'assets/fonts/lexend-ext.woff2',
   'assets/img/pwa/icone-192.png', 'assets/img/pwa/icone-512.png', 'assets/img/pwa/icone.svg', 'assets/img/foto-perfil.jpg', 'assets/img/tyba-logo.svg', 'assets/img/tyba-logo-2.svg', 'assets/img/pet/salsicha.png', 'assets/img/pet/pinscher.png', 'assets/img/pet/frajola.png', 'assets/img/pet/shollie.png'
 ];
