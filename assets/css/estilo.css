@@ -132,6 +132,8 @@ a[aria-current] .pino { background: var(--marca-leve); color: var(--marca); }
 .secao-tit { font-size: 12.5px; font-weight: 600; color: var(--tinta-3); display: flex; align-items: center; gap: 12px; padding: 0 4px; }
 .secao-tit::after { content: ""; flex: 1; height: 1px; background: var(--linha); }
 .secao-tit.so { }
+.secao-tit.feed-cab::after { display: none; }
+.secao-tit.feed-cab .sel-lado { margin-left: auto; }
 .secao-tit.so::after { display: none; }
 
 /* ---------- botões ---------- */
@@ -1187,6 +1189,19 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 @media (min-width: 861px) and (max-height: 880px) { .nav-lateral { gap: 1px; } .nav-lateral a { padding: 7px 14px; } .nav-lateral .sub { padding: 5px 14px; } .nav-lateral .nav-rotulo, .nav-lateral p { margin-top: 6px; } }
 @media (min-width: 861px) and (max-height: 760px) { .nav-lateral { gap: 0; } .nav-lateral a { padding: 4px 14px; font-size: 14px; } .nav-lateral .sub { padding: 3px 14px; font-size: 13px; } }
 @media (min-width: 861px) and (max-height: 640px) { .nav-lateral a { padding: 2px 14px; font-size: 13px; } .nav-lateral .sub { padding: 1px 14px; font-size: 12.5px; } }
+
+/* ---------- cartão de confirmação (no lugar do confirm do navegador) ---------- */
+.dialogo-conf { animation: confEntra .2s ease-out; }
+.dialogo-conf.saindo { opacity: 0; transition: opacity .14s ease-out; }
+@keyframes confEntra { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.modal.conf { width: min(420px, calc(100vw - 32px)); }
+.conf-corpo { padding: 30px 28px 22px; display: flex; flex-direction: column; gap: 10px; }
+.conf-corpo h2 { font-size: 22px; line-height: 1.2; font-weight: 600; letter-spacing: -.01em; margin-top: 4px; }
+.conf-corpo .onb-sub { font-size: 14.5px; line-height: 1.5; white-space: pre-line; }
+.onb-icone.perigo { background: var(--perigo-leve); color: var(--perigo); }
+.conf-pe { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 22px 22px; }
+.btn-1.btn-risco { background: var(--perigo); color: #fff; }
+.btn-1.btn-risco:hover { background: var(--perigo); filter: brightness(.92); }
 
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {

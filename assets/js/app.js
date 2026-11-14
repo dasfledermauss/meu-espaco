@@ -703,7 +703,7 @@
           <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
     }
     if (m.tipo === 'mover-lote') {
-      const n = (UI.sel || []).length;
+      const n = UI.moverUm ? 1 : (UI.sel || []).length;
       return `<form class="modal" method="dialog" data-form="mover-lote">
         <header class="modal-cab">${ic('folder')}<h2>Mover ${n} ${n === 1 ? 'item' : 'itens'}</h2>${btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
         <div class="modal-corpo"><div class="form">${campo('f-colecao', 'Para a coleção', selectHTML('f-colecao', 'colecao', [['', 'Sem coleção (A organizar)'], ...S.colecoes.map((c) => [c.id, c.nome])], ''))}</div></div>
@@ -2036,7 +2036,7 @@
         ${doDia.length ? blocosFeed(doDia, { hora: true }) : vazio('calendar', 'Nenhum registro neste dia.')}`;
     }
     const lista = ordenados();
-    const cab = (extra) => `<div class="secao-tit">Atividade recente${extra ? ` <em>·</em> ${extra}` : ''} ${btnTxt('feed-dia', 'calendar', 'Por dia')}</div>`;
+    const cab = (extra) => `<div class="secao-tit feed-cab">${btnTxt('feed-dia', 'calendar', extra || 'Por dia')}</div>`;
     if (!lista.length) return cab('') + vazio('journal-page', 'Nada guardado ainda. Comece pelos botões acima.');
     const dias = {};
     lista.forEach((i) => { const d = dataLocal(i.criadoEm); (dias[d] = dias[d] || []).push(i); });
@@ -2937,9 +2937,31 @@
   });
 
   /* ---------------- ações ---------------- */
-  function excluirItem(i) {
+  /** Cartão de confirmação do app (no lugar do confirm() do navegador). A 1ª linha é o título; o resto, o texto. */
+  function confirmar(msg, o = {}) {
+    return new Promise((resolve) => {
+      const [titulo, ...resto] = String(msg).split('\n'), texto = resto.join('\n').trim();
+      const verbo = (titulo.match(/^[\p{L}]+/u) || [''])[0];
+      const perigo = o.perigo !== undefined ? o.perigo : /^(Excluir|Apagar|Descartar|Substituir|Sair)$/.test(verbo);
+      const icone = o.icone || ({ Excluir: 'trash', Apagar: 'trash', Descartar: 'undo', Substituir: 'refresh', Sair: 'undo' }[verbo] || 'check-circle');
+      const d = document.createElement('dialog'); d.className = 'dialogo-conf'; d.setAttribute('aria-label', titulo);
+      d.innerHTML = `<form class="modal conf" method="dialog"><div class="conf-corpo">
+          <span class="onb-icone ${perigo ? 'perigo' : ''}">${ic(icone)}</span>
+          <h2>${esc(titulo)}</h2>${texto ? `<p class="onb-sub">${esc(texto)}</p>` : ''}</div>
+        <footer class="conf-pe"><button type="button" class="btn-f" data-r="0">${esc(o.cancelar || 'Cancelar')}</button>
+          <button type="button" class="${perigo ? 'btn-1 btn-risco' : 'btn-1'}" data-r="1">${esc(o.ok || verbo || 'Confirmar')}</button></footer></form>`;
+      let feito = false;
+      const fim = (v) => { if (feito) return; feito = true; d.classList.add('saindo'); setTimeout(() => { d.close(); d.remove(); resolve(v); }, 140); };
+      d.addEventListener('click', (e) => { const b = e.target.closest('[data-r]'); if (b) fim(b.dataset.r === '1'); else if (e.target === d) fim(false); });
+      d.addEventListener('cancel', (e) => { e.preventDefault(); fim(false); });
+      document.body.appendChild(d); d.showModal();
+      const alvo = d.querySelector(perigo ? '[data-r="0"]' : '[data-r="1"]'); if (alvo) alvo.focus();
+    });
+  }
+
+  async function excluirItem(i) {
     const lembs = S.lembretes.filter((l) => l.itemId === i.id && !l.concluido).length;
-    if (!confirm(`Excluir “${tituloItem(i)}”?\n\nSai do feed, da busca e das coleções.` + (lembs ? `\n${lembs} lembrete(s) viram avulsos.` : ''))) return;
+    if (!(await confirmar(`Excluir “${tituloItem(i)}”?\n\nSai do feed, da busca e das coleções.` + (lembs ? `\n${lembs} lembrete(s) viram avulsos.` : '')))) return;
     S.itens = S.itens.filter((x) => x.id !== i.id);
     S.lembretes.forEach((l) => { if (l.itemId === i.id) l.itemId = null; });
     salvar(); toast('Excluído.');
@@ -2947,7 +2969,7 @@
     else render();
   }
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     document.querySelectorAll('details.menu[open]').forEach((d) => { if (!d.contains(e.target)) d.removeAttribute('open'); });
     const sel = document.getElementById('menu-selecao');
     if (sel && !sel.hidden && !sel.contains(e.target)) sel.hidden = true;
@@ -2983,7 +3005,7 @@
         toast(UI.sel.length + (alvo ? ' marcado(s) como comprado.' : ' voltou(aram) para Quero.')); UI.sel = []; return passa();
       }
       case 'sel-excluir': {
-        const n = UI.sel.length; if (!n || !confirm(`Excluir ${n} ${n === 1 ? 'item' : 'itens'}?\n\nSaem do feed, da busca e das coleções.`)) return;
+        const n = UI.sel.length; if (!n || !(await confirmar(`Excluir ${n} ${n === 1 ? 'item' : 'itens'}?\n\nSaem do feed, da busca e das coleções.`))) return;
         const ids = new Set(UI.sel);
         S.itens = S.itens.filter((x) => !ids.has(x.id));
         S.lembretes.forEach((l) => { if (ids.has(l.itemId)) l.itemId = null; });
@@ -3094,7 +3116,7 @@
       case 'excluir-grupo-imagem': {
         e.preventDefault();
         const gr = grupoImagem(UI.grupoImagem); if (!gr) return;
-        if (!confirm(`Excluir o grupo “${gr.nome}”?\n\nAs imagens dele continuam guardadas, só ficam sem grupo.`)) return;
+        if (!(await confirmar(`Excluir o grupo “${gr.nome}”?\n\nAs imagens dele continuam guardadas, só ficam sem grupo.`))) return;
         S.itens.forEach((x) => { if (x.tipo === 'imagem' && x.grupo === gr.id) x.grupo = ''; });
         S.gruposImagem = S.gruposImagem.filter((x) => x.id !== gr.id); UI.grupoImagem = '';
         salvar(); UI.pularColheita = true; return render();
@@ -3114,7 +3136,7 @@
       case 'tar-feitas': e.preventDefault(); UI.verFeitas = !UI.verFeitas; UI.pularColheita = true; return render();
       case 'tar-para': e.preventDefault(); return mudarEtapa(b.dataset.id, b.dataset.v);
       case 'descartar-rascunho': {
-        if (!confirm('Descartar o que você digitou?')) return;
+        if (!(await confirmar('Descartar o que você digitou?'))) return;
         limparRascunho(b.dataset.k); UI.pularColheita = true; UI.modal = null; return render();
       }
       case 'add-campo': { const k = b.dataset.k; (UI.extras[k] = UI.extras[k] || []).push(b.dataset.campo); return render(); }
@@ -3144,7 +3166,7 @@
         fecharMenu(); i.comprado = !i.comprado;
         if (i.comprado) {
           i.compradoEm = agora();
-          if (i.preco != null && confirm(`Marcado como comprado.\n\nRegistrar um gasto de ${brl(i.preco, i.moeda)} hoje?`))
+          if (i.preco != null && await confirmar(`Marcado como comprado.\n\nRegistrar um gasto de ${brl(i.preco, i.moeda)} hoje?`, { ok: 'Registrar gasto', cancelar: 'Agora não', perigo: false, icone: 'check-circle' }))
             S.itens.push({ id: uid('gasto'), tipo: 'gasto', valor: i.preco, dataGasto: hoje(), descricao: tituloItem(i), categoria: 'Compras', colecoes: [], comentarios: [], favorito: false, criadoEm: agora(), origemId: i.id });
         } else delete i.compradoEm;
         return passa();
@@ -3163,16 +3185,7 @@
       case 'excluir-item': fecharMenu(); if (UI.modal && UI.modal.tipo === 'item-ver') fecharModal(); return excluirItem(i);
       case 'abrir-fora': fecharMenu(); window.open(i.url, '_blank', 'noopener'); return;
       case 'copiar-link': fecharMenu(); navigator.clipboard && navigator.clipboard.writeText(i.url).then(() => toast('Endereço copiado.', 'copy'), () => toast('Não consegui copiar.')); return;
-      case 'organizar-em': {
-        fecharMenu();
-        const nomes = S.colecoes.map((c, k) => `${k + 1}. ${c.nome}`).join('\n');
-        const r = prompt(`Mover “${tituloItem(i)}” para qual coleção?\n\n${nomes}\n0. Sem coleção`, '1');
-        if (r === null) return;
-        const n = parseInt(r, 10);
-        i.colecoes = (n >= 1 && S.colecoes[n - 1]) ? [{ id: S.colecoes[n - 1].id, grupo: '' }] : [];
-        i.organizar = !i.colecoes.length;
-        return passa();
-      }
+      case 'organizar-em': fecharMenu(); UI.moverUm = id; return abrirModal({ tipo: 'mover-lote' });
       case 'progresso': fecharMenu(); return abrirModal({ tipo: 'progresso', id });
       case 'anotar': fecharMenu(); return abrirModal({ tipo: 'anotar', id });
       case 'anot-excluir': {
@@ -3198,7 +3211,7 @@
       case 'excluir-pasta': {
         fecharMenu();
         const n = doTipo('artigo').filter((a) => a.pastaId === id).length;
-        if (!confirm(`Excluir a pasta “${pasta(id).nome}”?\n\n${n} artigo(s) ficam sem pasta, mas continuam guardados.`)) return;
+        if (!(await confirmar(`Excluir a pasta “${pasta(id).nome}”?\n\n${n} artigo(s) ficam sem pasta, mas continuam guardados.`))) return;
         S.pastas = S.pastas.filter((p) => p.id !== id);
         S.itens.forEach((a) => { if (a.pastaId === id) a.pastaId = ''; });
         UI.pastaAberta = null; return passa();
@@ -3225,7 +3238,7 @@
       case 'excluir-colecao': {
         fecharMenu();
         const c = colecao(id), n = S.itens.filter((x) => x.colecoes.some((y) => y.id === id)).length;
-        if (!confirm(`Excluir a coleção “${c.nome}”?\n\nOs ${n} item(ns) continuam guardados; só o agrupamento é desfeito.`)) return;
+        if (!(await confirmar(`Excluir a coleção “${c.nome}”?\n\nOs ${n} item(ns) continuam guardados; só o agrupamento é desfeito.`))) return;
         S.colecoes = S.colecoes.filter((x) => x.id !== id);
         S.itens.forEach((x) => (x.colecoes = x.colecoes.filter((y) => y.id !== id)));
         Object.keys(S.destinoPadrao).forEach((k) => { if (S.destinoPadrao[k] === id) S.destinoPadrao[k] = ''; });
@@ -3240,7 +3253,7 @@
         toast(l.motivo === 'tarefa' ? 'Tarefa concluída.' : 'Lembrete concluído.', 'check-circle-solid'); return passa(); }
       case 'lemb-reabrir': { const l = lembrete(id); l.concluido = false; return passa(); }
       case 'lemb-adiar': { const l = lembrete(id); return abrirModal({ tipo: 'editar', id: l.id }); }
-      case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!confirm(`Excluir o lembrete “${l.texto}”?`)) return; S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
+      case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!(await confirmar(`Excluir o lembrete “${l.texto}”?`))) return; S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
       case 'modo': {
         S.perfil.modo = b.dataset.v; UI.modoPrevia = null;
         salvar(); aplicarTema(); renderTopo();
@@ -3277,7 +3290,7 @@
       case 'backup-exportar': baixar('meu-espaco-backup-' + hoje() + '.json', Object.assign({ tipoArquivo: 'meu-espaco-backup' }, S)); return toast('Backup exportado.', 'download');
       case 'backup-importar': return document.getElementById('arquivo-backup').click();
       case 'resetar':
-        if (!confirm('Apagar tudo deste navegador e recarregar os dados de exemplo?\n\nExporte um backup antes.')) return;
+        if (!(await confirmar('Apagar tudo deste navegador e recarregar os dados de exemplo?\n\nExporte um backup antes.', { ok: 'Apagar tudo' }))) return;
         try { localStorage.removeItem(CHAVE); localStorage.removeItem(CHAVE_RASC); } catch (er) { /* ignora */ }
         location.hash = '#/inicio'; return location.reload();
       case 'cv-importar': UI.erroCV = ''; return document.getElementById('arquivo-cv').click();
@@ -3289,7 +3302,7 @@
       case 'cv-excluir': {
         fecharMenu();
         const s = b.dataset.sec, it = S.curriculo[s].find((x) => x.id === id);
-        if (!confirm(`Excluir “${SEC[s].titulo(it)}”?`)) return;
+        if (!(await confirmar(`Excluir “${SEC[s].titulo(it)}”?`))) return;
         S.curriculo[s] = S.curriculo[s].filter((x) => x.id !== id); return passa();
       }
       case 'pl-confirmar': S.curriculo = aplicarImportacao(UI.plano); UI.plano = null; salvar(); toast('Importação concluída.', 'check-circle-solid'); return render();
@@ -3395,9 +3408,9 @@
       UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
     }
     if (tipo === 'mover-lote') {
-      const ids = UI.sel || [];
+      const ids = UI.moverUm ? [UI.moverUm] : (UI.sel || []);
       ids.map(item).filter(Boolean).forEach((x) => { x.colecoes = d.colecao ? [{ id: d.colecao, grupo: '' }] : []; x.organizar = !x.colecoes.length; x.editadoEm = agora(); });
-      UI.sel = []; UI.modal = null; ok(ids.length + ' movido(s).', 'folder'); return render();
+      if (UI.moverUm) UI.moverUm = null; else UI.sel = []; UI.modal = null; ok(ids.length + ' movido(s).', 'folder'); return render();
     }
     if (tipo === 'imagem-grupo') {
       const i = item(f.dataset.id);
@@ -3646,11 +3659,11 @@
     const f = t.files[0]; t.value = '';
     if (!f) return;
     const r = new FileReader();
-    r.onload = () => {
+    r.onload = async () => {
       let raw;
       try { raw = JSON.parse(r.result); } catch (er) { return toast('Esse arquivo não é um JSON válido.'); }
       if (!raw || !Array.isArray(raw.itens) || !raw.perfil || !Array.isArray(raw.colecoes)) return toast('Esse arquivo não é um backup da Tyba.');
-      if (!confirm(`Substituir os dados deste navegador pelo backup “${f.name}” (${raw.itens.length} registros)?`)) return;
+      if (!(await confirmar(`Substituir os dados deste navegador pelo backup “${f.name}” (${raw.itens.length} registros)?\n\nO que está aqui agora será trocado pelo conteúdo do arquivo.`, { ok: 'Substituir' }))) return;
       delete raw.tipoArquivo; S = migrar(raw); salvar(); toast('Backup importado.', 'check-circle-solid');
       UI.pularColheita = true; location.hash = '#/inicio'; render();
     };
@@ -4011,7 +4024,7 @@
     }
   }
   async function sair() {
-    if (!confirm('Sair da conta? Os registros continuam guardados neste navegador.')) return;
+    if (!(await confirmar('Sair da conta?\n\nOs registros continuam guardados neste navegador.', { ok: 'Sair', perigo: false, icone: 'undo' }))) return;
     try { await fetch('api/sessao', { method: 'DELETE' }); } catch (e) { /* ignora */ }
     try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) { /* ignora */ }
     try { if (window.Nuvem) await Nuvem.sair(); } catch (e) { /* ignora */ }
