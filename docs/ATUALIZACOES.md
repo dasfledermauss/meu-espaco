@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.26 — 13/11/2026 · Desejo no feed como etiqueta
+
+- Desejo no feed virou uma etiqueta horizontal: foto à esquerda, título, loja e avaliação no meio e, depois do picote tracejado, o preço em destaque com a variação (↓ caiu / ↑ subiu); no celular a foto vai para cima.
+
 ## 5.25 — 13/11/2026 · Evento no feed como ticket
 
 - Card de evento no feed virou um ticket horizontal: foto à esquerda, título, nota e horário no meio e, depois do picote tracejado, o dia em destaque; no celular a foto vai para cima. Clicar abre o ticket completo.

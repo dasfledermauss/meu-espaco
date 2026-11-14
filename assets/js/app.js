@@ -1945,12 +1945,19 @@
           <p class="fonte">${ic('shop')}${esc(dominio(i.url))}${p ? ' · ' + esc(p.nome) : ''}${i.ehPdf ? ' · PDF' : ''}</p>
           ${i.descricao ? `<p class="descricao">${esc(i.descricao)}</p>` : ''}</div></div>`;
     }
-    if (i.tipo === 'desejo') return `<div class="desejo-linha">${fotoProduto(i)}
-        <div class="midia-dados"><h3><a href="#/item/${i.id}">${esc(tituloItem(i))}</a></h3>
+    if (i.tipo === 'desejo') {
+      const h = i.historicoPreco || [], dif = h.length >= 2 ? i.preco - h[h.length - 2].preco : 0;
+      return `<div class="desejo-ticket ${i.comprado ? 'comprado' : ''}">
+        <a class="dt-foto" href="#/item/${i.id}" tabindex="-1" aria-hidden="true">${fotoProduto(i)}</a>
+        <div class="dt-info"><h3><a href="#/item/${i.id}">${esc(tituloItem(i))}</a></h3>
           <p class="fonte">${ic('shop')}${esc(i.loja || dominio(i.url))}</p>
-          <p>${precoHTML(i)}</p>${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ')' : '')}
+          ${estrelasHTML(i.estrelas, i.avaliacoes ? '(' + i.avaliacoes + ')' : '')}
           ${i.comprado ? '<p class="tag">Comprado</p>' : ''}
-          ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}</div></div>`;
+          ${i.comentario ? `<p class="porque">${esc(i.comentario)}</p>` : ''}</div>
+        <span class="dt-corte" aria-hidden="true"><i></i><hr><i></i></span>
+        <div class="dt-preco">${i.preco === null || i.preco === undefined ? precoHTML(i)
+          : `<span class="preco">${brl(i.preco, i.moeda)}</span>${dif ? `<span class="var-preco ${dif < 0 ? 'caiu' : 'subiu'}">${dif < 0 ? '↓' : '↑'} ${brl(Math.abs(dif), i.moeda)}</span>` : ''}`}</div></div>`;
+    }
     if (i.tipo === 'musica') {
       const capa = capaYT(i);
       return `<div class="musica-linha">
