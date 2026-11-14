@@ -14,6 +14,7 @@ window.ATUALIZACOES = [
     data: '2026-11-13',
     titulo: 'Selecionar em lote, pontinhos e captura Mercado Livre',
     itens: [
+      'Modo escuro: o aviso “Há uma versão nova” e o menu de texto selecionado agora têm contraste legível (antes ficavam claro sobre claro).',
       'A previsão do tempo ficou compacta (cidade, temperatura e máx/mín) e abre os detalhes e os próximos dias ao clicar.',
       'Os cards se encaixam nos vãos no Mural, Links, Wishlist e nas coleções: um card baixo deixa o seguinte subir para ocupar o espaço vazio, também ao arrastar.',
       'Ao lado do perfil, saiu o botão do modo trabalho (continua em Shift + Espaço) e o disco de música virou o ícone do YouTube Music, que acende com a cor do tema quando algo está tocando.',

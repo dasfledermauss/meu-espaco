@@ -2231,7 +2231,7 @@
     const l = c.querySelector('a[href^="#/item/"]'), d = c.querySelector('[data-id]');
     return c.dataset.id || c.dataset.imagem || (l && l.getAttribute('href').slice(7)) || (d && d.dataset.id) || '';
   };
-  const cartoesSel = () => [...main.querySelectorAll(SEL_CARTOES)].filter((c) => item(idCartao(c)));
+  const cartoesSel = () => [...main.querySelectorAll(SEL_CARTOES)].filter((c) => !c.parentElement.closest(SEL_CARTOES) && item(idCartao(c)));
   function alternarSel(id) { const k = UI.sel.indexOf(id); if (k < 0) UI.sel.push(id); else UI.sel.splice(k, 1); render(); }
   function prepararSelecao(rota) {
     if (!SEL_ROTAS.includes(rota)) return;
@@ -2946,8 +2946,8 @@
     const sel = document.getElementById('menu-selecao');
     if (sel && !sel.hidden && !sel.contains(e.target)) sel.hidden = true;
     if (selAtiva() && main.contains(e.target) && !e.target.closest('.barra-sel, details.menu')) {
-      const cartao = e.target.closest(SEL_CARTOES);
-      if (cartao && item(idCartao(cartao))) { e.preventDefault(); e.stopPropagation(); return alternarSel(idCartao(cartao)); }
+      const cartao = cartoesSel().find((x) => x.contains(e.target));
+      if (cartao) { e.preventDefault(); e.stopPropagation(); return alternarSel(idCartao(cartao)); }
     }
     const cartaoLink = e.target.closest('a[href^="#/item/"]');
     if (cartaoLink && !cartaoLink.dataset.act && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0 && rotaAtual()[0] !== 'item') {
