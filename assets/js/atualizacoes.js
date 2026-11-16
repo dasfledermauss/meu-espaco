@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.39',
+    data: '2026-11-16',
+    titulo: 'Dica do pet só no começo',
+    itens: [
+      'A dica de como brincar com os cachorrinhos aparece só até a primeira brincadeira e não volta mais.'
+    ]
+  },
+  {
     versao: '5.38',
     data: '2026-11-16',
     titulo: 'Silhueta ao arrastar no quadro',

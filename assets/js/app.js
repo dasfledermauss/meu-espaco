@@ -1512,7 +1512,7 @@
           <button type="button" class="pet-linha" data-act="pet-som" aria-pressed="${som}">Som: <b>${som ? 'ligado' : 'desligado'}</b></button>
           <button type="button" class="pet-linha" data-act="pet-papo" aria-pressed="${!S.perfil.petCala}">Conversa: <b>${S.perfil.petCala ? 'desligada' : 'ligada'}</b></button>
           <button type="button" class="pet-linha" data-act="pet-alternar" title="Para voltar, use Configurações">Esconder</button></div></div></div>
-      <p class="pet-dica ${PET.interagiu ? 'some' : ''}">Clique no chão para jogar a bolinha, na casinha para mudar a cor e na plaquinha para dar um nome</p></section>`;
+      <p class="pet-dica ${PET.interagiu || S.perfil.petDicaVista ? 'some' : ''}">Clique no chão para jogar a bolinha, na casinha para mudar a cor e na plaquinha para dar um nome</p></section>`;
   };
   let petAudio = null;
   function petLatido() {
@@ -1806,7 +1806,9 @@
     }
     });
     PET = PETS[0];
-    const dica = cena.querySelector('.pet-dica'); if (dica && PET.interagiu) dica.classList.add('some');
+    const dica = cena.querySelector('.pet-dica');
+    if (PET.interagiu && !S.perfil.petDicaVista) { S.perfil.petDicaVista = true; salvar(); }  // a dica só aparece até a primeira brincadeira
+    if (dica && (PET.interagiu || S.perfil.petDicaVista)) dica.classList.add('some');
   }
   requestAnimationFrame(petQuadro);
   document.addEventListener('click', (e) => {

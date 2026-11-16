@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.39 — 16/11/2026 · Dica do pet só no começo
+
+- A dica de como brincar com os cachorrinhos aparece só até a primeira brincadeira e não volta mais.
+
 ## 5.38 — 16/11/2026 · Silhueta ao arrastar no quadro
 
 - No quadro do Meu Espaço, cada coluna vale por toda a altura: solte o cartão em qualquer ponto dela, mesmo vazia. Os botões de mover continuam funcionando.
