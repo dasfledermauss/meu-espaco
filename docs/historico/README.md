@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.39 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Dica do pet só até a primeira brincadeira. | — |
+| v5.40 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Pets e cocôs sem sobreposição. | — |
+| v5.39 | sem captura ainda; registrar aqui antes da próxima mudança visual | Dica do pet só até a primeira brincadeira. | — |
 | v5.38 | sem captura ainda; registrar aqui antes da próxima mudança visual | Silhueta do cartão na coluna de destino. | — |
 | v5.37 | sem captura ainda; registrar aqui antes da próxima mudança visual | Coluna de destino sem contorno ao arrastar. | — |
 | v5.36 | sem captura ainda; registrar aqui antes da próxima mudança visual | Colunas do quadro com altura total para soltar cartões. | — |

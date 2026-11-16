@@ -42,3 +42,8 @@ Pela hora do aparelho: amanhecer 5h–8h, manhã 8h–12h, tarde 12h–17h, enta
 ## Trocar o cachorro
 
 Gere outra folha com a mesma grade (4 poses × 4 quadros, células iguais, pés na base, olhando para a direita) e substitua o PNG. Se o tamanho da célula mudar, ajuste `CW` e `CH` em `PET_TIPOS`. O corpo do bichinho não recebe clique (`pointer-events: none`): o latido é achado pela posição do clique.
+
+
+## Espaçamento
+
+Com dois cães, o de trás (o segundo) se afasta devagar quando para ou senta a menos de uma largura do outro. Cada cocô novo procura o ponto livre mais perto: nunca fica a menos de 34px de outro cocô, de qualquer dos cães.

@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.40',
+    data: '2026-11-16',
+    titulo: 'Pets sem se sobrepor',
+    itens: [
+      'Os dois cachorrinhos não ficam mais um sobre o outro quando param ou sentam: o de trás se afasta sozinho.',
+      'Os cocôs também não caem mais um em cima do outro.'
+    ]
+  },
+  {
     versao: '5.39',
     data: '2026-11-16',
     titulo: 'Dica do pet só no começo',

@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.40 — 16/11/2026 · Pets sem se sobrepor
+
+- Os dois cachorrinhos não ficam mais um sobre o outro quando param ou sentam: o de trás se afasta sozinho.
+- Os cocôs também não caem mais um em cima do outro.
+
 ## 5.39 — 16/11/2026 · Dica do pet só no começo
 
 - A dica de como brincar com os cachorrinhos aparece só até a primeira brincadeira e não volta mais.

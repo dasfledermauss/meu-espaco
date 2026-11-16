@@ -1738,7 +1738,11 @@
     } else if (e === 'coco') {
       PET.tEstado += dt;
       if (PET.tEstado > 1.5) {
-        PET.cocos.push({ id: ++PET.id, x: PET.x - PET.dir * larg * .36, el: null });
+        // cocô novo nunca cai em cima de outro: procura o ponto livre mais perto (26px de largura + respiro)
+        const todos = PETS.flatMap((d) => d.cocos), livre = (x) => x >= 16 && x <= L - 16 && todos.every((c) => Math.abs(c.x - x) >= 34);
+        let cx = PET.x - PET.dir * larg * .36;
+        for (let passo = 0; passo < 14 && !livre(cx); passo++) cx = PET.x - PET.dir * larg * .36 + (passo % 2 ? -1 : 1) * Math.ceil((passo + 1) / 2) * 36;
+        PET.cocos.push({ id: ++PET.id, x: Math.max(16, Math.min(L - 16, cx)), el: null });
         PET.estado = 'parado'; PET.tEstado = 0; PET.espera = 5; petFalar('Ufa!', 1);
       }
     } else if (e === 'banho') {
@@ -1781,11 +1785,18 @@
         else { PET.estado = 'comendo'; PET.tEstado = 0; PET.rel = 0; }
       } else {
         PET.alvo = null;
+        // dois cães não sentam (nem param) um sobre o outro: o de trás se afasta devagar até sobrar espaço
+        const vizinho = petSlots().map((sl) => PETS[sl.k]).find((o) => o !== PET && o.x !== null && Math.abs(o.x - PET.x) < larg * .95);
+        if (vizinho && PET.k > vizinho.k && ['parado', 'sentado', 'andando'].includes(PET.estado)) {
+          let d = Math.sign(PET.x - vizinho.x) || 1; if ((d > 0 && PET.x > L - larg) || (d < 0 && PET.x < larg)) d = -d;
+          PET.estado = 'andando'; PET.dir = d; PET.x += d * 60 * dt; PET.espera = 1.5;
+        } else {
         if (PET.estado === 'andando') { PET.estado = 'parado'; PET.espera = 5 + Math.random() * 5; }
         PET.espera -= dt;
         if (PET.cocoEm && agora > PET.cocoEm && (PET.estado === 'parado' || PET.estado === 'sentado')) { PET.estado = 'coco'; PET.tEstado = 0; PET.cocoEm = 0; PET.rel = 0; }
         else if (PET.estado === 'parado' && PET.espera <= 0 && !reduz) { PET.estado = 'sentado'; PET.espera = 3 + Math.random() * 3; }
         else if (PET.estado === 'sentado' && PET.espera <= 0) { PET.estado = 'parado'; PET.espera = 7 + Math.random() * 7; }
+        }
       }
     }
     // desenho
