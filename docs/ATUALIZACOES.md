@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.48 — 16/11/2026 · Arrastar tarefa pelo título
+
+- Agora dá para arrastar o cartão da tarefa pegando também pelo título (antes o navegador tratava como arrastar o link e o movimento falhava).
+
 ## 5.47 — 16/11/2026 · Itens apagados não voltam mais
 
 - Um item apagado (como o livro ou o grampeador da wishlist) não volta mais ao abrir o app: o app guarda por 30 dias o que você apagou e reenvia a exclusão para a nuvem, mesmo que a internet tenha falhado na hora ou outro aparelho esteja desatualizado.

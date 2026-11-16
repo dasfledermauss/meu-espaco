@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.48',
+    data: '2026-11-16',
+    titulo: 'Arrastar tarefa pelo título',
+    itens: [
+      'Agora dá para arrastar o cartão da tarefa pegando também pelo título (antes o navegador tratava como arrastar o link e o movimento falhava).'
+    ]
+  },
+  {
     versao: '5.47',
     data: '2026-11-16',
     titulo: 'Itens apagados não voltam mais',

@@ -4488,6 +4488,8 @@
       UI.renderPendente = false;
     }
     document.addEventListener('click', (e) => { if (suprimir) { e.stopPropagation(); e.preventDefault(); } }, true);
+    // sem isto o navegador começa a arrastar o link do título (arrasto nativo) e cancela o nosso
+    document.addEventListener('dragstart', (e) => { if (e.target.closest && e.target.closest('[data-tarefa]')) e.preventDefault(); });
     document.addEventListener('contextmenu', (e) => { if (s && s.toque) e.preventDefault(); });
     document.addEventListener('touchmove', (e) => { if (s && s.ativo) e.preventDefault(); }, { passive: false });
     document.addEventListener('pointerdown', (e) => {

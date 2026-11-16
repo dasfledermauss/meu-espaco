@@ -1,0 +1,15 @@
+# Testes
+
+Rode `node tests/run.js` (precisa do Playwright instalado). A suíte sobe um servidor local sozinha, na porta 8799, e roda tudo em Chromium. Para um teste só: `node tests/run.js arrastar` (filtra pelo nome).
+
+O que cobre hoje:
+
+- sem scroll lateral em 390px em todas as páginas, no claro e no escuro, e sem erros de script;
+- onboarding: abre em espaço novo, tem 7 passos e salva a cor Personalizada;
+- quadro de tarefas (Meu Espaço): arrastar pelo título até uma coluna vazia, botão de mover e nome editável;
+- excluir cria a lápide e o item não volta ao recarregar;
+- wishlist em lote (um link por linha, repetido pulado);
+- menu em gaveta e dia do calendário em folha de baixo no celular;
+- Início sem estouro de largura no celular.
+
+**Regra do projeto:** ao criar uma função nova ou corrigir um bug, acrescente o teste em `tests/run.js` e rode a suíte antes de publicar. A versão do popup de novidades é lida de `assets/js/atualizacoes.js`, então os testes não ficam presos no aviso depois de subir a versão. Os dados de exemplo estão em `tests/semente.js`.
