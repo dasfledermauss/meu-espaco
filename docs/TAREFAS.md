@@ -39,11 +39,15 @@ No menu lateral, **Tarefas** mostra o número de tarefas abertas. A tela tem um 
 
 Em qualquer visão, o **círculo à esquerda risca a tarefa na hora**, sem abrir janela. As feitas saem da lista e ficam num bloco recolhido “Feitas (n)” no fim da página (no Quadro, elas são a coluna Feito).
 
-## Modo trabalho
+## Meu Espaço (antigo modo trabalho)
 
 **Shift + Espaço** abre um quadro de tarefas por cima de tudo, e fecha de novo (Esc também). O botão de lista na barra do topo faz o mesmo e fica aceso enquanto o modo está ligado.
 
 Dentro dele só existem as três colunas — A fazer, Fazendo, Feito —, o botão de nova tarefa e o disco das músicas, à direita. O player continua por cima e tocando. Fora de um campo de texto, o atalho não atrapalha a digitação: dentro de um input ou textarea o Shift + Espaço é só um espaço.
+
+**Nome editável:** o título do quadro é um campo — clique e escreva o nome que quiser (até 40 letras). Fica em `perfil.nomeTrabalho` e sincroniza; vazio volta para “Meu Espaço”.
+
+**Arrastar:** cada cartão pode ser arrastado para outra coluna (A fazer, Fazendo, Feito), no quadro daqui e na página Tarefas. Os botões de mover continuam.
 
 ## O atalho de guardar
 

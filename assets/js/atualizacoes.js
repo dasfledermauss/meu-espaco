@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.34',
+    data: '2026-11-16',
+    titulo: 'Quadro Meu Espaço: arraste e renomeie',
+    itens: [
+      'No modo trabalho (e no quadro da página Tarefas), arraste um cartão para outra coluna: A fazer, Fazendo ou Feito. Os botões de mover continuam lá.',
+      'O “Modo trabalho” agora se chama Meu Espaço, e o nome é seu: clique no título do quadro e escreva o que quiser.'
+    ]
+  },
+  {
     versao: '5.33',
     data: '2026-11-16',
     titulo: 'Cor personalizada no onboarding',

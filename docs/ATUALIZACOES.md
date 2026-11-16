@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.34 — 16/11/2026 · Quadro Meu Espaço: arraste e renomeie
+
+- No modo trabalho (e no quadro da página Tarefas), arraste um cartão para outra coluna: A fazer, Fazendo ou Feito. Os botões de mover continuam lá.
+- O “Modo trabalho” agora se chama Meu Espaço, e o nome é seu: clique no título do quadro e escreva o que quiser.
+
 ## 5.33 — 16/11/2026 · Cor personalizada no onboarding
 
 - No passo “Do seu jeito” do onboarding ganhou a opção Personalizada: escolha qualquer cor e ela vira a cor do seu espaço na hora.

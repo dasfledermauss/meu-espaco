@@ -1037,6 +1037,7 @@
   /* ---------------- modo trabalho ----------------
      Um quadro de tarefas por cima de tudo, para quando o assunto é só executar.
      Abre e fecha com Shift+Espaço; a música continua visível à direita. */
+  const nomeTrabalho = () => ((S.perfil && S.perfil.nomeTrabalho) || '').trim() || 'Meu Espaço';
   function alternarTrabalho(ligado) {
     UI.modoTrabalho = ligado === undefined ? !UI.modoTrabalho : ligado;
     document.body.classList.toggle('em-trabalho', !!UI.modoTrabalho);
@@ -1052,22 +1053,22 @@
     const feitas = todas.filter((i) => i.concluida).sort((a, b) => (b.editadoEm || b.criadoEm).localeCompare(a.editadoEm || a.criadoEm));
     const colunas = Object.entries(ETAPAS).map(([v, n]) => {
       const lista = v === 'feito' ? feitas.slice(0, 12) : abertas.filter((i) => etapa(i) === v);
-      return `<section class="quadro-col"><h2>${n}<em class="pino">${v === 'feito' ? feitas.length : lista.length}</em></h2>
-        ${lista.map((i) => `<article class="tar-cartao">${linhaTarefa(i)}
+      return `<section class="quadro-col" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${v === 'feito' ? feitas.length : lista.length}</em></h2>
+        ${lista.map((i) => `<article class="tar-cartao" draggable="true" data-tarefa="${i.id}">${linhaTarefa(i)}
           <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
             ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
             ${v !== 'feito' ? btnIco('tar-para', 'check-circle', 'Mover para Feito', `data-id="${i.id}" data-v="feito"`) : ''}
             <span class="espaco"></span>${menuTarefa(i)}</div></article>`).join('') || '<p class="nada" style="padding:0 6px">—</p>'}</section>`;
     }).join('');
     caixaTrabalho.innerHTML = `<div class="trab-interno">
-      <header class="trab-cab"><h1>${ic('list')}Modo trabalho</h1>
+      <header class="trab-cab"><h1>${ic('list')}<input type="text" class="trab-nome" data-act="trab-nome" value="${esc(nomeTrabalho())}" maxlength="40" aria-label="Nome deste espaço (clique para editar)" title="Clique para renomear" spellcheck="false"></h1>
         <p class="meta">${abertas.length} em aberto${feitas.length ? ' · ' + feitas.length + ' feita' + (feitas.length > 1 ? 's' : '') : ''}</p>
         <span class="espaco"></span>
         ${btn('criar', ic('plus') + 'Nova tarefa', 'data-t="tarefa"', 'btn-1')}
         <button type="button" class="disco ${UI.tocando ? 'girando' : ''}" data-act="abrir-musica" title="Músicas" aria-label="Músicas"><span></span></button>
-        ${btnIco('trabalho-sair', 'xmark', 'Sair do modo trabalho (Shift + Espaço)')}</header>
+        ${btnIco('trabalho-sair', 'xmark', `Sair de ${nomeTrabalho()} (Shift + Espaço)`)}</header>
       <div class="quadro tres">${colunas}</div>
-      <p class="trab-dica">${ic('priority-high')}Shift + Espaço fecha e abre este modo.</p></div>`;
+      <p class="trab-dica">${ic('priority-high')}Shift + Espaço fecha e abre este quadro.</p></div>`;
   }
 
   /* ---------------- atalho de adicionar ----------------
@@ -1875,7 +1876,7 @@
         <div class="onb-atalhos">
           <div class="onb-atalho">${tecla('Ctrl', 'V')}<span><strong>Cole uma imagem</strong>Ela é guardada na hora, sem abrir janela.</span></div>
           <div class="onb-atalho">${tecla('Ctrl', 'K')}<span><strong>Busque em tudo</strong>Notas, links, livros, imagens e o resto.</span></div>
-          <div class="onb-atalho">${tecla('Shift', 'Espaço')}<span><strong>Modo trabalho</strong>Suas tarefas em quadro, por cima de tudo.</span></div></div>`,
+          <div class="onb-atalho">${tecla('Shift', 'Espaço')}<span><strong>Meu Espaço</strong>Suas tarefas em quadro, por cima de tudo. O nome é seu para mudar.</span></div></div>`,
       () => `<span class="onb-icone ok">${ic('check-circle-solid')}</span>
         <h2 id="onb-tit">${primeiro ? 'Tudo pronto, ' + esc(primeiro) + '.' : 'Tudo pronto.'}</h2>
         <p class="onb-sub">Que tal guardar a primeira coisa agora? Escolha uma:</p>
@@ -2317,7 +2318,7 @@
     ['imagem', 'Colar uma imagem (Ctrl + V)', () => doTipo('imagem').length > 0, 'data-act="criar" data-t="imagem"'],
     ['link', 'Guardar um link', () => doTipo('link').length > 0, 'data-act="criar" data-t="link"'],
     ['foto', 'Pôr uma foto no perfil', () => !!S.perfil.foto, 'data-act="foto-trocar"'],
-    ['trabalho', 'Abrir o modo trabalho (Shift + Espaço)', () => !!(S.perfil.passos || {}).trabalho, 'data-act="trabalho"']];
+    ['trabalho', `Abrir ${nomeTrabalho()} (Shift + Espaço)`, () => !!(S.perfil.passos || {}).trabalho, 'data-act="trabalho"']];
   function primeirosPassosHTML() {
     if (S.perfil.passosFim) return '';
     const l = PASSOS(), feitos = l.filter((x) => x[2]()).length;
@@ -2854,8 +2855,8 @@
     } else if (visao === 'quadro') {
       corpo = `<div class="quadro tres">${Object.entries(ETAPAS).map(([v, n]) => {
         const lista = v === 'feito' ? feitas : abertas.filter((i) => etapa(i) === v);
-        return `<section class="quadro-col"><h2>${n}<em class="pino">${lista.length}</em></h2>
-          ${lista.map((i) => `<article class="tar-cartao">${linhaTarefa(i)}
+        return `<section class="quadro-col" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${lista.length}</em></h2>
+          ${lista.map((i) => `<article class="tar-cartao" draggable="true" data-tarefa="${i.id}">${linhaTarefa(i)}
             <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
               ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
               ${v !== 'feito' ? btnIco('tar-para', 'check-circle', 'Mover para Feito', `data-id="${i.id}" data-v="feito"`) : ''}
@@ -3784,6 +3785,7 @@
     if (act === 'col-select') { UI.colSel = t.value; return render(); }
     if (act === 'col-tipo') { UI.colTipo = t.value; return render(); }
     if (act === 'som-vol') { S.perfil.somVolume = Number(t.value); salvar(); return SONS.tocar('favoritar'); }
+    if (act === 'trab-nome') { const v = t.value.trim().slice(0, 40); S.perfil.nomeTrabalho = v === 'Meu Espaço' ? '' : v; t.value = nomeTrabalho(); salvar(); UI.pularColheita = true; return; }
     if (act === 'wl-ordem') { UI.wlOrdem = t.value; return render(); }
     if (act === 'gasto-mes' && t.value) { UI.gastoMes = t.value; return render(); }
     if (act === 'cv-add-sec') { UI.cvAddSec = t.value; return; }
@@ -4175,7 +4177,7 @@
     r.readAsText(f);
   }
 
-  // Shift + Espaço abre e fecha o modo trabalho (fora de campos de texto).
+  // Shift + Espaço abre e fecha o quadro (nome editável) (fora de campos de texto).
   document.addEventListener('keydown', (e) => {
     const escrevendo = e.target.closest && e.target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]');
     if (e.shiftKey && (e.code === 'Space' || e.key === ' ') && !escrevendo && !UI.modal) { e.preventDefault(); return alternarTrabalho(); }
@@ -4366,6 +4368,31 @@
     if (UI.modal) return;
     [...e.dataTransfer.files].filter((x) => /^image\//.test(x.type)).forEach((x) => guardarImagemRapido(x));
   });
+  /* Cartões de tarefa: arrastar entre as colunas do quadro (modo trabalho e página Tarefas). */
+  let arrastandoTar = null;
+  document.addEventListener('dragstart', (e) => {
+    const c = e.target.closest && e.target.closest('[data-tarefa]');
+    if (!c) return;
+    arrastandoTar = c.dataset.tarefa; c.classList.add('arrastando'); e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', arrastandoTar); } catch (er) { /* ignora */ }
+  });
+  document.addEventListener('dragover', (e) => {
+    const a = arrastandoTar && e.target.closest && e.target.closest('[data-etapa-alvo]');
+    if (!a) return;
+    e.preventDefault();
+    document.querySelectorAll('.alvo-solta').forEach((x) => { if (x !== a) x.classList.remove('alvo-solta'); });
+    a.classList.add('alvo-solta');
+  });
+  document.addEventListener('drop', (e) => {
+    const a = arrastandoTar && e.target.closest && e.target.closest('[data-etapa-alvo]');
+    if (!a) return;
+    e.preventDefault();
+    const id = arrastandoTar; arrastandoTar = null;
+    const i = item(id);
+    if (i && etapa(i) !== a.dataset.etapaAlvo) { UI.pularColheita = true; mudarEtapa(id, a.dataset.etapaAlvo); }
+    else document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta'));
+  });
+  document.addEventListener('dragend', () => { arrastandoTar = null; document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')); });
   let arrastandoImg = null;
   document.addEventListener('dragstart', (e) => {
     const p = e.target.closest && e.target.closest('[data-imagem]');
@@ -4392,6 +4419,7 @@
   document.addEventListener('dragend', () => { arrastandoImg = null; document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')); });
   /* No visualizador, as setas do teclado passam as imagens; no campo do link, Enter usa o link em vez de enviar o formulário. */
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.dataset && e.target.dataset.act === 'trab-nome') { e.preventDefault(); e.target.blur(); return; }
     if (e.key === 'Enter' && e.target.id === 'onb-nome') { e.preventDefault(); const nx = document.querySelector('[data-act="onb-prox"]'); if (nx) nx.click(); return; }
     if (e.key === 'Enter' && e.target.dataset && e.target.dataset.act === 'img-link') {
       e.preventDefault();

@@ -18,7 +18,7 @@ Sete passos curtos para quem abre o espaço pela primeira vez. Tom amigável, um
 | 3 | O que cabe aqui | Oito cartões: notas, tarefas, imagens, links, livros e filmes, músicas, desejos, estudos. Só leitura. |
 | 4 | Do seu jeito | Cor (azul, verde, grafite ou Personalizada, com seletor de cor; guarda em `perfil.corCustom`) e aparência (claro, escuro, automática). Aplica e salva na hora. |
 | 5 | Seus pets moram aqui | Apresenta os pets e deixa escolher o Pet 1 e o Pet 2 (ou Nenhum). Salva na hora. |
-| 6 | Atalhos que poupam tempo | Ctrl+V (cola imagem), Ctrl+K (busca), Shift+Espaço (modo trabalho). |
+| 6 | Atalhos que poupam tempo | Ctrl+V (cola imagem), Ctrl+K (busca), Shift+Espaço (Meu Espaço, o quadro de tarefas). |
 | 7 | Tudo pronto | Usa o nome; botões para criar a primeira nota, tarefa, imagem ou link, ou “Explorar sozinho”. |
 
 ## Listinha “Para começar”
