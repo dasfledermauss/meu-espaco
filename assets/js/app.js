@@ -1780,17 +1780,18 @@
       PET.alvo = null; PET.estado = 'brincando';
       if (!PET.bola) { PET.fila = ''; PET.bola = { x: Math.max(40, Math.min(L - 40, PET.x + PET.dir * larg * .7)), h: 0, vy: 0, vx: 0, rot: 0, cd: 0, chutes: 0, tempo: 0, el: null }; }
       const b = PET.bola, dx = b.x - PET.x;
-      if (Math.abs(dx) > 8) PET.dir = Math.sign(dx);
-      // o segundo cão corre atrás do primeiro, uma largura de corpo para trás, em vez de colar nele
+      // cada cão corre na sua velocidade (e muda um pouco a cada bolinha); o mais lento fica um corpo atrás
+      if (!PET.vBola) PET.vBola = (PET.k ? 105 : 175) * (.85 + Math.random() * .3);
       const atras = PET.k ? Math.sign(dx || PET.dir) * larg * .85 : 0, mdx = dx - atras;
-      if (Math.abs(mdx) > 4) PET.x += Math.sign(mdx) * Math.min(Math.abs(mdx), 160 * dt);
+      if (Math.abs(mdx) > 14 || (Math.abs(mdx) > 4 && Math.sign(mdx) === PET.dir)) { PET.dir = Math.sign(mdx); PET.x += Math.sign(mdx) * Math.min(Math.abs(mdx), PET.vBola * dt); }  // sempre de frente para onde corre; perto da bola não dá passinhos para trás
+      else if (Math.abs(dx) > 24) PET.dir = Math.sign(dx);                // parado: olha para a bolinha, sem ficar virando
       if (Math.abs(dx) < larg * .45 && b.cd <= 0 && b.chutes < 6) {
         // chuta para o lado de lá (ou para o outro, se a parede estiver perto)
         let lado = Math.sign(dx) || PET.dir; if ((lado > 0 && L - b.x < 110) || (lado < 0 && b.x < 110)) lado = -lado;
-        b.vx = lado * (300 + Math.random() * 120); b.vy = 230; b.cd = .5; b.chutes++; PET.dir = lado;
+        b.vx = lado * (300 + Math.random() * 120); b.vy = 230; b.cd = .5; b.chutes++;
       }
       if ((b.chutes >= 6 && Math.abs(b.vx) < 40 && b.h === 0 && Math.abs(dx) < larg * .5) || b.tempo > 22) {
-        if (b.el) b.el.remove(); PET.bola = null; PET.estado = 'sentado'; PET.espera = 3; PET.rel = 0; petFalar('Que divertido!', 1.6);
+        if (b.el) b.el.remove(); PET.bola = null; PETS.forEach((c) => { c.vBola = 0; }); PET.estado = 'sentado'; PET.espera = 3; PET.rel = 0; petFalar('Que divertido!', 1.6);
       }
     } else if (PET.fila === 'banho') {
       PET.alvo = null;
@@ -1804,12 +1805,12 @@
       }
       const bx = PET.visita ? petPoteX(cena, PET.visita) : null;
       if (bx !== null) {
-        PET.alvo = true; PET.dir = bx >= PET.x ? 1 : -1;
-        const meta = Math.max(larg / 2, Math.min(L - larg / 2, bx - PET.dir * larg * (.4 + PET.k * .9))), d = meta - PET.x;  // o segundo para um corpo antes, não em cima do primeiro
-        if (Math.abs(d) > 3) { PET.estado = 'andando'; PET.x += Math.sign(d) * Math.min(Math.abs(d), 96 * dt); }
-        else { PET.estado = 'comendo'; PET.tEstado = 0; PET.rel = 0; }
+        PET.alvo = true; if (!PET.ladoPote) PET.ladoPote = bx >= PET.x ? 1 : -1;   // o lado do potinho é decidido uma vez, para não virar de um lado a outro
+        const meta = Math.max(larg / 2, Math.min(L - larg / 2, bx - PET.ladoPote * larg * (.4 + PET.k * .9))), d = meta - PET.x;  // o segundo para um corpo antes, não em cima do primeiro
+        if (Math.abs(d) > 3) { PET.estado = 'andando'; PET.dir = Math.sign(d); PET.x += Math.sign(d) * Math.min(Math.abs(d), 96 * dt); }
+        else { PET.dir = PET.ladoPote; PET.estado = 'comendo'; PET.tEstado = 0; PET.rel = 0; }
       } else {
-        PET.alvo = null;
+        PET.alvo = null; PET.ladoPote = 0;
         // dois cães não sentam (nem param) um sobre o outro: o de trás se afasta devagar até sobrar espaço
         const vizinho = petSlots().map((sl) => PETS[sl.k]).find((o) => o !== PET && o.x !== null && Math.abs(o.x - PET.x) < larg * .95);
         if (vizinho && PET.k > vizinho.k && ['parado', 'sentado', 'andando'].includes(PET.estado)) {
@@ -1823,6 +1824,11 @@
         else if (PET.estado === 'sentado' && PET.espera <= 0) { PET.estado = 'parado'; PET.espera = 7 + Math.random() * 7; }
         }
       }
+    }
+    // parado ou sentado, o cão fica de frente para o outro (com folga, para não virar de um lado a outro)
+    if ((PET.estado === 'parado' || PET.estado === 'sentado') && !PET.bola) {
+      const outro = petSlots().map((sl) => PETS[sl.k]).find((o) => o !== PET && o.x !== null);
+      if (outro && Math.abs(outro.x - PET.x) > 12) PET.dir = outro.x > PET.x ? 1 : -1;
     }
     // desenho
     const cao = cena.querySelector(`.pet-cao[data-k="${PET.k}"]`), balao = cena.querySelector(`.pet-balao[data-k="${PET.k}"]`);
@@ -2747,13 +2753,16 @@
           <div class="ag-legenda" role="group" aria-label="Mostrar no calendário">${['ev', 'tar', 'lem'].map((k) => `<button type="button" class="ag-chip ${k} ag-filtro" data-act="ag-filtro" data-k="${k}" aria-pressed="${(UI.agFiltro || {})[k] !== false}">${SELO_NOME[k]}</button>`).join('')}</div>
           <div class="ag-semana" aria-hidden="true">${sem.map((x) => `<span>${x}</span>`).join('')}</div>
           <div class="ag-grade">${celulas.map(cel).join('')}</div></section>
-        <aside class="cartao ag-painel" aria-label="Dia selecionado">
+        <div class="ag-scrim ${UI.agSheet ? 'on' : ''}" data-act="ag-fechar" aria-hidden="true"></div>
+        <aside class="cartao ag-painel ${UI.agSheet ? 'sheet-aberta' : ''} ${UI.agSheetNovo ? 'entra' : ''}" aria-label="Dia selecionado">
+          <div class="ag-sheet-cab"><span class="ag-grabber" aria-hidden="true"></span>${btnIco('ag-fechar', 'xmark', 'Fechar')}</div>
           <h2>${esc(maiuscula(fmtDia(UI.agDia)))}</h2>
           <div class="ag-stk" role="group" aria-label="Stickers do dia"><span class="rotulo">Stickers</span>
             <div class="ag-stk-linha">${STICKERS.map(([id, nome]) => { const on = ((S.stickers || {})[UI.agDia] || []).includes(id);
               return `<button type="button" class="ag-stk-btn" data-act="ag-sticker" data-v="${id}" aria-pressed="${on}" aria-label="${nome}" title="${nome}">${stickerImg(id)}</button>`; }).join('')}</div></div>
           <div class="ag-lista">${dia.total ? dia.linhas.map(linha).join('') : '<p class="meta">Nada marcado para este dia.</p>'}</div>
           ${btn('ev-novo', ic('plus') + 'Evento neste dia', `data-d="${UI.agDia}"`, 'btn-2 btn-p')}</aside></div>`;
+    UI.agSheetNovo = false;
     if (UI.agFoco) { const alvo = main.querySelector(`.ag-dia[data-d="${UI.agFoco}"]`); UI.agFoco = ''; if (alvo) alvo.focus(); }
   }
   /* Teclado no calendário: setas andam entre os dias, PageUp/PageDown trocam o mês, Enter abre o dia. */
@@ -3616,13 +3625,14 @@
       case 'ag-lembrete': return abrirModal({ tipo: 'editar', id });
       case 'ag-filtro': { UI.agFiltro = Object.assign({ ev: true, tar: true, lem: true }, UI.agFiltro); UI.agFiltro[b.dataset.k] = !UI.agFiltro[b.dataset.k]; render(); { const f = main.querySelector(`.ag-filtro[data-k="${b.dataset.k}"]`); if (f) f.focus(); } return; }
       case 'ag-dia': {
-        UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); UI.agFoco = b.dataset.d; return render();
+        UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); UI.agFoco = b.dataset.d; if (!UI.agSheet) UI.agSheetNovo = true; UI.agSheet = true; return render();
       }
+      case 'ag-fechar': UI.agSheet = false; UI.agSheetNovo = false; return render();
       case 'ag-mes': {
         const base = UI.agMes || (UI.agDia || hoje()).slice(0, 7);
-        if (b.dataset.v === 'hoje') { UI.agDia = hoje(); UI.agMes = UI.agDia.slice(0, 7); return render(); }
+        if (b.dataset.v === 'hoje') { UI.agDia = hoje(); UI.agMes = UI.agDia.slice(0, 7); UI.agSheet = false; return render(); }
         const [a, m2] = base.split('-').map(Number), x = new Date(a, m2 - 1 + Number(b.dataset.v), 1);
-        UI.agMes = x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); return render();
+        UI.agMes = x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); UI.agSheet = false; return render();
       }
       case 'novo-grupo-musica': e.preventDefault(); return abrirModal({ tipo: 'grupo-musica' });
       case 'musica-grupo': fecharMenu(); return abrirModal({ tipo: 'musica-grupo', id });
@@ -4557,10 +4567,16 @@
   document.addEventListener('contextmenu', mostrarMenuSelecao);
   document.addEventListener('mouseup', (e) => { if (e.target.closest && e.target.closest('.camada-texto')) setTimeout(() => mostrarMenuSelecao(e), 0); });
 
-  document.getElementById('btn-menu').addEventListener('click', (e) => {
-    const aberto = layout.classList.toggle('nav-aberta');
-    e.currentTarget.setAttribute('aria-expanded', String(aberto));
-  });
+  /* No celular o menu lateral abre como gaveta (drawer) pela esquerda, com fundo escurecido. Fecha ao tocar fora, num link, no Esc ou ao trocar de página. */
+  const btnMenu = document.getElementById('btn-menu');
+  const navScrim = document.createElement('div'); navScrim.className = 'nav-scrim'; navScrim.setAttribute('aria-hidden', 'true'); layout.appendChild(navScrim);
+  const navAberta = (v) => { const aberto = layout.classList.toggle('nav-aberta', v); btnMenu.setAttribute('aria-expanded', String(aberto)); btnMenu.setAttribute('aria-label', aberto ? 'Fechar navegação' : 'Abrir navegação'); return aberto; };
+  btnMenu.addEventListener('click', () => navAberta());
+  navScrim.addEventListener('click', () => navAberta(false));
+  navLateral.addEventListener('click', (e) => { if (e.target.closest('a')) navAberta(false); });
+  addEventListener('hashchange', () => navAberta(false));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && UI.agSheet && !UI.modal) { UI.agSheet = false; render(); } });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && layout.classList.contains('nav-aberta')) { navAberta(false); btnMenu.focus(); } });
   addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); buscaTopo.focus(); buscaTopo.select(); }
   });

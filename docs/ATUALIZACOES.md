@@ -8,6 +8,17 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.45 — 16/11/2026 · Menu em gaveta e dia em folha de baixo
+
+- No celular, o menu lateral abre como uma gaveta pela esquerda, com o fundo escurecido; fecha ao tocar fora, num item ou no Esc.
+- No celular, ao tocar num dia do calendário, os detalhes do dia sobem como uma folha de baixo, com botão de fechar.
+
+## 5.44 — 16/11/2026 · Pets mais naturais
+
+- Os cachorrinhos não viram de um lado a outro nem andam de costas: sempre olham para onde estão indo.
+- Parados ou sentados, ficam de frente um para o outro.
+- Cada um corre numa velocidade ao ir atrás da bolinha; o mais lento chega depois.
+
 ## 5.43 — 16/11/2026 · Descrição do evento no celular
 
 - No celular, a descrição do evento no feed agora quebra em linhas (até 3) em vez de passar por cima da data.

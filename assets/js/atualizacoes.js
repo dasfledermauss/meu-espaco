@@ -10,6 +10,25 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.45',
+    data: '2026-11-16',
+    titulo: 'Menu em gaveta e dia em folha de baixo',
+    itens: [
+      'No celular, o menu lateral abre como uma gaveta pela esquerda, com o fundo escurecido; fecha ao tocar fora, num item ou no Esc.',
+      'No celular, ao tocar num dia do calendário, os detalhes do dia sobem como uma folha de baixo, com botão de fechar.'
+    ]
+  },
+  {
+    versao: '5.44',
+    data: '2026-11-16',
+    titulo: 'Pets mais naturais',
+    itens: [
+      'Os cachorrinhos não viram de um lado a outro nem andam de costas: sempre olham para onde estão indo.',
+      'Parados ou sentados, ficam de frente um para o outro.',
+      'Cada um corre numa velocidade ao ir atrás da bolinha; o mais lento chega depois.'
+    ]
+  },
+  {
     versao: '5.43',
     data: '2026-11-16',
     titulo: 'Descrição do evento no celular',

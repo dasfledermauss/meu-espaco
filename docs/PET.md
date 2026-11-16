@@ -49,3 +49,5 @@ Gere outra folha com a mesma grade (4 poses × 4 quadros, células iguais, pés 
 Com dois cães, o de trás (o segundo) se afasta devagar quando para ou senta a menos de uma largura do outro. Cada cocô novo procura o ponto livre mais perto: nunca fica a menos de 34px de outro cocô, de qualquer dos cães.
 
 Ao ir ao mesmo potinho ou à mesma bolinha, o primeiro cão chega na frente e o segundo para um corpo atrás (ou corre atrás da bola nessa distância).
+
+**Direção (v5.44).** O cão sempre olha para onde anda (nada de andar de costas nem virar de um lado a outro). Parado ou sentado, fica de frente para o outro cão. Na brincadeira da bolinha cada um corre na sua velocidade (o primeiro mais rápido, o segundo mais lento, com variação a cada bola) e o mais lento fica um corpo atrás.
