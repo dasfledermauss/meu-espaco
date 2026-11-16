@@ -1829,7 +1829,7 @@
      Fica guardado como visto no navegador; dá para rever pelo menu da foto de perfil. */
   const onboardingVisto = () => { try { return !!localStorage.getItem(CHAVE_ONB); } catch (e) { return true; } };
   function marcarOnboardingVisto() { try { localStorage.setItem(CHAVE_ONB, '1'); } catch (e) { /* ignora */ } }
-  const ONB_PASSOS = 5;
+  const ONB_PASSOS = 7;
   function abrirOnboarding() { UI.onb = { passo: 0, entra: true }; abrirModal({ tipo: 'onboarding' }); }
   function onboardingHTML() {
     const o = UI.onb || (UI.onb = { passo: 0, entra: true }), n = o.passo, p = S.perfil;
@@ -1845,6 +1845,11 @@
         <p class="onb-sub">Um lugar só seu para guardar o que importa e encontrar depois. Em um minuto você deixa tudo com a sua cara.</p>
         <div class="campo onb-nome"><label for="onb-nome">Como você quer ser chamado?</label>
           <input type="text" id="onb-nome" autocomplete="given-name" placeholder="Seu nome" value="${esc(primeiro || (conta() && conta().nome ? conta().nome.split(' ')[0] : ''))}"></div>`,
+      () => `<span class="logo-tyba grande onb-logo" role="img" aria-label="Tyba"></span>
+        <h2 id="onb-tit">Por que Tyba?</h2>
+        <p class="onb-sub">O nome vem do tupi. O sufixo <strong>-tyba</strong> (ou <strong>-tiba</strong>) indica abundância e ajuntamento: o lugar onde há muito de alguma coisa.</p>
+        <div class="onb-origem"><p><strong>Itatiba</strong><span>“lugar de muitas pedras”</span></p><p><strong>Ubatuba</strong><span>“lugar de muitas canoas”</span></p><p class="onb-tyba"><strong>Tyba</strong><span>o lugar onde se junta o que importa para você</span></p></div>
+        <p class="meta">Notas, links, livros, imagens, músicas, desejos: tudo reunido num só lugar, do seu jeito.</p>`,
       () => `<span class="onb-icone">${ic('folder')}</span>
         <h2 id="onb-tit">O que cabe aqui</h2>
         <p class="onb-sub">Cada coisa tem seu lugar no menu da esquerda. Você começa por onde fizer sentido.</p>
@@ -1856,6 +1861,13 @@
           `<button type="button" class="tema-op" data-act="onb-tema" data-v="${v}" aria-pressed="${p.tema === v && !p.corCustom}"><span class="amostra" style="background:${c}"></span>${nm}</button>`).join('')}</div></div>
         <div class="onb-grupo"><span class="rotulo">Aparência</span><span class="segmento" role="group" aria-label="Aparência">
           ${[['claro', 'Claro'], ['escuro', 'Escuro'], ['sistema', 'Automática']].map(([v, nm]) => `<button type="button" data-act="onb-modo" data-v="${v}" aria-pressed="${(p.modo || 'sistema') === v}">${nm}</button>`).join('')}</span></div>`,
+      () => { const sl = petSlots(), t1 = sl[0].tipo, t2 = sl[1] ? sl[1].tipo : '';
+        const fila = (k, atual) => `<div class="onb-grupo"><span class="rotulo">Pet ${k + 1}</span><div class="pet-opcoes">${k ? `<button type="button" class="pet-opcao nenhum" data-act="onb-pet" data-slot="1" data-tipo="" aria-pressed="${!atual}"><span class="pet-mini vazio" style="height:40px">${petIco('<path d="M6 6l12 12M18 6L6 18"/>')}</span><span>Nenhum</span></button>` : ''}${Object.entries(PET_TIPOS).map(([t, d]) => `<button type="button" class="pet-opcao" data-act="onb-pet" data-slot="${k}" data-tipo="${t}" aria-pressed="${atual === t}"><span class="pet-mini" style="width:${d.CW}px;height:${d.CH}px;background-image:url('${d.arq}');background-size:${d.CW * 4}px ${d.CH * 4}px"></span><span>${d.nome}</span></button>`).join('')}</div></div>`;
+        return `<span class="onb-icone">${ic('heart')}</span>
+        <h2 id="onb-tit">Seus pets moram aqui</h2>
+        <p class="onb-sub">No Início vive um bichinho em pixel art. Escolha até dois: cada um tem casinha, nome e cor, e eles brincam com a bolinha, comem, tomam banho e puxam assunto.</p>
+        <div class="onb-pets">${fila(0, t1)}${fila(1, t2)}</div>
+        <p class="meta">Clique na casinha para mudar a cor e na plaquinha para dar um nome. Dá para trocar tudo depois, no botão Pets do cenário.</p>`; },
       () => `<span class="onb-icone">${ic('search')}</span>
         <h2 id="onb-tit">Atalhos que poupam tempo</h2>
         <p class="onb-sub">Três que valem a pena decorar.</p>
@@ -3472,6 +3484,11 @@
       case 'onb-pular': case 'onb-fim': e.preventDefault(); onboardingSalvaNome(); return encerrarOnboarding();
       case 'onb-tema': e.preventDefault(); S.perfil.tema = b.dataset.v; S.perfil.corCustom = ''; UI.onb.entra = false; salvar(); aplicarTema(); UI.pularColheita = true; return render();
       case 'onb-modo': e.preventDefault(); S.perfil.modo = b.dataset.v; UI.onb.entra = false; salvar(); aplicarTema(); UI.pularColheita = true; return render();
+      case 'onb-pet': {
+        e.preventDefault(); const k = +b.dataset.slot || 0, tipo = b.dataset.tipo;
+        if (k) S.perfil.pet2 = Object.assign({}, S.perfil.pet2, { tipo }); else S.perfil.petTipo = tipo;
+        PETS[k].estado = 'parado'; PETS[k].x = null; UI.onb.entra = false; salvar(); UI.pularColheita = true; return render();
+      }
       case 'onb-criar': { e.preventDefault(); const t = b.dataset.t; encerrarOnboarding(); return abrirModal({ tipo: 'criar', t }); }
       case 'onboarding': e.preventDefault(); fecharMenu(); return abrirOnboarding();
       case 'novidades': e.preventDefault(); UI.novidPagina = undefined; return abrirModal({ tipo: 'novidades' });

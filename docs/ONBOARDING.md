@@ -1,6 +1,6 @@
 # Onboarding
 
-Cinco passos curtos para quem abre o espaço pela primeira vez. Tom amigável, um assunto por passo, muito respiro.
+Sete passos curtos para quem abre o espaço pela primeira vez. Tom amigável, um assunto por passo, muito respiro.
 
 ## Quando aparece
 
@@ -14,10 +14,12 @@ Cinco passos curtos para quem abre o espaço pela primeira vez. Tom amigável, u
 | # | Título | O que faz |
 |---|---|---|
 | 1 | Oi! Este é o seu espaço. | Pergunta como quer ser chamado (Enter avança). Guarda no perfil. |
-| 2 | O que cabe aqui | Oito cartões: notas, tarefas, imagens, links, livros e filmes, músicas, desejos, estudos. Só leitura. |
-| 3 | Do seu jeito | Cor (azul, verde, grafite) e aparência (claro, escuro, automática). Aplica e salva na hora. |
-| 4 | Atalhos que poupam tempo | Ctrl+V (cola imagem), Ctrl+K (busca), Shift+Espaço (modo trabalho). |
-| 5 | Tudo pronto | Usa o nome; botões para criar a primeira nota, tarefa, imagem ou link, ou “Explorar sozinho”. |
+| 2 | Por que Tyba? | Mostra o logo e explica o nome: do tupi, o sufixo -tyba (ou -tiba) indica abundância e ajuntamento, o lugar onde há muito de algo (Itatiba, “muitas pedras”; Ubatuba, “muitas canoas”). Só leitura. |
+| 3 | O que cabe aqui | Oito cartões: notas, tarefas, imagens, links, livros e filmes, músicas, desejos, estudos. Só leitura. |
+| 4 | Do seu jeito | Cor (azul, verde, grafite) e aparência (claro, escuro, automática). Aplica e salva na hora. |
+| 5 | Seus pets moram aqui | Apresenta os pets e deixa escolher o Pet 1 e o Pet 2 (ou Nenhum). Salva na hora. |
+| 6 | Atalhos que poupam tempo | Ctrl+V (cola imagem), Ctrl+K (busca), Shift+Espaço (modo trabalho). |
+| 7 | Tudo pronto | Usa o nome; botões para criar a primeira nota, tarefa, imagem ou link, ou “Explorar sozinho”. |
 
 ## Listinha “Para começar”
 
@@ -25,7 +27,7 @@ Cartão leve no Início, abaixo do bloco de guardar, só em espaço novo (quem j
 
 ## Hierarquia
 
-Contagem “Passo n de 5” e barra segmentada no topo; ícone em círculo, título grande, uma frase de apoio e só então o conteúdo; uma ação principal por passo (Continuar), com Voltar e Pular discretos. O conteúdo entra com um fade curto, que respeita “reduzir movimento”.
+Contagem “Passo n de 7” e barra segmentada no topo; ícone em círculo, título grande, uma frase de apoio e só então o conteúdo; uma ação principal por passo (Continuar), com Voltar e Pular discretos. O conteúdo entra com um fade curto, que respeita “reduzir movimento”.
 
 ## Critérios de aceite
 

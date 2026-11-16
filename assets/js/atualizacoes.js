@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.32',
+    data: '2026-11-16',
+    titulo: 'Primeiros passos com o nome Tyba e os pets',
+    itens: [
+      'O primeiro uso agora tem 7 passos: um novo explica o nome Tyba (do tupi: o sufixo -tyba/-tiba indica abundância e ajuntamento, como em Itatiba e Ubatuba) e outro apresenta os pets, com escolha do Pet 1 e do Pet 2 na hora.',
+      'Para rever: menu da sua foto → Primeiros passos.'
+    ]
+  },
+  {
     versao: '5.31',
     data: '2026-11-16',
     titulo: 'Schnauzer, dois pets e casinhas coloridas',
