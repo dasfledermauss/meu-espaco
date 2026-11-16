@@ -1858,7 +1858,8 @@
         <h2 id="onb-tit">Do seu jeito</h2>
         <p class="onb-sub">Escolha a cor e a aparência. Dá para mudar quando quiser, no menu da sua foto.</p>
         <div class="onb-grupo"><span class="rotulo">Cor</span><div class="onb-temas">${TEMAS.filter(([v]) => v !== 'lilas').map(([v, nm, c]) =>
-          `<button type="button" class="tema-op" data-act="onb-tema" data-v="${v}" aria-pressed="${p.tema === v && !p.corCustom}"><span class="amostra" style="background:${c}"></span>${nm}</button>`).join('')}</div></div>
+          `<button type="button" class="tema-op" data-act="onb-tema" data-v="${v}" aria-pressed="${p.tema === v && !p.corCustom}"><span class="amostra" style="background:${c}"></span>${nm}</button>`).join('')}
+          <label class="tema-op onb-personalizada" aria-pressed="${!!p.corCustom}"><input type="color" data-act="onb-cor" value="${esc(p.corCustom || '#2f5fe0')}" aria-label="Escolher uma cor personalizada"><span>Personalizada</span></label></div></div>
         <div class="onb-grupo"><span class="rotulo">Aparência</span><span class="segmento" role="group" aria-label="Aparência">
           ${[['claro', 'Claro'], ['escuro', 'Escuro'], ['sistema', 'Automática']].map(([v, nm]) => `<button type="button" data-act="onb-modo" data-v="${v}" aria-pressed="${(p.modo || 'sistema') === v}">${nm}</button>`).join('')}</span></div>`,
       () => { const sl = petSlots(), t1 = sl[0].tipo, t2 = sl[1] ? sl[1].tipo : '';
@@ -3786,6 +3787,7 @@
     if (act === 'wl-ordem') { UI.wlOrdem = t.value; return render(); }
     if (act === 'gasto-mes' && t.value) { UI.gastoMes = t.value; return render(); }
     if (act === 'cv-add-sec') { UI.cvAddSec = t.value; return; }
+    if (act === 'onb-cor') { S.perfil.corCustom = t.value; UI.onb.entra = false; salvar(); aplicarTema(); UI.pularColheita = true; return render(); }
     if (act === 'cor-custom') { UI.corPrevia = t.value; UI.temaPrevia = null; return aplicarTema(); }
     if (act === 'pl-escolha') {
       if (t.dataset.sec === 'perfil') UI.plano.perfil.escolha = t.value;
@@ -3794,6 +3796,7 @@
   });
 
   document.addEventListener('input', (e) => {
+    if (e.target.dataset && e.target.dataset.act === 'onb-cor') { S.perfil.corCustom = e.target.value; return aplicarTema(); }
     const rg = e.target.closest && e.target.closest('input[data-act="amb-nivel"]');
     if (rg && window.SONS) {
       const A = SONS.ambiente;

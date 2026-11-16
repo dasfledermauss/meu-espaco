@@ -1552,6 +1552,19 @@ body.janela-arrastando { user-select: none; }
 .onb-pets .pet-opcoes { display: flex; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .onb-pets .pet-opcoes::-webkit-scrollbar { display: none; }
 .onb-pets .pet-opcao { flex: 0 0 84px; }
+.onb-personalizada { cursor: pointer; }
+.onb-personalizada[aria-pressed="true"] { background: var(--marca-leve); color: var(--marca); font-weight: 600; outline: 2px solid var(--marca); }
+.onb-personalizada input[type="color"] { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 8px; background: none; cursor: pointer; flex: none; }
+.onb-personalizada input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.onb-personalizada input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 8px; }
+.onb-personalizada input[type="color"]::-moz-color-swatch { border: 0; border-radius: 8px; }
+.onb-personalizada:focus-within { outline: 2px solid var(--marca); outline-offset: 2px; }
+/* seleção no cabeçalho do feed: só o ícone em telas estreitas */
+@media (max-width: 560px) {
+  .secao-tit.feed-cab .sel-lado { flex: none; }
+  .secao-tit.feed-cab .sel-lado button { font-size: 0; gap: 0; padding: 8px 10px; }
+  .secao-tit.feed-cab .sel-lado .ico { width: 18px; height: 18px; }
+}
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }
@@ -1625,10 +1638,6 @@ body.janela-arrastando { user-select: none; }
 /* título e botão sempre na mesma linha (Agenda, Tarefas, Lembretes) */
 .pagina-cab.cab-linha { flex-wrap: wrap; }
 .pagina-cab.cab-linha > h1 { flex: 1 1 0; min-width: 0; }
-.pagina-cab.cab-linha .meta { flex: 0 0 100
-/* título e botão sempre na mesma linha (Agenda, Tarefas, Lembretes) */
-.pagina-cab.cab-linha { flex-wrap: wrap; }
-.pagina-cab.cab-linha > h1 { flex: 1 1 0; min-width: 0; }
 .pagina-cab.cab-linha .meta { flex: 0 0 100%; }
 .janela-notas .anotacao .cab time { white-space: nowrap; }
 
@@ -1638,3 +1647,6 @@ body.janela-arrastando { user-select: none; }
   .pet-opcoes::-webkit-scrollbar { display: none; }
   .pet-opcao { flex: 0 0 76px; }
 }
+
+.onb-personalizada { display: flex; align-items: center; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; }
+.onb-personalizada[aria-pressed="true"] { font-weight: 600; }

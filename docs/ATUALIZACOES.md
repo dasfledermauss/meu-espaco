@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.33 — 16/11/2026 · Cor personalizada no onboarding
+
+- No passo “Do seu jeito” do onboarding ganhou a opção Personalizada: escolha qualquer cor e ela vira a cor do seu espaço na hora.
+
 ## 5.32 — 16/11/2026 · Primeiros passos com o nome Tyba e os pets
 
 - O primeiro uso agora tem 7 passos: um novo explica o nome Tyba (do tupi: o sufixo -tyba/-tiba indica abundância e ajuntamento, como em Itatiba e Ubatuba) e outro apresenta os pets, com escolha do Pet 1 e do Pet 2 na hora.

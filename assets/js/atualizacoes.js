@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.33',
+    data: '2026-11-16',
+    titulo: 'Cor personalizada no onboarding',
+    itens: [
+      'No passo “Do seu jeito” do onboarding ganhou a opção Personalizada: escolha qualquer cor e ela vira a cor do seu espaço na hora.'
+    ]
+  },
+  {
     versao: '5.32',
     data: '2026-11-16',
     titulo: 'Primeiros passos com o nome Tyba e os pets',
