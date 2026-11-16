@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Servidor local do Meu Espaço.
+"""Servidor local do Tyba.
 
 Serve os arquivos desta pasta e oferece a captura de produtos para a Wishlist:
     GET /api/status              -> {"ok": true}
@@ -705,7 +705,7 @@ class Manipulador(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     servidor = ThreadingHTTPServer(("127.0.0.1", PORTA), partial(Manipulador, directory=str(RAIZ)))
     endereco = f"http://localhost:{PORTA}/"
-    print(f"Meu Espaço rodando em {endereco}\nDeixe esta janela aberta. Para parar: Ctrl+C.")
+    print(f"Tyba rodando em {endereco}\nDeixe esta janela aberta. Para parar: Ctrl+C.")
     if "--sem-navegador" not in sys.argv:
         threading.Timer(0.6, lambda: webbrowser.open(endereco)).start()
     try:

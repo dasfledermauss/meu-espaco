@@ -1,4 +1,4 @@
-/* Meu Espaço — sincronização com o Firebase (Auth + Firestore).
+/* Tyba — sincronização com o Firebase (Auth + Firestore).
    Carrega o SDK só quando há configuração e conexão. Sem isso, o app continua local.
 
    Como os dados ficam guardados:

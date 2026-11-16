@@ -1,8 +1,8 @@
-# Meu Espaço — escopo do produto
+# Tyba — escopo do produto
 
 ## 1. Objetivo
 
-Meu Espaço é um arquivo pessoal privado com uma interface de rede social. Seu Nome pode abrir o app no dia a dia, colar um link, anotar um gasto ou contar algo que aprendeu. Cada registro aparece no feed e fica disponível em uma área permanente para consulta, edição e organização.
+Tyba é um arquivo pessoal privado com uma interface de rede social. Seu Nome pode abrir o app no dia a dia, colar um link, anotar um gasto ou contar algo que aprendeu. Cada registro aparece no feed e fica disponível em uma área permanente para consulta, edição e organização.
 
 O motivo para guardar um item faz parte dele. Um link pode vir acompanhado de “quero testar essa navegação no próximo projeto”. Meses depois, buscar essa frase deve levar ao link, aos comentários escritos depois e ao registro do projeto em que a ideia foi aplicada.
 

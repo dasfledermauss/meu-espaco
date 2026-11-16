@@ -1,4 +1,4 @@
-# Meu Espaço — Estudos
+# Tyba — Estudos
 
 Área para guardar o que você está estudando, organizada em **pastas por assunto**, como gavetas de arquivo.
 

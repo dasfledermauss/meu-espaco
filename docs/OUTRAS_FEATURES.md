@@ -1,4 +1,4 @@
-# Meu Espaço — outras features
+# Tyba — outras features
 
 Complemento ao [escopo principal](https://chatgpt.com/library?file_id=libfile_ed820f435ad0819185d58b0bef310242&account_id=personal). Este documento descreve as interações pessoais previstas para o produto. As regras de exibição e a ordem de entrega são propostas para implementação.
 
@@ -48,7 +48,7 @@ Em **Coleções**, criar uma coleção com nome, descrição opcional e capa esc
 
 ## 5. Mandar pra mim e notas de texto
 
-**Captura rápida.** No PC, escolher o tipo de post e escrever ou colar no campo do Início; o dropdown **Salvar em** define a coleção. No celular, quando houver suporte à integração de compartilhamento, escolher **Compartilhar → Meu Espaço** no navegador ou em outro app. O formulário chega preenchido com o endereço, texto ou anexo recebido, com o tipo já escolhido (endereço → Link, texto → Nota). Uma anotação e uma coleção podem ser acrescentadas antes ou depois de salvar.
+**Captura rápida.** No PC, escolher o tipo de post e escrever ou colar no campo do Início; o dropdown **Salvar em** define a coleção. No celular, quando houver suporte à integração de compartilhamento, escolher **Compartilhar → Tyba** no navegador ou em outro app. O formulário chega preenchido com o endereço, texto ou anexo recebido, com o tipo já escolhido (endereço → Link, texto → Nota). Uma anotação e uma coleção podem ser acrescentadas antes ou depois de salvar.
 
 **Mural.** As notas aparecem como post-its quase quadrados, que podem ser **reordenados arrastando** (ou por “Mover para o começo” no menu). Cada uma pode ser fixada (alfinete, vai para o começo), favoritada, mudar de cor e abrir a ficha. O primeiro cartão do mural é um post-it em branco para escrever na hora. Um filtro mostra só as notas de uma coleção.
 

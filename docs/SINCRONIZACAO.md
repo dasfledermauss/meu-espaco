@@ -1,4 +1,4 @@
-# Meu Espaço — sincronização (Firebase)
+# Tyba — sincronização (Firebase)
 
 Com a sincronização ligada, os registros deixam de viver só no navegador: eles ficam na sua conta e aparecem em qualquer aparelho onde você entrar. O que você muda num lugar chega no outro sozinho.
 

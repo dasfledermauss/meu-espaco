@@ -1,6 +1,6 @@
 # Músicas
 
-Guardar música e playlist do YouTube e ouvir sem sair do Meu Espaço.
+Guardar música e playlist do YouTube e ouvir sem sair do Tyba.
 
 ## Como guarda
 
@@ -35,7 +35,7 @@ O disco ao lado da foto de perfil abre um painel no canto inferior direito, por 
 
 **Fechar.** O X para a música e os sons ambiente e fecha o painel. Para voltar, use o botão de música ao lado do perfil.
 
-O embed usa `youtube-nocookie.com`. O YouTube é quem toca: o Meu Espaço não baixa nem hospeda nada, e vale o que estiver disponível na região.
+O embed usa `youtube-nocookie.com`. O YouTube é quem toca: o Tyba não baixa nem hospeda nada, e vale o que estiver disponível na região.
 
 ## Onde aparece
 

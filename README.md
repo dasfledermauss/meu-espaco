@@ -1,4 +1,4 @@
-# Meu Espaço
+# Tyba
 
 Arquivo pessoal privado com cara de rede social: feed por tipo de post, mural de notas, biblioteca em prateleiras, pastas de estudo com leitor de PDF, wishlist capturada por link, coleções, gastos, lembretes e currículo.
 

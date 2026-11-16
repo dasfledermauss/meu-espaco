@@ -1,4 +1,4 @@
-# Meu Espaço — login com conta Google
+# Tyba — login com conta Google
 
 ## O que o login faz
 

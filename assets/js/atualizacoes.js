@@ -10,6 +10,17 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.50',
+    data: '2026-11-16',
+    titulo: 'Limpeza: nome Tyba, avatar neutro e dados pessoais fora',
+    itens: [
+      'Novos espaços começam com o avatar neutro; a foto do Seu Nome deixou de ser o padrão.',
+      'O atalho do ícone do app agora se chama Meu Espaço (o quadro de tarefas).',
+      'Docs e comentários do código passam a chamar o produto de Tyba.',
+      'O ícone do app (tela inicial, instalação e aba do navegador) agora é a logo do Tyba, em branco sobre o azul da marca.'
+    ]
+  },
+  {
     versao: '5.49',
     data: '2026-11-16',
     titulo: 'Quadro de tarefas em abas no celular',

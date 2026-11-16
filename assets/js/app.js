@@ -1,4 +1,4 @@
-/* Meu Espaço — v3. Uma única fonte de dados (S) alimenta todas as telas.
+/* Tyba — v3. Uma única fonte de dados (S) alimenta todas as telas.
    Ícones: Iconoir (assets/js/icones.js). Variante "-solid" = estado ativo. */
 (function () {
   'use strict';
@@ -7,7 +7,6 @@
   const CHAVE_RASC = 'meuEspaco.rascunhos';
   const CHAVE_NOVID = 'meuEspaco.novidades';
   const CHAVE_ONB = 'meuEspaco.onboarding';
-  const FOTO_PADRAO = 'assets/img/foto-perfil.jpg';
   const main = document.getElementById('conteudo');
   const navLateral = document.getElementById('nav-lateral');
   const direita = document.getElementById('direita');
@@ -232,7 +231,6 @@
     st.perfil.corCustom = st.perfil.corCustom || '';
     st.perfil.modo = st.perfil.modo || 'sistema';
     if (!st.perfil.fotoConferida) {
-      if (!st.perfil.foto && !st.perfil.semFoto && (st.itens || []).length) st.perfil.foto = FOTO_PADRAO;
       st.perfil.fotoConferida = true;
     }
     (st.itens || []).forEach((i, k) => {

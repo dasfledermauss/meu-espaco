@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.50 — 16/11/2026 · Limpeza: nome Tyba, avatar neutro e dados pessoais fora
+
+- Novos espaços começam com o avatar neutro; a foto do Seu Nome deixou de ser o padrão.
+- O atalho do ícone do app agora se chama Meu Espaço (o quadro de tarefas).
+- Docs e comentários do código passam a chamar o produto de Tyba.
+- O ícone do app (tela inicial, instalação e aba do navegador) agora é a logo do Tyba, em branco sobre o azul da marca.
+
 ## 5.49 — 16/11/2026 · Quadro de tarefas em abas no celular
 
 - No celular, o quadro mostra uma coluna por vez, com abas A fazer / Fazendo / Feito. Arraste um cartão até uma aba para mudar a situação dele.

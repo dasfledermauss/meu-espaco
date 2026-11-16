@@ -1,4 +1,4 @@
-/* Meu Espaço — service worker.
+/* Tyba — service worker.
 
    O que faz:
    - guarda o "casco" do app (HTML, CSS, JS, fontes, ícones) para abrir sem internet;

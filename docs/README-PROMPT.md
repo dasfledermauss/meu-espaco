@@ -1,10 +1,10 @@
-# Meu Espaço · prompt para construir o wireframe interativo
+# Tyba · prompt para construir o wireframe interativo
 
 **Status:** o protótipo já foi implementado na raiz do projeto (`index.html`) e evoluiu para a v2 (colunas, módulos temáticos, ícones Iconoir). Para o estado atual, valem `ESCOPO.md`, `DIRECAO_VISUAL_MVP.md` e `BIBLIOTECA_E_WISHLIST.md`. Este arquivo fica como especificação de referência. Os caminhos abaixo seguem a organização atual da pasta.
 
 ## Pedido de implementação
 
-Construa uma versão navegável do **Meu Espaço**, meu portal pessoal privado. Quero abrir a página, ver meu perfil, guardar uma nota ou link rapidamente, reencontrar o item por data ou coleção e administrar meu currículo. Use meus arquivos para que eu possa experimentar a interface com conteúdo que reconheço. Entregue o protótipo funcionando e explique como abri-lo no Windows.
+Construa uma versão navegável do **Tyba**, meu portal pessoal privado. Quero abrir a página, ver meu perfil, guardar uma nota ou link rapidamente, reencontrar o item por data ou coleção e administrar meu currículo. Use meus arquivos para que eu possa experimentar a interface com conteúdo que reconheço. Entregue o protótipo funcionando e explique como abri-lo no Windows.
 
 ### 1. Leia a pasta antes de implementar
 
@@ -14,9 +14,8 @@ Construa uma versão navegável do **Meu Espaço**, meu portal pessoal privado. 
 | `docs/OUTRAS_FEATURES.md` | Perfil, humor, visão por dia, lembretes, coleções pessoais e redescoberta. |
 | `docs/DIRECAO_VISUAL_MVP.md` | Direção visual vigente. Use a organização funcional das telas anteriores com a aparência de portal retrô deste documento. |
 | `data/curriculo.json` | Modelo em branco do currículo (só a estrutura), para o importador. Inspecione as chaves, níveis, textos, datas e listas presentes. |
-| `data/links-pessoal.json` | Conteúdo inicial da coleção **Pessoal**. |
-| `data/links-trabalho.json` | Conteúdo inicial da coleção **Trabalho**. |
-| `assets/img/foto-perfil.jpg` | Foto inicial do perfil. Use o arquivo local, com recorte proporcional. |
+| `data/links-exemplo.json` | Exemplo neutro do formato de importação de links (listas com cartões). Os links pessoais do Seu Nome saíram do repositório; use o seu próprio arquivo neste formato. |
+| `assets/img/foto-perfil.jpg` | Foto do perfil do Seu Nome, só para quem já a tem salva. Novos espaços começam com o avatar neutro (ícone de pessoa). |
 
 Preserve os arquivos de entrada. O formato v1 descrito no escopo orienta a exportação; o adaptador de entrada deve aceitar também a estrutura encontrada nos exemplos. Preserve títulos, descrições, ordem, precisão das datas e campos adicionais. Represente informações ausentes como opcionais. Quando um item de exemplo vier sem data de postagem, mostre-o na coleção como importado. Se aparecer no feed, indique a data de importação.
 

@@ -1,4 +1,4 @@
-/* Configuração pública do Meu Espaço.
+/* Configuração pública do Tyba.
    Estes valores são públicos por natureza: o ID do cliente OAuth aparece no endereço do
    login do Google, e a apiKey do Firebase identifica o projeto, não autoriza nada sozinha.
    Quem protege os dados são as regras do Firestore (firestore.rules) e a lista de

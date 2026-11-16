@@ -1,4 +1,4 @@
-# Meu Espaço — direção visual do MVP
+# Tyba — direção visual do MVP
 
 ## Conceito
 
@@ -86,7 +86,7 @@ Importações em lote entram recolhidas num único bloco do feed, para não empu
 
 ## Referências e aplicação
 
-| Referência | O que aproveitar no Meu Espaço |
+| Referência | O que aproveitar no Tyba |
 |---|---|
 | [SpaceHey](https://chatgpt.com/library?file_id=libfile_5c48bf26e94c81919cdbcf99bd813f86&account_id=personal) — perfil social clássico | Foto pequena, mini bio e humor na lateral. Links de ação próximos ao conteúdo que modificam. |
 | [Yahoo! GeoCities](https://chatgpt.com/library?file_id=libfile_69804f62c6808191b3e421583d26bf5b&account_id=personal) — portal e diretório | Títulos em faixas de cor, agrupamento por assunto e listas de links com descrições curtas. |

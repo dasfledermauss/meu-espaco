@@ -40,6 +40,8 @@ const TESTES = {
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(1200);
     conferir(await p.$$eval('.modal-onb', (a) => a.length) === 1, 'onboarding abre em espaço novo');
     conferir(/de 7/.test(await p.textContent('.modal-onb')), 'tem 7 passos');
+    await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('meuEspaco.v1') || 'null'); window.__foto = s && s.perfil && s.perfil.foto; });
+    conferir(!await p.evaluate(() => window.__foto), 'espaço novo não recebe foto de ninguém (avatar neutro)');
     for (let i = 0; i < 3; i++) { await p.click('[data-act="onb-prox"]'); await p.waitForTimeout(250); }
     await p.$eval('[data-act="onb-cor"]', (e) => { e.value = '#d9480f'; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); });
     await p.waitForTimeout(200);

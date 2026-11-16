@@ -1,6 +1,6 @@
 # Aplicativo (PWA)
 
-O Meu Espaço é um PWA: instala como app, abre em janela própria e funciona sem internet.
+O Tyba é um PWA: instala como app, abre em janela própria e funciona sem internet.
 
 ## Peças
 
@@ -33,3 +33,7 @@ O Meu Espaço é um PWA: instala como app, abre em janela própria e funciona se
 ## Ao mudar o app
 
 Basta registrar a nova versão no topo de `atualizacoes.js`. Se criar arquivo novo que precisa funcionar offline, inclua em `ESSENCIAIS` no `sw.js`.
+
+## Ícones (v5.50)
+
+Os ícones em `assets/img/pwa/` (192, 512, maskable 512, apple-touch 180 e favicon 32) são a logo do Tyba (`assets/img/tyba-logo.svg`) em branco sobre o azul da marca `#2f5fe0`. A versão maskable usa a logo menor, dentro da zona segura de 80%. Para refazer, edite `icone.svg` / `icone-maskable.svg` e gere os PNGs a partir deles.

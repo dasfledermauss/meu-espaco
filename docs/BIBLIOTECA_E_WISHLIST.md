@@ -1,4 +1,4 @@
-# Meu Espaço — Biblioteca e Wishlist
+# Tyba — Biblioteca e Wishlist
 
 Complementa o `ESCOPO.md`. Descreve os dois módulos como estão no protótipo (v2).
 

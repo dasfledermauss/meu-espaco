@@ -24,7 +24,7 @@
     { "name": "Nova tarefa", "short_name": "Tarefa", "url": "./#/novo/tarefa", "icons": [{ "src": "assets/img/pwa/icone-192.png", "sizes": "192x192" }] },
     { "name": "Guardar imagem", "short_name": "Imagem", "url": "./#/novo/imagem", "icons": [{ "src": "assets/img/pwa/icone-192.png", "sizes": "192x192" }] },
     { "name": "Guardar link", "short_name": "Link", "url": "./#/novo/link", "icons": [{ "src": "assets/img/pwa/icone-192.png", "sizes": "192x192" }] },
-    { "name": "Modo trabalho", "short_name": "Trabalho", "url": "./#/novo/trabalho", "icons": [{ "src": "assets/img/pwa/icone-192.png", "sizes": "192x192" }] }
+    { "name": "Meu Espaço (quadro de tarefas)", "short_name": "Meu Espaço", "url": "./#/novo/trabalho", "icons": [{ "src": "assets/img/pwa/icone-192.png", "sizes": "192x192" }] }
   ],
   "share_target": {
     "action": "./",

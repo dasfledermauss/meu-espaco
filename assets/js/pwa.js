@@ -1,4 +1,4 @@
-/* Meu Espaço — ponte com o navegador para o modo aplicativo (PWA).
+/* Tyba — ponte com o navegador para o modo aplicativo (PWA).
 
    Este arquivo só fala com o navegador: registra o service worker, guarda o convite de instalação e avisa
    o app (app.js) por eventos. Quem desenha botões e avisos é o app.js.

@@ -1,4 +1,4 @@
-/* Meu Espaço — biblioteca de frases do pet.
+/* Tyba — biblioteca de frases do pet.
 
    O pet escolhe uma frase conforme o que está acontecendo: o que você guardou, lembretes e tarefas,
    o tempo, o dia da semana, a hora do dia ou o tempo que você ficou fora.
