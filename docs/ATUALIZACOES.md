@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.42 — 16/11/2026 · Wishlist em lote
+
+- Em Novo desejo, cole vários links de produto, um por linha: todos entram de uma vez e as páginas são lidas uma a uma. Links repetidos ou inválidos são avisados e pulados.
+
 ## 5.41 — 16/11/2026 · Pets andam um atrás do outro
 
 - Quando os dois vão ao mesmo lugar (potinho ou bolinha), um chega na frente e o outro fica um corpo atrás, sem se cobrirem.

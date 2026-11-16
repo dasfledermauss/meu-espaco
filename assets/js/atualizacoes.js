@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.42',
+    data: '2026-11-16',
+    titulo: 'Wishlist em lote',
+    itens: [
+      'Em Novo desejo, cole vários links de produto, um por linha: todos entram de uma vez e as páginas são lidas uma a uma. Links repetidos ou inválidos são avisados e pulados.'
+    ]
+  },
+  {
     versao: '5.41',
     data: '2026-11-16',
     titulo: 'Pets andam um atrás do outro',

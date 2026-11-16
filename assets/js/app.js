@@ -570,6 +570,28 @@
     return capturar(i, true);
   }
 
+  /** Vários desejos de uma vez: um link por linha. Guarda tudo, avisa quantos entraram e captura as páginas uma de cada vez. */
+  const partesDeLinks = (t) => (t || '').split(/\r?\n/).flatMap((l) => l.trim().split(/\s+(?=https?:\/\/)/)).map((x) => x.trim()).filter(Boolean);
+  function guardarDesejosEmLote(texto) {
+    const urls = [...new Set(partesDeLinks(texto).map((u) => (/^https?:\/\//i.test(u) ? u : 'https://' + u)))];
+    const novos = [], invalidos = []; let repetidos = 0;
+    urls.forEach((url) => {
+      try { new URL(url); } catch (e) { invalidos.push(url); return; }
+      if (S.itens.some((x) => x.tipo === 'desejo' && x.url === url)) { repetidos++; return; }
+      novos.push({ id: uid('des'), tipo: 'desejo', url, colecoes: [], comentarios: [], favorito: false, criadoEm: agora(), moeda: 'BRL', historicoPreco: [], comprado: false, preco: null });
+    });
+    if (!novos.length) { toast(repetidos ? 'Esses links já estavam guardados.' : 'Nenhum link válido encontrado.'); return false; }
+    S.itens.push(...novos);
+    if (!salvar()) { novos.forEach(() => S.itens.pop()); return false; }
+    const partes = [`${novos.length} desejo${novos.length > 1 ? 's' : ''} guardado${novos.length > 1 ? 's' : ''}`];
+    if (repetidos) partes.push(`${repetidos} já existia${repetidos > 1 ? 'm' : ''}`);
+    if (invalidos.length) partes.push(`${invalidos.length} inválido${invalidos.length > 1 ? 's' : ''}`);
+    if (window.SONS) SONS.tocar('guardar');
+    toast(partes.join(' · ') + '.', 'check-circle-solid');
+    novos.reduce((fila, i) => fila.then(() => Promise.resolve(capturar(i, true)).catch(() => {})), Promise.resolve());
+    return true;
+  }
+
   /* ---------------- formulários de criação e edição ---------------- */
   const TIPOS_CRIAR = [['nota', 'Nota', 'journal-page'], ['tarefa', 'Tarefa', 'list'], ['imagem', 'Imagem', 'media-image'], ['link', 'Link', 'link'], ['midia', 'Livro ou filme', 'book'],
     ['artigo', 'Artigo de estudo', 'page'], ['musica', 'Música', 'ytmusic'], ['desejo', 'Desejo', 'shopping-bag'], ['gasto', 'Gasto', 'wallet'], ['lembrete', 'Lembrete', 'alarm']];
@@ -653,8 +675,9 @@
       c.opc('titulo', 'Título', campo('f-titulo', 'Título', txt('f-titulo', 'titulo', v.titulo)));
       c.opc('descricao', 'Resumo', campo('f-desc', 'Resumo', area('f-desc', 'descricao', v.descricao)));
     } else if (t === 'desejo') {
-      c.fixo(campo('f-url', 'Link do produto', `<input type="url" id="f-url" name="url" value="${esc(v.url || '')}" required placeholder="Cole o endereço da página do produto" inputmode="url">`));
-      if (!it) c.fixo(`<p class="dica">${ic('priority-high')}<span>Só o link. Foto, nome, preço, estrelas e loja são lidos da página.</span></p>`);
+      if (it) c.fixo(campo('f-url', 'Link do produto', `<input type="url" id="f-url" name="url" value="${esc(v.url || '')}" required placeholder="Cole o endereço da página do produto" inputmode="url">`));
+      else c.fixo(campo('f-url', 'Links dos produtos', `<textarea id="f-url" name="url" rows="3" required placeholder="Cole um link por linha" inputmode="url" spellcheck="false" autocapitalize="off">${esc(v.url || '')}</textarea>`));
+      if (!it) c.fixo(`<p class="dica">${ic('priority-high')}<span>Um link por linha, quantos quiser. Foto, nome, preço, estrelas e loja são lidos de cada página.</span></p>`);
       if (it) {
         c.fixo(`<div class="linha">${campo('f-titulo', 'Nome do produto', txt('f-titulo', 'titulo', v.titulo))}
           ${campo('f-preco', 'Preço', `<input type="number" id="f-preco" name="preco" step="0.01" min="0" value="${v.preco ?? ''}">`, 'curto')}</div>`);
@@ -3955,6 +3978,10 @@
         if (d.destino !== undefined) { i.colecoes = d.destino ? [{ id: d.destino, grupo: '' }] : []; i.organizar = !d.destino; if (novo) S.destinoPadrao.nota = d.destino; }
         if (novo) i.ordem = Math.min(0, ...doTipo('nota').map((x) => x.ordem ?? 0)) - 1;
       } else if (alvo === 'link' || alvo === 'desejo' || alvo === 'artigo' || alvo === 'musica') {
+        if (alvo === 'desejo' && novo && partesDeLinks(d.url).length > 1) {
+          if (!guardarDesejosEmLote(d.url)) return;
+          limparRascunho(k); UI.modal = null; UI.colPadrao = null; UI.pularColheita = true; return render();
+        }
         let url = (d.url || '').trim();
         if (!url) return toast('Cole o endereço.');
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
