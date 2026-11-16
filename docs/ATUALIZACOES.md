@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.36 — 16/11/2026 · Colunas do quadro valem por inteiro
+
+- No quadro do Meu Espaço, cada coluna vale por toda a altura: solte o cartão em qualquer ponto dela, mesmo vazia. Os botões de mover continuam funcionando.
+
 ## 5.35 — 16/11/2026 · Arrastar tarefas ficou mais fácil
 
 - Arrastar um cartão do quadro agora funciona pegando em qualquer ponto dele, com o cartão seguindo o mouse e a coluna de destino acendendo.

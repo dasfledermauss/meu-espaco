@@ -1573,6 +1573,7 @@ body.janela-arrastando { user-select: none; }
 .trab-cab h1 .trab-nome { font: inherit; letter-spacing: inherit; color: inherit; background: transparent; border: 0; border-radius: 10px; padding: 4px 8px; margin: -4px -8px; width: 14ch; max-width: 100%; field-sizing: content; min-width: 6ch; transition: background-color .18s ease-out; }
 .trab-cab h1 .trab-nome:hover { background: var(--fundo-2, rgba(0,0,0,.04)); }
 .trab-cab h1 .trab-nome:focus { outline: 2px solid var(--marca); background: var(--cartao); }
+.quadro.tres .quadro-col[data-etapa-alvo] { min-height: calc(100vh - 200px); align-content: start; }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

@@ -4374,7 +4374,8 @@
   (function arrastarTarefas() {
     let s = null, suprimir = false;
     const IGNORA = 'input, select, textarea, [data-nodrag]';
-    const colunaSob = (x, y) => [...document.querySelectorAll('[data-etapa-alvo]')].find((c) => { const r = c.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top - 8 && y <= r.bottom + 8; });
+    /* a coluna vale pela faixa horizontal inteira: soltar em qualquer altura dela já conta, mesmo vazia */
+    const colunaSob = (x) => [...document.querySelectorAll('[data-etapa-alvo]')].find((c) => { const r = c.getBoundingClientRect(); return x >= r.left - 6 && x <= r.right + 6; });
     function iniciar() {
       if (!s || s.ativo) return;
       s.ativo = true; UI.arrastando = true; clearTimeout(s.timer);
@@ -4392,7 +4393,7 @@
       const px = s.x - s.dx, py = s.y - s.dy;
       s.tilt += (Math.max(-6, Math.min(6, (px - s.pxAnt) * .6)) - s.tilt) * .2; s.pxAnt = px;
       s.f.style.transform = `translate(${px}px, ${py}px) rotate(${s.tilt.toFixed(2)}deg)`;
-      const c = colunaSob(s.x, s.y);
+      const c = colunaSob(s.x);
       document.querySelectorAll('.alvo-solta').forEach((x) => { if (x !== c) x.classList.remove('alvo-solta'); });
       if (c) c.classList.add('alvo-solta');
     }
@@ -4401,7 +4402,7 @@
       const e = s; s = null; clearTimeout(e.timer); cancelAnimationFrame(e.raf);
       if (!e.ativo) return;
       UI.arrastando = false; document.body.classList.remove('arrastando-ord');
-      const c = cancelar ? null : colunaSob(e.x, e.y);
+      const c = cancelar ? null : colunaSob(e.x);
       document.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
       suprimir = true; setTimeout(() => { suprimir = false; }, 60);
       const i = item(e.it.dataset.tarefa);

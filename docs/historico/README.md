@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.35 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Arrastar de tarefas com a mecânica do ponteiro. | — |
+| v5.36 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Colunas do quadro com altura total para soltar cartões. | — |
+| v5.35 | sem captura ainda; registrar aqui antes da próxima mudança visual | Arrastar de tarefas com a mecânica do ponteiro. | — |
 | v5.34 | sem captura ainda; registrar aqui antes da próxima mudança visual | Arrastar cartões entre colunas no modo trabalho. | — |
 | v5.33 | sem captura ainda; registrar aqui antes da próxima mudança visual | Onboarding: cor Personalizada. |
 | v5.32 | sem captura ainda; registrar aqui antes da próxima mudança visual | Onboarding com passos novos: origem do nome Tyba e pets. |
