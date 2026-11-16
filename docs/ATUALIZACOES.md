@@ -8,10 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
-## 5.37 — 16/11/2026 · Quadro sem contorno ao arrastar
+## 5.38 — 16/11/2026 · Silhueta ao arrastar no quadro
 
 - No quadro do Meu Espaço, cada coluna vale por toda a altura: solte o cartão em qualquer ponto dela, mesmo vazia. Os botões de mover continuam funcionando.
-- Ao arrastar, a coluna de destino só ganha um fundo suave, sem contorno.
+- Ao arrastar, a coluna de destino mostra só a silhueta do espaço que o cartão ocuparia, sem contorno.
 
 ## 5.35 — 16/11/2026 · Arrastar tarefas ficou mais fácil
 

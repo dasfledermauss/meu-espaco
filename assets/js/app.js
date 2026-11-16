@@ -4380,7 +4380,7 @@
       if (!s || s.ativo) return;
       s.ativo = true; UI.arrastando = true; clearTimeout(s.timer);
       const r = s.it.getBoundingClientRect();
-      s.dx = s.x - r.left; s.dy = s.y - r.top; s.tilt = 0; s.pxAnt = s.x;
+      s.dx = s.x - r.left; s.dy = s.y - r.top; s.tilt = 0; s.pxAnt = s.x; s.altura = r.height; s.origem = (s.it.closest('[data-etapa-alvo]') || {dataset: {}}).dataset.etapaAlvo;
       const f = s.it.cloneNode(true);
       f.removeAttribute('data-tarefa'); f.classList.add('fantasma');
       f.style.cssText = `width:${r.width}px;height:${r.height}px;transform:translate(${r.left}px,${r.top}px)`;
@@ -4394,8 +4394,12 @@
       s.tilt += (Math.max(-6, Math.min(6, (px - s.pxAnt) * .6)) - s.tilt) * .2; s.pxAnt = px;
       s.f.style.transform = `translate(${px}px, ${py}px) rotate(${s.tilt.toFixed(2)}deg)`;
       const c = colunaSob(s.x);
-      document.querySelectorAll('.alvo-solta').forEach((x) => { if (x !== c) x.classList.remove('alvo-solta'); });
-      if (c) c.classList.add('alvo-solta');
+      // só uma silhueta do espaço que o cartão ocuparia, no fim da coluna sob o ponteiro
+      const mesma = !c || c.dataset.etapaAlvo === s.origem;
+      let sil = document.querySelector('.tar-silhueta');
+      if (mesma) { if (sil) sil.remove(); return; }
+      if (!sil) { sil = document.createElement('div'); sil.className = 'tar-silhueta'; sil.style.height = s.altura + 'px'; }
+      if (sil.parentElement !== c) c.appendChild(sil);
     }
     function encerrar(cancelar) {
       if (!s) return;
@@ -4403,7 +4407,7 @@
       if (!e.ativo) return;
       UI.arrastando = false; document.body.classList.remove('arrastando-ord');
       const c = cancelar ? null : colunaSob(e.x);
-      document.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
+      document.querySelectorAll('.tar-silhueta').forEach((x) => x.remove());
       suprimir = true; setTimeout(() => { suprimir = false; }, 60);
       const i = item(e.it.dataset.tarefa);
       if (c && i && etapa(i) !== c.dataset.etapaAlvo) { e.f.remove(); UI.pularColheita = true; mudarEtapa(i.id, c.dataset.etapaAlvo); return; }
