@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.35 — 16/11/2026 · Arrastar tarefas ficou mais fácil
+
+- Arrastar um cartão do quadro agora funciona pegando em qualquer ponto dele, com o cartão seguindo o mouse e a coluna de destino acendendo.
+
 ## 5.34 — 16/11/2026 · Quadro Meu Espaço: arraste e renomeie
 
 - No modo trabalho (e no quadro da página Tarefas), arraste um cartão para outra coluna: A fazer, Fazendo ou Feito. Os botões de mover continuam lá.

@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.35',
+    data: '2026-11-16',
+    titulo: 'Arrastar tarefas ficou mais fácil',
+    itens: [
+      'Arrastar um cartão do quadro agora funciona pegando em qualquer ponto dele, com o cartão seguindo o mouse e a coluna de destino acendendo.'
+    ]
+  },
+  {
     versao: '5.34',
     data: '2026-11-16',
     titulo: 'Quadro Meu Espaço: arraste e renomeie',
