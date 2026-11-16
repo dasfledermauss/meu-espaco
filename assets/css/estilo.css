@@ -1046,7 +1046,15 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .pc-morros.perto { height: 46px; background-image: var(--morros-perto); background-size: 480px 46px; }
 .pc-chao { left: 0; right: 0; bottom: 0; height: 30px; background: var(--chao); border-top: 4px solid var(--chao-alto); box-shadow: inset 0 -8px 0 var(--chao-baixo); }
 .pc-arvore { left: 6%; bottom: 22px; width: 66px; height: auto; image-rendering: pixelated; }
-.pc-casinha { right: 5%; bottom: 20px; width: 84px; height: auto; image-rendering: pixelated; cursor: pointer; }
+.pc-casinha { right: 5%; bottom: 20px; width: 84px; padding: 0; border: 0; background: none; line-height: 0; cursor: pointer; z-index: 1; }
+.pc-casinha svg { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.pc-casinha .cp { fill: var(--cp); } .pc-casinha .cpl { fill: var(--cpl); } .pc-casinha .ct { fill: var(--ct); } .pc-casinha .ctl { fill: var(--ctl); } .pc-casinha .cpe { fill: var(--cpe); }
+.pc-casinha:hover { background: none; filter: brightness(1.06); }
+.pc-casinha:focus-visible { outline: 2px solid #26314d; outline-offset: 3px; }
+.pc-casinha.troca { animation: troca-casa .3s ease-out; }
+@keyframes troca-casa { 0% { transform: translateY(0); } 40% { transform: translateY(-6px); } 100% { transform: translateY(0); } }
+.pc-casinha.k1 { right: calc(5% + 98px); }
+.pc-placa.k1 { right: calc(5% + 98px + 42px); }
 .pc-placa { right: calc(5% + 42px); bottom: 78px; transform: translateX(50%); z-index: 1; max-width: 120px; padding: 3px 9px 4px; border: 0; border-radius: 4px; background: #d9a766; color: #3a2616; font: inherit; font-size: 11px; font-weight: 700; letter-spacing: .02em; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   box-shadow: inset 0 -3px 0 #b8844a, inset 0 2px 0 #ecc58c, 0 2px 0 rgba(0, 0, 0, .2); transition: filter .2s ease-out; }
 .pc-placa:hover, .pc-placa:focus-visible { background: #e6b97a; color: #3a2616; filter: none; }
@@ -1055,7 +1063,7 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .pc-placa.sem-nome { background: #efe3c8; font-weight: 600; box-shadow: inset 0 -3px 0 #d3c19c, inset 0 2px 0 #fff, 0 2px 0 rgba(0, 0, 0, .2); animation: pulsa 2.4s ease-in-out infinite; }
 @keyframes pulsa { 50% { filter: brightness(1.08); } }
 .pc-flores { left: 38%; bottom: 20px; width: 150px; height: auto; opacity: .95; }
-.pet-cao { left: 0; bottom: 6px; background-repeat: no-repeat; image-rendering: pixelated; will-change: transform; z-index: 2; }
+.pet-cao { pointer-events: none; left: 0; bottom: 6px; background-repeat: no-repeat; image-rendering: pixelated; will-change: transform; z-index: 2; }
 .pet-balao { left: 0; bottom: 100px; z-index: 3; padding: 6px 11px; border-radius: 12px; background: #fff; color: #1b1f2a; font-size: 13px; font-weight: 700; letter-spacing: .01em; line-height: 1.3; box-shadow: 0 2px 8px rgba(20, 28, 50, .18); width: max-content; max-width: min(240px, calc(100% - 24px)); white-space: pre-line; cursor: pointer; }
 .pet-balao::after { content: ''; position: absolute; left: var(--seta, 24px); bottom: -5px; width: 9px; height: 9px; background: #fff; transform: rotate(45deg); }
 .pet-balao[hidden] { display: none; }
@@ -1083,15 +1091,19 @@ body.arrastando-ord, body.arrastando-ord * { cursor: grabbing !important; user-s
 .pet-cena[data-fase="noite"] .pet-dica, .pet-cena[data-fase="entardecer"] .pet-dica { color: #e8ecf8; background: rgba(16, 23, 49, .55); }
 .pet-dica.some { opacity: 0; }
 @media (max-width: 640px) { .pet-dica { display: none; } .pet-botao span { display: none; } .pet-botao { padding: 0; justify-content: center; width: 36px; height: 36px; } }
-@media (prefers-reduced-motion: reduce) { .pc-nuvem { animation: none; left: 20%; } .pet-coco b, .pc-placa.sem-nome { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .pc-casinha.troca { animation: none; } .pc-nuvem { animation: none; left: 20%; } .pet-coco b, .pc-placa.sem-nome { animation: none; } }
 
 .pet-config { inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 8px; background: rgba(16, 23, 49, .38); cursor: default; }
 .pet-config[hidden] { display: none; }
-.pet-config-card { width: min(470px, 100%); padding: 10px 12px 12px; border-radius: 16px; background: var(--cartao); color: var(--tinta); box-shadow: 0 12px 32px rgba(20, 28, 50, .32); display: flex; flex-direction: column; gap: 8px; }
+.pet-config-card { max-height: 100%; overflow-y: auto; overscroll-behavior: contain; width: min(470px, 100%); padding: 10px 12px 12px; border-radius: 16px; background: var(--cartao); color: var(--tinta); box-shadow: 0 12px 32px rgba(20, 28, 50, .32); display: flex; flex-direction: column; gap: 8px; }
 .pet-config-cab { display: flex; align-items: center; justify-content: space-between; }
 .pet-config-tit { font-size: 13px; font-weight: 600; color: var(--tinta-2); }
 .pet-config-cab .ico-btn { width: 28px; height: 28px; }
-.pet-opcoes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pet-opcoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
+.pet-slot { display: flex; flex-direction: column; gap: 6px; }
+.pet-slot-tit { font-size: 12px; font-weight: 600; color: var(--tinta-2); }
+.pet-mini.vazio { width: 40px; display: grid; place-items: center; border: 1.5px dashed var(--linha); border-radius: 8px; color: var(--tinta-2); }
+.pet-mini.vazio svg { width: 18px; height: 18px; }
 .pet-opcao { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; padding: 8px 2px 6px; min-width: 0; border-radius: 12px; border: 1.5px solid var(--linha); background: var(--cartao-2); color: var(--tinta); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color .2s ease-out, background .2s ease-out, color .2s ease-out; }
 .pet-opcao:hover { background: var(--marca-leve); color: var(--marca); border-color: var(--marca); }
 .pet-opcao[aria-pressed="true"] { border-color: var(--marca); background: var(--marca-leve); color: var(--marca); }
@@ -1608,3 +1620,10 @@ body.janela-arrastando { user-select: none; }
 .pagina-cab.cab-linha > h1 { flex: 1 1 0; min-width: 0; }
 .pagina-cab.cab-linha .meta { flex: 0 0 100%; }
 .janela-notas .anotacao .cab time { white-space: nowrap; }
+
+/* escolha dos pets no celular: uma fileira rolável por pet */
+@media (max-width: 640px) {
+  .pet-opcoes { display: flex; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .pet-opcoes::-webkit-scrollbar { display: none; }
+  .pet-opcao { flex: 0 0 76px; }
+}

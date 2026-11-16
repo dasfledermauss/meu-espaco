@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.31 — 16/11/2026 · Schnauzer, dois pets e casinhas coloridas
+
+- Novo pet: o Schnauzer, feito em pixel art a partir da sua folha (parado, sentado, andando e abaixado).
+- Agora dá para ter dois pets ao mesmo tempo, cada um com a sua casinha, plaquinha com nome e voz. Escolha o Pet 1 e o Pet 2 (ou “Nenhum”) no botão Pets do cenário; os dois brincam com a bolinha, comem, tomam banho e conversam.
+- Clique na casinha para mudar a cor (6 cores); a cor fica salva no perfil de cada pet. O nome continua na plaquinha.
+- O corpo do bichinho não tapa mais a casinha, a plaquinha nem as vasilhas: o latido é por clique na posição dele.
+
 ## 5.30 — 16/11/2026 · Player com pin e capa da faixa
 
 - Player de música: clicar fora minimiza e passar o mouse sobre a barra abre; ao tirar o mouse ele volta a minimizar.

@@ -7,7 +7,9 @@ Um pet em pixel art no alto do Início, acima de "O que você quer guardar?".
 - **Parado:** quadros de respiração; de tempos em tempos senta e volta a ficar de pé.
 - **Clique nele:** late (balão "AU! AU!", pulinho e som sintetizado, sem arquivo de áudio).
 - **Clique no chão:** joga a bolinha ali (cai do alto); ele corre atrás e chuta de um lado para o outro.
-- **Pets:** salsicha, pinscher, frajola e shollie, escolhidos no botão **Pets** do cenário (popup com um card por pet) (`perfil.petTipo`). Cada um tem folha própria, tamanho de célula e voz (`PET_TIPOS`).
+- **Pets:** salsicha, pinscher, frajola, shollie e schnauzer, escolhidos no botão **Pets** do cenário (popup com um card por pet). Cada um tem folha própria, tamanho de célula e voz (`PET_TIPOS`).
+- **Dois pets:** o popup tem “Pet 1” (`perfil.petTipo`) e “Pet 2” (`perfil.pet2.tipo`, ou Nenhum). Cada pet tem a sua casinha, plaquinha com nome e cor. Os dois brincam com a bolinha, comem, tomam banho e fazem cocô; quem fala é sorteado entre os dois. A bolinha, as vasilhas e a conversa são da cena toda.
+- **Casinha:** clique nela para trocar a cor (6 opções em `PET_CASAS`): `perfil.petCasa` e `perfil.pet2.casa`.
 - **Som:** botão no canto do cenário ou Configurações → Cachorrinho. **Esconder** também fica em Configurações. Ficam em `perfil.petMudo` e `perfil.petOculto`.
 - Respeita "reduzir movimento" do sistema: sem nuvens andando, sem sentar sozinho.
 
@@ -23,7 +25,7 @@ Assuntos da Agenda: evento hoje ou amanhã, contagem regressiva, semana cheia ou
 
 - **Vasilhas:** comida e água (esvaziam em 5 min cada; cada refeição tira 25%), à esquerda do cenário. O nível segue o horário real e fica em `perfil.petPote` (momento do último enchimento). Clique na vasilha para encher. Ele visita sozinho as que não estão cheias, e avisa "Fome!" ou "Sede!" quando vazias. Depois de comer ele faz **cocô** (de 7 a 14 s depois, no máximo 3 no chão). Clique no cocô para limpar.
 - **Banho:** botão "Banho". Ele vai ao meio do cenário, fica sentado entre bolhas e se sacode.
-- **Nome:** clique na plaquinha da casinha (ou na casinha) e escolha até 14 letras. Fica em `perfil.petNome`.
+- **Nome:** clique na plaquinha da casinha e escolha até 14 letras. Fica em `perfil.petNome` (pet 2: `perfil.pet2.nome`).
 
 ## Fases do dia
 
@@ -33,10 +35,10 @@ Pela hora do aparelho: amanhecer 5h–8h, manhã 8h–12h, tarde 12h–17h, enta
 
 | O quê | Onde |
 |---|---|
-| Folhas de sprites 4×4 (salsicha 63×40, pinscher 45×43, frajola 51×38, shollie 62×42) | `assets/img/pet/salsicha.png`, `pinscher.png`, `frajola.png`, `shollie.png` (62×42). Linhas: 0 parado, 1 sentado, 2 andando, 3 abaixado. Todos olham para a direita (o lado contrário é espelhado por CSS). |
+| Folhas de sprites 4×4 (salsicha 63×40, pinscher 45×43, frajola 51×38, shollie 62×42, schnauzer 54×40) | `assets/img/pet/salsicha.png`, `pinscher.png`, `frajola.png`, `shollie.png`, `schnauzer.png`. Linhas: 0 parado, 1 sentado, 2 andando, 3 abaixado. Todos olham para a direita (o lado contrário é espelhado por CSS). |
 | Cenário | HTML/CSS e SVG em degraus dentro de `petHTML()` (`app.js`) e bloco "pet" do `estilo.css`; versão noturna no tema escuro. |
 | Lógica | Bloco "pet" do `app.js`: um laço `requestAnimationFrame` que só trabalha quando `#pet-cena` está na página. O estado (posição, bolinha, cocôs) fica fora do DOM porque a tela é redesenhada a toda hora. |
 
 ## Trocar o cachorro
 
-Gere outra folha com a mesma grade (4 poses × 4 quadros, células iguais, pés na base, olhando para a direita) e substitua o PNG. Se o tamanho da célula mudar, ajuste `PET.CW` e `PET.CH`.
+Gere outra folha com a mesma grade (4 poses × 4 quadros, células iguais, pés na base, olhando para a direita) e substitua o PNG. Se o tamanho da célula mudar, ajuste `CW` e `CH` em `PET_TIPOS`. O corpo do bichinho não recebe clique (`pointer-events: none`): o latido é achado pela posição do clique.
