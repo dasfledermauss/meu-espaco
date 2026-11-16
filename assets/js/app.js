@@ -998,6 +998,7 @@
     if (n < 0) return lista[0];
     return lista[(n + passo + lista.length) % lista.length];
   }
+  const miniatura = (v) => `https://img.youtube.com/vi/${encodeURIComponent(v)}/mqdefault.jpg`;
   const capaYT = (i) => i.video ? `https://img.youtube.com/vi/${encodeURIComponent(i.video)}/mqdefault.jpg` : '';
   const videoAtual = (i) => (UI.tocando === i.id && UI.videoForcado) || i.video || '';
   function urlPlayer(i) {
@@ -1095,7 +1096,10 @@
     let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (er) { return; }
     const info = d && d.info;
     if (!info) return;
-    if (info.videoData && info.videoData.title && info.videoData.title !== UI.faixaYT) { UI.faixaYT = info.videoData.title; pintarMiniApp(); }
+    if (info.videoData) {
+      const t = info.videoData.title, v = info.videoData.video_id;
+      if ((t && t !== UI.faixaYT) || (v && v !== UI.videoYT)) { if (t) UI.faixaYT = t; if (v) UI.videoYT = v; pintarMiniApp(); }
+    }
     if (info.playerState !== undefined) {
       const pausado = info.playerState === 2;
       if (pausado !== !!UI.pausado) { UI.pausado = pausado; pintarMiniApp(); }
@@ -1187,11 +1191,12 @@
     const sub = ap.querySelector('.ma-sub');
     if (sub) sub.textContent = i && UI.faixaYT && UI.faixaYT !== tituloItem(i) ? tituloItem(i) : 'Músicas';
     const capa = ap.querySelector('.ma-capa');
-    if (capa) capa.innerHTML = i && capaYT(i) ? `<img src="${esc(capaYT(i))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ic('music-note');
+    const url = i ? (UI.videoYT ? miniatura(UI.videoYT) : capaYT(i)) : '';
+    if (capa && capa.dataset.url !== url) { capa.dataset.url = url; capa.innerHTML = url ? `<img src="${esc(url)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ic('music-note'); }
     const pp = ap.querySelector('[data-act="player-pausar"]');
     if (pp) { pp.innerHTML = ic(UI.pausado || !UI.tocando ? 'play' : 'pause'); pp.title = pp.ariaLabel = UI.pausado || !UI.tocando ? 'Tocar' : 'Pausar'; }
-    const mn = ap.querySelector('[data-act="player-min"]');
-    if (mn) { mn.innerHTML = ic(UI.playerMin ? 'nav-arrow-up' : 'nav-arrow-down'); mn.title = mn.ariaLabel = UI.playerMin ? 'Abrir o painel' : 'Modo MP3'; }
+    const fx = ap.querySelector('[data-act="player-fixar"]');
+    if (fx) { const on = !!S.perfil.playerFixo; fx.innerHTML = ic(on ? 'pin-solid' : 'pin'); fx.setAttribute('aria-pressed', String(on)); fx.title = fx.ariaLabel = on ? 'Fixado: não fecha ao tirar o mouse' : 'Manter aberto ao tirar o mouse'; }
     const lista = ap.querySelector('#ma-lista');
     if (lista) lista.innerHTML = listaMiniApp();
     // as opções também mudam quando um grupo é criado ou renomeado
@@ -1199,10 +1204,34 @@
     const sel = ap.querySelector('.ma-grupo');
     if (sel && barra) { const novo = cabecalhoMiniApp(); if (sel.outerHTML !== novo) sel.outerHTML = novo; }
   }
+  /** Player: o mouse sobre a barra abre; ao sair (ou clicar fora) ela volta a ser a barra mini, a menos que esteja fixado. */
+  (function () {
+    let tempo = 0;
+    const caixa = () => document.getElementById('player');
+    const ocupado = (ap) => ap.contains(document.activeElement) && /^(SELECT|INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+    const minimizar = () => { const ap = document.querySelector('#player .mini-app'); if (!ap || S.perfil.playerFixo || UI.playerMin || !UI.painelMusica || ocupado(ap)) return; UI.playerMin = true; pintarMiniApp(); };
+    document.addEventListener('pointerover', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const c = caixa(); if (!c || c.hidden || !e.target.closest || !e.target.closest('#player .mini-app')) return;
+      clearTimeout(tempo);
+      if (UI.playerMin) { UI.playerMin = false; pintarMiniApp(); }
+    });
+    document.addEventListener('pointerout', (e) => {
+      if (e.pointerType !== 'mouse' || !e.target.closest || !e.target.closest('#player .mini-app')) return;
+      if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#player .mini-app')) return;
+      if (e.buttons) return;
+      clearTimeout(tempo); tempo = setTimeout(minimizar, 450);
+    });
+    document.addEventListener('pointerdown', (e) => {
+      if (e.target.closest && e.target.closest('#player')) return;
+      if (document.querySelector('.modal-fundo, dialog[open]')) return;
+      minimizar();
+    });
+  })();
   function renderMiniApp() {
     const caixa = document.getElementById('player');
     if (!caixa) return;
-    if (!UI.painelMusica && !UI.tocando && !(window.SONS && SONS.ambiente.tocando())) { caixa.innerHTML = ''; caixa.hidden = true; delete caixa.dataset.faixa; UI.faixaYT = ''; return; }
+    if (!UI.painelMusica && !UI.tocando && !(window.SONS && SONS.ambiente.tocando())) { caixa.innerHTML = ''; caixa.hidden = true; delete caixa.dataset.faixa; UI.faixaYT = ''; UI.videoYT = ''; return; }
     caixa.hidden = false;
     caixa.classList.toggle('guardado', !UI.painelMusica);
     if (!caixa.querySelector('.mini-app')) {
@@ -1215,7 +1244,7 @@
           ${btnIco('player-anterior', 'skip-prev', 'Anterior')}
           ${btnIco('player-pausar', 'play', 'Tocar')}
           ${btnIco('player-proxima', 'skip-next', 'Próxima')}
-          ${btnIco('player-min', 'nav-arrow-down', 'Modo MP3')}
+          ${btnIco('player-fixar', 'pin', 'Manter aberto', 'aria-pressed="false"')}
           ${btnIco('player-fechar', 'xmark', 'Fechar')}</header>
         <div class="ma-video" id="ma-video"></div>
         <div class="ma-barra">${cabecalhoMiniApp()}
@@ -1231,7 +1260,7 @@
     const chave = i ? i.id + ':' + (UI.videoForcado || '') : '';
     if (i && caixa.dataset.faixa !== chave) {
       caixa.dataset.faixa = chave; UI.pausado = false;
-      UI.faixaYT = '';
+      UI.faixaYT = ''; UI.videoYT = '';
       alvo.innerHTML = `<iframe src="${esc(urlPlayer(i))}" title="${esc(tituloItem(i))}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
       ouvirYT(alvo.querySelector('iframe'));
     } else if (!i && caixa.dataset.faixa) { delete caixa.dataset.faixa; alvo.innerHTML = ''; }
@@ -3430,7 +3459,7 @@
         if (UI.playerMin) { UI.playerMin = false; return pintarMiniApp(); }
         location.hash = '#/musicas'; return;
       }
-      case 'player-min': e.preventDefault(); UI.playerMin = !UI.playerMin; return pintarMiniApp();
+      case 'player-fixar': e.preventDefault(); S.perfil.playerFixo = !S.perfil.playerFixo; salvar(); return pintarMiniApp();
       case 'player-pausar': e.preventDefault(); return pausarOuTocar();
       case 'player-anterior': { e.preventDefault(); const v = vizinha(-1); return v && tocar(v.id); }
       case 'player-proxima': { e.preventDefault(); const v = vizinha(1); return v && tocar(v.id); }

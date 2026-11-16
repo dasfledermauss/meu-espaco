@@ -8,6 +8,12 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.30 — 16/11/2026 · Player com pin e capa da faixa
+
+- Player de música: clicar fora minimiza e passar o mouse sobre a barra abre; ao tirar o mouse ele volta a minimizar.
+- O botão de subir/descer virou um pin (quando aberto): fixado, o player fica aberto mesmo ao tirar o mouse ou clicar fora. A escolha fica salva no seu perfil.
+- A capinha da barra sempre mostra a capa do vídeo que está tocando agora, e troca sozinha quando a playlist avança.
+
 ## 5.29 — 13/11/2026 · Barra de rolagem fixa
 
 - A barra de rolagem lateral agora fica sempre no lugar, então a página não “quica” mais quando o conteúdo passa a caber ou deixa de caber na tela.

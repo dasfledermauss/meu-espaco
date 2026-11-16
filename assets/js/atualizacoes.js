@@ -10,6 +10,16 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.30',
+    data: '2026-11-16',
+    titulo: 'Player com pin e capa da faixa',
+    itens: [
+      'Player de música: clicar fora minimiza e passar o mouse sobre a barra abre; ao tirar o mouse ele volta a minimizar.',
+      'O botão de subir/descer virou um pin (quando aberto): fixado, o player fica aberto mesmo ao tirar o mouse ou clicar fora. A escolha fica salva no seu perfil.',
+      'A capinha da barra sempre mostra a capa do vídeo que está tocando agora, e troca sozinha quando a playlist avança.'
+    ]
+  },
+  {
     versao: '5.29',
     data: '2026-11-13',
     titulo: 'Barra de rolagem fixa',

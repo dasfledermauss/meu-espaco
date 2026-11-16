@@ -1527,6 +1527,8 @@ body.janela-arrastando { user-select: none; }
 .anot-feed .anotacao .cab { order: 2; }
 .anot-mais { font-size: 13px; font-weight: 500; }
 @media (max-width: 640px) { .janela-notas { position: absolute; inset: 50px 0 36px 0; flex: none; z-index: 2; border-left: 0; } }
+.mini-app.min [data-act="player-fixar"] { display: none; }
+.ma-cab [data-act="player-fixar"][aria-pressed="true"] { color: var(--marca); background: var(--hover-2); }
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

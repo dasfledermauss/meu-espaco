@@ -57,3 +57,7 @@ O embed usa `youtube-nocookie.com`. O YouTube é quem toca: o Meu Espaço não b
 - Fechar o player, ver o disco na borda direita e voltar com a música no mesmo ponto.
 - Abrir os vídeos de uma playlist e tocar um deles do meio da lista.
 - Criar um grupo, mover uma música para ele e filtrar por grupo.
+
+## Abrir, minimizar e fixar
+
+O player abre ao passar o mouse sobre a barra e minimiza ao tirar o mouse ou clicar fora. O pin no cabeçalho (só aparece aberto) mantém o player aberto; a escolha fica em `perfil.playerFixo`. No toque (sem hover) vale clicar na barra para abrir e clicar fora para minimizar. A capinha mostra sempre a capa do vídeo que está tocando (vem do `video_id` que o YouTube informa).
