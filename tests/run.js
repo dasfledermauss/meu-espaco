@@ -62,6 +62,28 @@ const TESTES = {
     conferir((await estado(p)).perfil.nomeTrabalho === 'Estudo', 'nome do quadro editável e salvo');
     conferir(!p.erros.length, 'sem erros de script'); await ctx.close();
   },
+  async 'quadro no celular: abas, uma coluna por vez e arrastar até a aba (390px)'(b) {
+    for (const modo of ['claro', 'escuro']) {
+      const { p, ctx } = await pagina(b, { w: 390, modo, ajustar: (s) => { s.itens = s.itens.filter((i) => i.tipo !== 'tarefa'); ['afazer', 'afazer', 'fazendo'].forEach((e, k) => s.itens.push({ id: 'tt' + k, tipo: 'tarefa', titulo: 'T' + k, etapa: e, concluida: false, colecoes: [], comentarios: [], criadoEm: '2026-11-15T10:00:00.000Z' })); } });
+      await p.goto(BASE + '#/tarefas'); await p.waitForTimeout(500);
+      await p.click('[data-act="tar-visao"][data-v="quadro"]'); await p.waitForTimeout(300);
+      const visiveis = () => p.$$eval('.quadro.tres .quadro-col', (c) => c.filter((x) => getComputedStyle(x).display !== 'none').length);
+      conferir(await p.$$eval('.quadro-aba', (a) => a.length) === 3, `${modo}: 3 abas`);
+      conferir(await visiveis() === 1, `${modo}: só uma coluna visível`);
+      await p.click('.quadro-aba[data-v="fazendo"]'); await p.waitForTimeout(250);
+      conferir(await p.$$eval('.quadro-col.ativa .tar-cartao', (a) => a.length) === 1, `${modo}: aba Fazendo mostra 1 tarefa`);
+      await p.click('.quadro-aba[data-v="afazer"]'); await p.waitForTimeout(250);
+      const c = await (await p.$('.quadro-col.ativa .tar-cartao')).boundingBox(), t = await (await p.$('.quadro-aba[data-v="fazendo"]')).boundingBox();
+      await p.mouse.move(c.x + 90, c.y + 20); await p.mouse.down(); await p.mouse.move(c.x + 110, c.y + 10, { steps: 4 });
+      await p.mouse.move(t.x + t.width / 2, t.y + t.height / 2, { steps: 8 }); await p.waitForTimeout(150);
+      conferir(await p.$$eval('.quadro-aba.alvo-aba', (a) => a.length) === 1, `${modo}: a aba de destino acende durante o arrasto`);
+      await p.mouse.up(); await p.waitForTimeout(300);
+      const st = (await estado(p)).itens.filter((i) => i.tipo === 'tarefa').map((i) => i.etapa).sort().join();
+      conferir(st === 'afazer,fazendo,fazendo', `${modo}: arrastar até a aba Fazendo move a tarefa (${st})`);
+      const [sw, iw] = await p.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
+      conferir(sw <= iw, `${modo}: sem scroll lateral`); conferir(!p.erros.length, `${modo}: sem erros de script`); await ctx.close();
+    }
+  },
   async 'excluir cria lápide e não volta após recarregar'(b) {
     const { p, ctx } = await pagina(b);
     await p.goto(BASE + '#/links'); await p.waitForTimeout(500);

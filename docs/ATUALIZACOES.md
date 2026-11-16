@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.49 — 16/11/2026 · Quadro de tarefas em abas no celular
+
+- No celular, o quadro mostra uma coluna por vez, com abas A fazer / Fazendo / Feito. Arraste um cartão até uma aba para mudar a situação dele.
+
 ## 5.48 — 16/11/2026 · Arrastar tarefa pelo título
 
 - Agora dá para arrastar o cartão da tarefa pegando também pelo título (antes o navegador tratava como arrastar o link e o movimento falhava).

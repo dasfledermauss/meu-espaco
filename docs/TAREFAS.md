@@ -69,3 +69,7 @@ No Início, o cartão **Tarefas** da coluna direita traz a barra de progresso co
 ## Abrir uma tarefa
 
 Clicar no card (título, descrição ou etiquetas), na tela Tarefas ou no modo trabalho, abre a janela da tarefa: descrição completa, situação, prazo, coleção e **comentários**, com campo para comentar na hora. O círculo marca como feita sem abrir.
+
+## Quadro no celular (v5.49)
+
+Até 640px o quadro mostra **uma coluna por vez**, com abas A fazer / Fazendo / Feito e a contagem em cada uma (Meu Espaço e visão Quadro da página Tarefas). A aba escolhida fica enquanto a página estiver aberta. Arrastar um cartão até uma aba muda a situação dele; os botões de mover continuam.

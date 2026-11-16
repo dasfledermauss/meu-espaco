@@ -1591,6 +1591,18 @@ body.janela-arrastando { user-select: none; }
   .ag-sheet-cab .ico-btn { position: absolute; right: -8px; top: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .ag-painel.entra { animation: none; } }
+/* abas do quadro de tarefas (só no celular: uma coluna por vez) */
+.quadro-abas { display: none; }
+@media (max-width: 640px) {
+  .quadro-abas { display: flex; gap: 4px; padding: 4px; margin-bottom: 14px; background: var(--hover-2); border-radius: 999px; }
+  .quadro-aba { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 10px; border-radius: 999px; background: transparent; color: var(--tinta-2); font-size: 14px; font-weight: 500; transition: background-color .18s ease-out, color .18s ease-out; }
+  .quadro-aba.ativa { background: var(--cartao); color: var(--tinta); font-weight: 600; }
+  .quadro-aba.alvo-aba { background: color-mix(in srgb, var(--marca) 16%, var(--cartao)); color: var(--tinta); }
+  .quadro.tres { grid-template-columns: minmax(0, 1fr); }
+  .quadro.tres .quadro-col:not(.ativa) { display: none; }
+  .quadro.tres .quadro-col > h2 { display: none; }
+  .quadro.tres .quadro-col[data-etapa-alvo] { min-height: 50vh; }
+}
 /* ---------- telas menores (no fim do arquivo para ganhar de tudo) ---------- */
 @media (max-width: 1180px) {
   .layout, .layout.sem-direita { grid-template-columns: var(--nav-l) minmax(0, 1fr); }

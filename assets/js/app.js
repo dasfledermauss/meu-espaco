@@ -424,6 +424,10 @@
   const TIPOS = { nota: ['Nota', 'journal-page'], tarefa: ['Tarefa', 'list'], imagem: ['Imagem', 'media-image'], musica: ['Música', 'ytmusic'], link: ['Link', 'link'], midia: ['Livro', 'book'], artigo: ['Artigo', 'page'], desejo: ['Desejo', 'shopping-bag'], gasto: ['Gasto', 'wallet'] };
   /* Tarefa: uma linha só. A situação guarda as três colunas do quadro; "feito" é o mesmo que concluída. */
   const ETAPAS = { afazer: 'A fazer', fazendo: 'Fazendo', feito: 'Feito' };
+  /** No celular o quadro mostra uma coluna por vez; estas abas trocam de coluna (e aceitam um cartão arrastado até elas). */
+  const abaQuadro = () => UI.quadroAba || 'afazer';
+  const abasQuadro = (cont) => `<div class="quadro-abas" role="tablist" aria-label="Situação das tarefas">${Object.entries(ETAPAS).map(([v, n]) =>
+    `<button type="button" role="tab" class="quadro-aba ${abaQuadro() === v ? 'ativa' : ''}" aria-selected="${abaQuadro() === v}" data-act="quadro-aba" data-v="${v}" data-aba-alvo="${v}">${n}<em class="pino">${cont[v]}</em></button>`).join('')}</div>`;
   const etapa = (i) => i.concluida ? 'feito' : (i.etapa === 'fazendo' ? 'fazendo' : 'afazer');
   const tarefas = () => doTipo('tarefa');
   const tarefasAbertas = () => tarefas().filter((i) => !i.concluida);
@@ -1077,7 +1081,7 @@
     const feitas = todas.filter((i) => i.concluida).sort((a, b) => (b.editadoEm || b.criadoEm).localeCompare(a.editadoEm || a.criadoEm));
     const colunas = Object.entries(ETAPAS).map(([v, n]) => {
       const lista = v === 'feito' ? feitas.slice(0, 12) : abertas.filter((i) => etapa(i) === v);
-      return `<section class="quadro-col" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${v === 'feito' ? feitas.length : lista.length}</em></h2>
+      return `<section class="quadro-col ${abaQuadro() === v ? 'ativa' : ''}" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${v === 'feito' ? feitas.length : lista.length}</em></h2>
         ${lista.map((i) => `<article class="tar-cartao" data-tarefa="${i.id}">${linhaTarefa(i)}
           <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
             ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
@@ -1091,6 +1095,7 @@
         ${btn('criar', ic('plus') + 'Nova tarefa', 'data-t="tarefa"', 'btn-1')}
         <button type="button" class="disco ${UI.tocando ? 'girando' : ''}" data-act="abrir-musica" title="Músicas" aria-label="Músicas"><span></span></button>
         ${btnIco('trabalho-sair', 'xmark', `Sair de ${nomeTrabalho()} (Shift + Espaço)`)}</header>
+      ${abasQuadro({ afazer: abertas.filter((i) => etapa(i) === 'afazer').length, fazendo: abertas.filter((i) => etapa(i) === 'fazendo').length, feito: feitas.length })}
       <div class="quadro tres">${colunas}</div>
       <p class="trab-dica">${ic('priority-high')}Shift + Espaço fecha e abre este quadro.</p></div>`;
   }
@@ -2911,9 +2916,9 @@
         + grupo('Sem prazo', semPrazo, '');
       if (!abertas.length) corpo = `<p class="nada">${ic('check-circle-solid')} Tudo feito por aqui.</p>`;
     } else if (visao === 'quadro') {
-      corpo = `<div class="quadro tres">${Object.entries(ETAPAS).map(([v, n]) => {
+      corpo = `${abasQuadro({ afazer: abertas.filter((i) => etapa(i) === 'afazer').length, fazendo: abertas.filter((i) => etapa(i) === 'fazendo').length, feito: feitas.length })}<div class="quadro tres">${Object.entries(ETAPAS).map(([v, n]) => {
         const lista = v === 'feito' ? feitas : abertas.filter((i) => etapa(i) === v);
-        return `<section class="quadro-col" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${lista.length}</em></h2>
+        return `<section class="quadro-col ${abaQuadro() === v ? 'ativa' : ''}" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${lista.length}</em></h2>
           ${lista.map((i) => `<article class="tar-cartao" data-tarefa="${i.id}">${linhaTarefa(i)}
             <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
               ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
@@ -3645,6 +3650,7 @@
       case 'ag-dia': {
         UI.agDia = b.dataset.d; UI.agMes = b.dataset.d.slice(0, 7); UI.agFoco = b.dataset.d; if (!UI.agSheet) UI.agSheetNovo = true; UI.agSheet = true; return render();
       }
+      case 'quadro-aba': UI.quadroAba = b.dataset.v; UI.pularColheita = true; return render();
       case 'ag-fechar': UI.agSheet = false; UI.agSheetNovo = false; return render();
       case 'ag-mes': {
         const base = UI.agMes || (UI.agDia || hoje()).slice(0, 7);
@@ -4444,13 +4450,21 @@
   (function arrastarTarefas() {
     let s = null, suprimir = false;
     const IGNORA = 'input, select, textarea, [data-nodrag]';
-    /* a coluna vale pela faixa horizontal inteira: soltar em qualquer altura dela já conta, mesmo vazia */
-    const colunaSob = (x) => [...document.querySelectorAll('[data-etapa-alvo]')].find((c) => { const r = c.getBoundingClientRect(); return x >= r.left - 6 && x <= r.right + 6; });
+    /* O alvo é, nesta ordem: a aba do celular sob o ponteiro, ou a coluna visível cuja faixa horizontal contém o ponteiro
+       (soltar em qualquer altura da coluna já conta, mesmo vazia). Devolve { etapa, col, aba }. */
+    const colunaSob = (x, y) => {
+      const aba = (document.elementFromPoint(x, y) || document.body).closest('[data-aba-alvo]');
+      if (aba) return { etapa: aba.dataset.abaAlvo, aba };
+      const col = [...document.querySelectorAll('.quadro-col[data-etapa-alvo]')].find((c) => { const r = c.getBoundingClientRect(); return r.width > 0 && x >= r.left - 6 && x <= r.right + 6; });
+      return col ? { etapa: col.dataset.etapaAlvo, col } : null;
+    };
     function iniciar() {
       if (!s || s.ativo) return;
       s.ativo = true; UI.arrastando = true; clearTimeout(s.timer);
       const r = s.it.getBoundingClientRect();
-      s.dx = s.x - r.left; s.dy = s.y - r.top; s.tilt = 0; s.pxAnt = s.x; s.altura = r.height; s.origem = (s.it.closest('[data-etapa-alvo]') || {dataset: {}}).dataset.etapaAlvo;
+      s.dx = s.x - r.left; s.dy = s.y - r.top; s.tilt = 0; s.pxAnt = s.x; s.altura = r.height;
+      if (innerWidth <= 640) { s.dx = r.width / 2; s.dy = r.height + 18; }   // no celular o cartão fica acima do dedo, para o destino (as abas) continuar à vista
+      s.origem = (s.it.closest('[data-etapa-alvo]') || {dataset: {}}).dataset.etapaAlvo;
       const f = s.it.cloneNode(true);
       f.removeAttribute('data-tarefa'); f.classList.add('fantasma');
       f.style.cssText = `width:${r.width}px;height:${r.height}px;transform:translate(${r.left}px,${r.top}px)`;
@@ -4463,9 +4477,11 @@
       const px = s.x - s.dx, py = s.y - s.dy;
       s.tilt += (Math.max(-6, Math.min(6, (px - s.pxAnt) * .6)) - s.tilt) * .2; s.pxAnt = px;
       s.f.style.transform = `translate(${px}px, ${py}px) rotate(${s.tilt.toFixed(2)}deg)`;
-      const c = colunaSob(s.x);
+      const alvo = colunaSob(s.x, s.y);
+      document.querySelectorAll('.quadro-aba.alvo-aba').forEach((x) => { if (!alvo || x !== alvo.aba) x.classList.remove('alvo-aba'); });
+      if (alvo && alvo.aba && alvo.etapa !== s.origem) alvo.aba.classList.add('alvo-aba');
       // só uma silhueta do espaço que o cartão ocuparia, no fim da coluna sob o ponteiro
-      const mesma = !c || c.dataset.etapaAlvo === s.origem;
+      const c = alvo && alvo.col, mesma = !c || alvo.etapa === s.origem;
       let sil = document.querySelector('.tar-silhueta');
       if (mesma) { if (sil) sil.remove(); return; }
       if (!sil) { sil = document.createElement('div'); sil.className = 'tar-silhueta'; sil.style.height = s.altura + 'px'; }
@@ -4476,11 +4492,12 @@
       const e = s; s = null; clearTimeout(e.timer); cancelAnimationFrame(e.raf);
       if (!e.ativo) return;
       UI.arrastando = false; document.body.classList.remove('arrastando-ord');
-      const c = cancelar ? null : colunaSob(e.x);
+      const c = cancelar ? null : colunaSob(e.x, e.y);
       document.querySelectorAll('.tar-silhueta').forEach((x) => x.remove());
+      document.querySelectorAll('.alvo-aba').forEach((x) => x.classList.remove('alvo-aba'));
       suprimir = true; setTimeout(() => { suprimir = false; }, 60);
       const i = item(e.it.dataset.tarefa);
-      if (c && i && etapa(i) !== c.dataset.etapaAlvo) { e.f.remove(); UI.pularColheita = true; mudarEtapa(i.id, c.dataset.etapaAlvo); return; }
+      if (c && i && etapa(i) !== c.etapa) { e.f.remove(); UI.pularColheita = true; mudarEtapa(i.id, c.etapa); return; }
       const r = e.it.getBoundingClientRect();
       e.f.style.transition = 'transform .18s ease-out'; e.f.style.transform = `translate(${r.left}px, ${r.top}px) rotate(0deg)`;
       setTimeout(() => { e.f.remove(); e.it.classList.remove('vaga'); }, 190);

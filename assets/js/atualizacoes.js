@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.49',
+    data: '2026-11-16',
+    titulo: 'Quadro de tarefas em abas no celular',
+    itens: [
+      'No celular, o quadro mostra uma coluna por vez, com abas A fazer / Fazendo / Feito. Arraste um cartão até uma aba para mudar a situação dele.'
+    ]
+  },
+  {
     versao: '5.48',
     data: '2026-11-16',
     titulo: 'Arrastar tarefa pelo título',
