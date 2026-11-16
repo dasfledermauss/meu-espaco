@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.43',
+    data: '2026-11-16',
+    titulo: 'Descrição do evento no celular',
+    itens: [
+      'No celular, a descrição do evento no feed agora quebra em linhas (até 3) em vez de passar por cima da data.'
+    ]
+  },
+  {
     versao: '5.42',
     data: '2026-11-16',
     titulo: 'Wishlist em lote',

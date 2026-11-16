@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.43 — 16/11/2026 · Descrição do evento no celular
+
+- No celular, a descrição do evento no feed agora quebra em linhas (até 3) em vez de passar por cima da data.
+
 ## 5.42 — 16/11/2026 · Wishlist em lote
 
 - Em Novo desejo, cole vários links de produto, um por linha: todos entram de uma vez e as páginas são lidas uma a uma. Links repetidos ou inválidos são avisados e pulados.

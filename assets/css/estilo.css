@@ -1478,7 +1478,8 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .evt-selo .ico { width: 16px; height: 16px; }
 .evt-selo time { margin-left: auto; font-weight: 400; }
 .evt-info strong { font-size: 20px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
-.evt-info small { font-size: 14px; color: var(--tinta-2); overflow-wrap: anywhere; }
+.ev-ticket { white-space: normal; }
+.evt-info small { font-size: 14px; line-height: 1.4; color: var(--tinta-2); overflow-wrap: anywhere; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .evt-info em { font-style: normal; font-size: 13px; color: var(--tinta-2); margin-top: 8px; }
 .evt-corte { position: relative; flex: none; width: 0; display: flex; flex-direction: column; align-items: center; }
 .evt-corte hr { flex: 1; width: 0; border: 0; border-left: 2px dashed var(--linha); margin: 14px 0; }
