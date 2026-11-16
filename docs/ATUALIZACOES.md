@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.46 — 16/11/2026 · Pets sem tremer no celular
+
+- No celular, os cachorrinhos não ficam mais virando de um lado a outro quando um está sentado perto do outro: o que está atrás se afasta para o mesmo lado até sobrar espaço, e só olham um para o outro quando há distância.
+
 ## 5.45 — 16/11/2026 · Menu em gaveta e dia em folha de baixo
 
 - No celular, o menu lateral abre como uma gaveta pela esquerda, com o fundo escurecido; fecha ao tocar fora, num item ou no Esc.

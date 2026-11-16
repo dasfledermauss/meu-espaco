@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.45 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Mobile: menu em gaveta e dia do calendário em folha de baixo. | — |
+| v5.46 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Pets sem virar de lado a lado quando sentam perto. | — |
+| v5.45 | sem captura ainda; registrar aqui antes da próxima mudança visual | Mobile: menu em gaveta e dia do calendário em folha de baixo. | — |
 | v5.44 | sem captura ainda; registrar aqui antes da próxima mudança visual | Pets viram para onde andam, se olham parados e correm em velocidades diferentes. | — |
 | v5.43 | sem captura ainda; registrar aqui antes da próxima mudança visual | Descrição do evento quebra linha no mobile. | — |
 | v5.42 | sem captura ainda; registrar aqui antes da próxima mudança visual | Wishlist: vários links por linha. | — |

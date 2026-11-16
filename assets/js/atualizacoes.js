@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.46',
+    data: '2026-11-16',
+    titulo: 'Pets sem tremer no celular',
+    itens: [
+      'No celular, os cachorrinhos não ficam mais virando de um lado a outro quando um está sentado perto do outro: o que está atrás se afasta para o mesmo lado até sobrar espaço, e só olham um para o outro quando há distância.'
+    ]
+  },
+  {
     versao: '5.45',
     data: '2026-11-16',
     titulo: 'Menu em gaveta e dia em folha de baixo',

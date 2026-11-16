@@ -1812,10 +1812,20 @@
       } else {
         PET.alvo = null; PET.ladoPote = 0;
         // dois cães não sentam (nem param) um sobre o outro: o de trás se afasta devagar até sobrar espaço
-        const vizinho = petSlots().map((sl) => PETS[sl.k]).find((o) => o !== PET && o.x !== null && Math.abs(o.x - PET.x) < larg * .95);
-        if (vizinho && PET.k > vizinho.k && ['parado', 'sentado', 'andando'].includes(PET.estado)) {
-          let d = Math.sign(PET.x - vizinho.x) || 1; if ((d > 0 && PET.x > L - larg) || (d < 0 && PET.x < larg)) d = -d;
-          PET.estado = 'andando'; PET.dir = d; PET.x += d * 60 * dt; PET.espera = 1.5;
+        // histerese: começa a se afastar a menos de .8 corpo e só para ao chegar a 1.05, sempre para o mesmo lado, e desiste (por um tempo) se bater na parede
+        const vizinho = petSlots().map((sl) => PETS[sl.k]).find((o) => o !== PET && o.x !== null && Math.abs(o.x - PET.x) < larg * (PET.fugindo ? 1.05 : .8));
+        let fugir = !!(vizinho && PET.k > vizinho.k && agora > (PET.fugaAte || 0) && ['parado', 'sentado', 'andando'].includes(PET.estado));
+        if (fugir) {
+          if (!PET.fugindo) {
+            PET.fugindo = true; PET.fugaDir = Math.sign(PET.x - vizinho.x) || 1;
+            const folga = PET.fugaDir > 0 ? L - larg / 2 - PET.x : PET.x - larg / 2;
+            if (folga < larg * .4) PET.fugaDir = -PET.fugaDir;
+          }
+          const limite = PET.fugaDir > 0 ? L - larg / 2 : larg / 2;
+          if (Math.abs(limite - PET.x) < 2) { PET.fugindo = false; PET.fugaAte = agora + 10000; fugir = false; }
+          else { PET.estado = 'andando'; PET.dir = PET.fugaDir; PET.x += PET.fugaDir * Math.min(60 * dt, Math.abs(limite - PET.x)); PET.espera = 1.5; }
+        } else PET.fugindo = false;
+        if (fugir) {
         } else {
         if (PET.estado === 'andando') { PET.estado = 'parado'; PET.espera = 5 + Math.random() * 5; }
         PET.espera -= dt;
@@ -1828,7 +1838,7 @@
     // parado ou sentado, o cão fica de frente para o outro (com folga, para não virar de um lado a outro)
     if ((PET.estado === 'parado' || PET.estado === 'sentado') && !PET.bola) {
       const outro = petSlots().map((sl) => PETS[sl.k]).find((o) => o !== PET && o.x !== null);
-      if (outro && Math.abs(outro.x - PET.x) > 12) PET.dir = outro.x > PET.x ? 1 : -1;
+      if (outro && Math.abs(outro.x - PET.x) > larg * .5) PET.dir = outro.x > PET.x ? 1 : -1;   // perto demais não vira: só olha para o outro quando há espaço
     }
     // desenho
     const cao = cena.querySelector(`.pet-cao[data-k="${PET.k}"]`), balao = cena.querySelector(`.pet-balao[data-k="${PET.k}"]`);
