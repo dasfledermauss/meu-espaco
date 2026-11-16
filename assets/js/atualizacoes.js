@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.47',
+    data: '2026-11-16',
+    titulo: 'Itens apagados não voltam mais',
+    itens: [
+      'Um item apagado (como o livro ou o grampeador da wishlist) não volta mais ao abrir o app: o app guarda por 30 dias o que você apagou e reenvia a exclusão para a nuvem, mesmo que a internet tenha falhado na hora ou outro aparelho esteja desatualizado.'
+    ]
+  },
+  {
     versao: '5.46',
     data: '2026-11-16',
     titulo: 'Pets sem tremer no celular',

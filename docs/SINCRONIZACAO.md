@@ -54,3 +54,7 @@ O que já estava no navegador é enviado para a nuvem. Se outro aparelho já tiv
 | “Não consegui sincronizar agora” | Veja a conexão e use **Tentar de novo**. O que você salvou continua no aparelho. |
 | Erro de permissão | As regras do Firestore não foram publicadas, ou o banco ainda não foi criado. |
 | Abrindo o `index.html` com dois cliques | O login fica desligado e a sincronização também. Use o `iniciar.bat` ou o site publicado. |
+
+## Lápide de exclusão (v5.47)
+
+Ao apagar um item ou lembrete, o app guarda o id em `S.excluidos` (por 30 dias, só neste aparelho). Isso resolve o caso em que o item “voltava”: se a exclusão não chegava à nuvem (sem internet na hora, app fechado antes do envio, outro aparelho desatualizado), na abertura seguinte o app puxava a cópia da nuvem e a trazia de volta. Agora a lápide faz duas coisas: a exclusão é reenviada à nuvem a cada sincronização até valer, e itens com lápide vindos da nuvem (leitura inicial ou outro aparelho) são ignorados.

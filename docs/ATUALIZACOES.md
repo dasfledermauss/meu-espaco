@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.47 — 16/11/2026 · Itens apagados não voltam mais
+
+- Um item apagado (como o livro ou o grampeador da wishlist) não volta mais ao abrir o app: o app guarda por 30 dias o que você apagou e reenvia a exclusão para a nuvem, mesmo que a internet tenha falhado na hora ou outro aparelho esteja desatualizado.
+
 ## 5.46 — 16/11/2026 · Pets sem tremer no celular
 
 - No celular, os cachorrinhos não ficam mais virando de um lado a outro quando um está sentado perto do outro: o que está atrás se afasta para o mesmo lado até sobrar espaço, e só olham um para o outro quando há distância.

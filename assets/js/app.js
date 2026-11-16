@@ -218,6 +218,7 @@
   }
 
   function migrar(st) {
+    if (st.excluidos) { const corte = Date.now() - 30 * 864e5; ['itens', 'lembretes'].forEach((n) => { Object.keys(st.excluidos[n] || {}).forEach((id) => { if (new Date(st.excluidos[n][id]).getTime() < corte) delete st.excluidos[n][id]; }); }); }
     st.destinoPadrao = st.destinoPadrao || { nota: '', link: 'col-pessoal' };
     if (st.destinoPadrao.tarefa === undefined) st.destinoPadrao.tarefa = '';
     if (st.destinoPadrao.imagem === undefined) st.destinoPadrao.imagem = '';
@@ -1392,7 +1393,7 @@
   function sincronizarPrazo(i, avisar) {
     const atual = i.lembreteId ? lembrete(i.lembreteId) : null;
     if (!i.prazo || !avisar || i.concluida) {
-      if (atual) { S.lembretes = S.lembretes.filter((l) => l.id !== atual.id); i.lembreteId = ''; }
+      if (atual) { lapide('lembretes', atual.id); S.lembretes = S.lembretes.filter((l) => l.id !== atual.id); i.lembreteId = ''; }
       return;
     }
     if (atual) { atual.texto = i.titulo; atual.data = i.prazo; atual.concluido = false; return; }
@@ -3401,10 +3402,17 @@
     });
   }
 
+  /** Lápide de exclusão: guarda os ids apagados por 30 dias. Sem ela, um item apagado que ainda existe na nuvem (sem internet na hora, ou outro aparelho desatualizado) voltava ao abrir o app. */
+  function lapide(nome, ids) {
+    S.excluidos = S.excluidos || { itens: {}, lembretes: {} };
+    S.excluidos[nome] = S.excluidos[nome] || {};
+    const t = agora(); [].concat(ids).forEach((id) => { S.excluidos[nome][id] = t; });
+  }
+  const excluidoAntes = (nome, id) => !!(S.excluidos && S.excluidos[nome] && S.excluidos[nome][id]);
   async function excluirItem(i) {
     const lembs = S.lembretes.filter((l) => l.itemId === i.id && !l.concluido).length;
     if (!(await confirmar(`Excluir “${tituloItem(i)}”?\n\nSai do feed, da busca e das coleções.` + (lembs ? `\n${lembs} lembrete(s) viram avulsos.` : '')))) return;
-    S.itens = S.itens.filter((x) => x.id !== i.id);
+    lapide('itens', i.id); S.itens = S.itens.filter((x) => x.id !== i.id);
     S.lembretes.forEach((l) => { if (l.itemId === i.id) l.itemId = null; });
     if (window.SONS) SONS.tocar('excluir');
     salvar(); toast('Excluído.');
@@ -3470,7 +3478,7 @@
       case 'sel-excluir': {
         const n = UI.sel.length; if (!n || !(await confirmar(`Excluir ${n} ${n === 1 ? 'item' : 'itens'}?\n\nSaem do feed, da busca e das coleções.`))) return;
         const ids = new Set(UI.sel);
-        S.itens = S.itens.filter((x) => !ids.has(x.id));
+        lapide('itens', [...ids]); S.itens = S.itens.filter((x) => !ids.has(x.id));
         S.lembretes.forEach((l) => { if (ids.has(l.itemId)) l.itemId = null; });
         UI.sel = []; toast(n + ' excluído(s).'); return passa();
       }
@@ -3768,7 +3776,7 @@
         toast(l.motivo === 'tarefa' ? 'Tarefa concluída.' : 'Lembrete concluído.', 'check-circle-solid'); return passa(); }
       case 'lemb-reabrir': { const l = lembrete(id); l.concluido = false; return passa(); }
       case 'lemb-adiar': { const l = lembrete(id); return abrirModal({ tipo: 'editar', id: l.id }); }
-      case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!(await confirmar(`Excluir o lembrete “${l.texto}”?`))) return; if (window.SONS) SONS.tocar('excluir'); S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
+      case 'excluir-lembrete': { fecharMenu(); const l = lembrete(id); if (!(await confirmar(`Excluir o lembrete “${l.texto}”?`))) return; if (window.SONS) SONS.tocar('excluir'); lapide('lembretes', id); S.lembretes = S.lembretes.filter((x) => x.id !== id); return passa(); }
       case 'modo': {
         S.perfil.modo = b.dataset.v; UI.modoPrevia = null;
         salvar(); aplicarTema(); renderTopo();
@@ -4687,6 +4695,7 @@
         if (ULTIMO[nome][x.id] !== canon(x)) { x.atualizadoEm = agora(); mud[nome].push(limpo(x)); }
       });
       Object.keys(ULTIMO[nome]).forEach((id) => { if (!vistos.has(id)) mud.apagar[nome].push(id); });
+      Object.keys((S.excluidos || {})[nome] || {}).forEach((id) => { if (!vistos.has(id) && !mud.apagar[nome].includes(id)) mud.apagar[nome].push(id); });
     });
     return mud;
   }
@@ -4740,6 +4749,7 @@
     }
     [['itens', r.itens], ['lembretes', r.lembretes]].forEach(([nome, remotos]) => {
       remotos.forEach((rem) => {
+        if (excluidoAntes(nome, rem.id)) return;   // apagado aqui: não volta (a exclusão é reenviada à nuvem)
         const k = S[nome].findIndex((x) => x.id === rem.id);
         if (k < 0) { S[nome].push(rem); mudou = true; }
         else if (quando(rem) > quando(S[nome][k])) { S[nome][k] = rem; mudou = true; }
@@ -4765,6 +4775,7 @@
     }
     [['itens', d.itens, d.apagarItens], ['lembretes', d.lembretes, d.apagarLembretes]].forEach(([nome, novos, fora]) => {
       (novos || []).forEach((rem) => {
+        if (excluidoAntes(nome, rem.id)) return;
         const k = S[nome].findIndex((x) => x.id === rem.id);
         if (k < 0) { S[nome].push(rem); mudou = true; }
         else if (quando(rem) > quando(S[nome][k])) { S[nome][k] = rem; mudou = true; }
