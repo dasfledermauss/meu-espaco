@@ -1054,7 +1054,7 @@
     const colunas = Object.entries(ETAPAS).map(([v, n]) => {
       const lista = v === 'feito' ? feitas.slice(0, 12) : abertas.filter((i) => etapa(i) === v);
       return `<section class="quadro-col" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${v === 'feito' ? feitas.length : lista.length}</em></h2>
-        ${lista.map((i) => `<article class="tar-cartao" draggable="true" data-tarefa="${i.id}">${linhaTarefa(i)}
+        ${lista.map((i) => `<article class="tar-cartao" data-tarefa="${i.id}">${linhaTarefa(i)}
           <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
             ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
             ${v !== 'feito' ? btnIco('tar-para', 'check-circle', 'Mover para Feito', `data-id="${i.id}" data-v="feito"`) : ''}
@@ -2856,7 +2856,7 @@
       corpo = `<div class="quadro tres">${Object.entries(ETAPAS).map(([v, n]) => {
         const lista = v === 'feito' ? feitas : abertas.filter((i) => etapa(i) === v);
         return `<section class="quadro-col" data-etapa-alvo="${v}"><h2>${n}<em class="pino">${lista.length}</em></h2>
-          ${lista.map((i) => `<article class="tar-cartao" draggable="true" data-tarefa="${i.id}">${linhaTarefa(i)}
+          ${lista.map((i) => `<article class="tar-cartao" data-tarefa="${i.id}">${linhaTarefa(i)}
             <div class="pe">${v !== 'afazer' ? btnIco('tar-para', 'nav-arrow-left', 'Mover para A fazer', `data-id="${i.id}" data-v="afazer"`) : ''}
               ${v !== 'fazendo' ? btnIco('tar-para', 'clock', 'Mover para Fazendo', `data-id="${i.id}" data-v="fazendo"`) : ''}
               ${v !== 'feito' ? btnIco('tar-para', 'check-circle', 'Mover para Feito', `data-id="${i.id}" data-v="feito"`) : ''}
@@ -4368,31 +4368,71 @@
     if (UI.modal) return;
     [...e.dataTransfer.files].filter((x) => /^image\//.test(x.type)).forEach((x) => guardarImagemRapido(x));
   });
-  /* Cartões de tarefa: arrastar entre as colunas do quadro (modo trabalho e página Tarefas). */
-  let arrastandoTar = null;
-  document.addEventListener('dragstart', (e) => {
-    const c = e.target.closest && e.target.closest('[data-tarefa]');
-    if (!c) return;
-    arrastandoTar = c.dataset.tarefa; c.classList.add('arrastando'); e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', arrastandoTar); } catch (er) { /* ignora */ }
-  });
-  document.addEventListener('dragover', (e) => {
-    const a = arrastandoTar && e.target.closest && e.target.closest('[data-etapa-alvo]');
-    if (!a) return;
-    e.preventDefault();
-    document.querySelectorAll('.alvo-solta').forEach((x) => { if (x !== a) x.classList.remove('alvo-solta'); });
-    a.classList.add('alvo-solta');
-  });
-  document.addEventListener('drop', (e) => {
-    const a = arrastandoTar && e.target.closest && e.target.closest('[data-etapa-alvo]');
-    if (!a) return;
-    e.preventDefault();
-    const id = arrastandoTar; arrastandoTar = null;
-    const i = item(id);
-    if (i && etapa(i) !== a.dataset.etapaAlvo) { UI.pularColheita = true; mudarEtapa(id, a.dataset.etapaAlvo); }
-    else document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta'));
-  });
-  document.addEventListener('dragend', () => { arrastandoTar = null; document.querySelectorAll('.arrastando, .alvo-solta').forEach((x) => x.classList.remove('arrastando', 'alvo-solta')); });
+  /* Cartões de tarefa: arrastar entre as colunas do quadro (Meu Espaço e página Tarefas).
+     Mesma mecânica de "na mão" do reordenar: o cartão segue o ponteiro, levemente inclinado, e a coluna sob ele acende.
+     No toque, segure um instante para pegar. Esc cancela. */
+  (function arrastarTarefas() {
+    let s = null, suprimir = false;
+    const IGNORA = 'input, select, textarea, [data-nodrag]';
+    const colunaSob = (x, y) => [...document.querySelectorAll('[data-etapa-alvo]')].find((c) => { const r = c.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top - 8 && y <= r.bottom + 8; });
+    function iniciar() {
+      if (!s || s.ativo) return;
+      s.ativo = true; UI.arrastando = true; clearTimeout(s.timer);
+      const r = s.it.getBoundingClientRect();
+      s.dx = s.x - r.left; s.dy = s.y - r.top; s.tilt = 0; s.pxAnt = s.x;
+      const f = s.it.cloneNode(true);
+      f.removeAttribute('data-tarefa'); f.classList.add('fantasma');
+      f.style.cssText = `width:${r.width}px;height:${r.height}px;transform:translate(${r.left}px,${r.top}px)`;
+      document.body.appendChild(f); s.f = f;
+      s.it.classList.add('vaga'); document.body.classList.add('arrastando-ord');
+      const volta = () => { if (!s || !s.ativo) return; quadro(); s.raf = requestAnimationFrame(volta); };
+      s.raf = requestAnimationFrame(volta);
+    }
+    function quadro() {
+      const px = s.x - s.dx, py = s.y - s.dy;
+      s.tilt += (Math.max(-6, Math.min(6, (px - s.pxAnt) * .6)) - s.tilt) * .2; s.pxAnt = px;
+      s.f.style.transform = `translate(${px}px, ${py}px) rotate(${s.tilt.toFixed(2)}deg)`;
+      const c = colunaSob(s.x, s.y);
+      document.querySelectorAll('.alvo-solta').forEach((x) => { if (x !== c) x.classList.remove('alvo-solta'); });
+      if (c) c.classList.add('alvo-solta');
+    }
+    function encerrar(cancelar) {
+      if (!s) return;
+      const e = s; s = null; clearTimeout(e.timer); cancelAnimationFrame(e.raf);
+      if (!e.ativo) return;
+      UI.arrastando = false; document.body.classList.remove('arrastando-ord');
+      const c = cancelar ? null : colunaSob(e.x, e.y);
+      document.querySelectorAll('.alvo-solta').forEach((x) => x.classList.remove('alvo-solta'));
+      suprimir = true; setTimeout(() => { suprimir = false; }, 60);
+      const i = item(e.it.dataset.tarefa);
+      if (c && i && etapa(i) !== c.dataset.etapaAlvo) { e.f.remove(); UI.pularColheita = true; mudarEtapa(i.id, c.dataset.etapaAlvo); return; }
+      const r = e.it.getBoundingClientRect();
+      e.f.style.transition = 'transform .18s ease-out'; e.f.style.transform = `translate(${r.left}px, ${r.top}px) rotate(0deg)`;
+      setTimeout(() => { e.f.remove(); e.it.classList.remove('vaga'); }, 190);
+      if (UI.renderPendente) { UI.pularColheita = true; render(); }
+      UI.renderPendente = false;
+    }
+    document.addEventListener('click', (e) => { if (suprimir) { e.stopPropagation(); e.preventDefault(); } }, true);
+    document.addEventListener('contextmenu', (e) => { if (s && s.toque) e.preventDefault(); });
+    document.addEventListener('touchmove', (e) => { if (s && s.ativo) e.preventDefault(); }, { passive: false });
+    document.addEventListener('pointerdown', (e) => {
+      if (s || (e.pointerType === 'mouse' && e.button !== 0) || UI.modal) return;
+      const it = e.target.closest && e.target.closest('[data-tarefa]');
+      if (!it || e.target.closest(IGNORA)) return;
+      s = { it, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, id: e.pointerId, toque: e.pointerType !== 'mouse', ativo: false };
+      if (s.toque) s.timer = setTimeout(iniciar, 280);
+    });
+    document.addEventListener('pointermove', (e) => {
+      if (!s || e.pointerId !== s.id) return;
+      s.x = e.clientX; s.y = e.clientY;
+      if (s.ativo) return;
+      const d = Math.hypot(s.x - s.x0, s.y - s.y0);
+      if (s.toque) { if (d > 9) { clearTimeout(s.timer); s = null; } } else if (d > 5) iniciar();
+    });
+    document.addEventListener('pointerup', (e) => { if (s && e.pointerId === s.id) encerrar(false); });
+    document.addEventListener('pointercancel', (e) => { if (s && e.pointerId === s.id) encerrar(true); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && s && s.ativo) { e.stopPropagation(); encerrar(true); } }, true);
+  })();
   let arrastandoImg = null;
   document.addEventListener('dragstart', (e) => {
     const p = e.target.closest && e.target.closest('[data-imagem]');
