@@ -1569,7 +1569,7 @@ body.janela-arrastando { user-select: none; }
 .tar-cartao[data-tarefa], .tar-cartao[data-tarefa] a, .tar-cartao[data-tarefa] button { cursor: grab; }
 .tar-cartao[data-tarefa] { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
 .quadro-col[data-etapa-alvo] { border-radius: 18px; transition: background-color .18s ease-out, box-shadow .18s ease-out; }
-.quadro-col.alvo-solta { background: color-mix(in srgb, var(--marca) 8%, transparent); box-shadow: 0 0 0 2px var(--marca); }
+.quadro-col.alvo-solta { background: color-mix(in srgb, var(--marca) 10%, transparent); outline: 0; box-shadow: none; }
 .trab-cab h1 .trab-nome { font: inherit; letter-spacing: inherit; color: inherit; background: transparent; border: 0; border-radius: 10px; padding: 4px 8px; margin: -4px -8px; width: 14ch; max-width: 100%; field-sizing: content; min-width: 6ch; transition: background-color .18s ease-out; }
 .trab-cab h1 .trab-nome:hover { background: var(--fundo-2, rgba(0,0,0,.04)); }
 .trab-cab h1 .trab-nome:focus { outline: 2px solid var(--marca); background: var(--cartao); }

@@ -10,11 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
-    versao: '5.36',
+    versao: '5.37',
     data: '2026-11-16',
-    titulo: 'Colunas do quadro valem por inteiro',
+    titulo: 'Quadro sem contorno ao arrastar',
     itens: [
-      'No quadro do Meu Espaço, cada coluna vale por toda a altura: solte o cartão em qualquer ponto dela, mesmo vazia. Os botões de mover continuam funcionando.'
+      'No quadro do Meu Espaço, cada coluna vale por toda a altura: solte o cartão em qualquer ponto dela, mesmo vazia. Os botões de mover continuam funcionando.',
+      'Ao arrastar, a coluna de destino só ganha um fundo suave, sem contorno.'
     ]
   },
   {
