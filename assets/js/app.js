@@ -1758,7 +1758,9 @@
       if (!PET.bola) { PET.fila = ''; PET.bola = { x: Math.max(40, Math.min(L - 40, PET.x + PET.dir * larg * .7)), h: 0, vy: 0, vx: 0, rot: 0, cd: 0, chutes: 0, tempo: 0, el: null }; }
       const b = PET.bola, dx = b.x - PET.x;
       if (Math.abs(dx) > 8) PET.dir = Math.sign(dx);
-      PET.x += Math.sign(dx) * Math.min(Math.abs(dx), 160 * dt);
+      // o segundo cão corre atrás do primeiro, uma largura de corpo para trás, em vez de colar nele
+      const atras = PET.k ? Math.sign(dx || PET.dir) * larg * .85 : 0, mdx = dx - atras;
+      if (Math.abs(mdx) > 4) PET.x += Math.sign(mdx) * Math.min(Math.abs(mdx), 160 * dt);
       if (Math.abs(dx) < larg * .45 && b.cd <= 0 && b.chutes < 6) {
         // chuta para o lado de lá (ou para o outro, se a parede estiver perto)
         let lado = Math.sign(dx) || PET.dir; if ((lado > 0 && L - b.x < 110) || (lado < 0 && b.x < 110)) lado = -lado;
@@ -1780,7 +1782,7 @@
       const bx = PET.visita ? petPoteX(cena, PET.visita) : null;
       if (bx !== null) {
         PET.alvo = true; PET.dir = bx >= PET.x ? 1 : -1;
-        const meta = Math.max(larg / 2, Math.min(L - larg / 2, bx - PET.dir * larg * .4)), d = meta - PET.x;
+        const meta = Math.max(larg / 2, Math.min(L - larg / 2, bx - PET.dir * larg * (.4 + PET.k * .9))), d = meta - PET.x;  // o segundo para um corpo antes, não em cima do primeiro
         if (Math.abs(d) > 3) { PET.estado = 'andando'; PET.x += Math.sign(d) * Math.min(Math.abs(d), 96 * dt); }
         else { PET.estado = 'comendo'; PET.tEstado = 0; PET.rel = 0; }
       } else {

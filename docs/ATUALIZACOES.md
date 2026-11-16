@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.41 — 16/11/2026 · Pets andam um atrás do outro
+
+- Quando os dois vão ao mesmo lugar (potinho ou bolinha), um chega na frente e o outro fica um corpo atrás, sem se cobrirem.
+
 ## 5.40 — 16/11/2026 · Pets sem se sobrepor
 
 - Os dois cachorrinhos não ficam mais um sobre o outro quando param ou sentam: o de trás se afasta sozinho.

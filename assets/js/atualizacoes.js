@@ -10,6 +10,14 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.41',
+    data: '2026-11-16',
+    titulo: 'Pets andam um atrás do outro',
+    itens: [
+      'Quando os dois vão ao mesmo lugar (potinho ou bolinha), um chega na frente e o outro fica um corpo atrás, sem se cobrirem.'
+    ]
+  },
+  {
     versao: '5.40',
     data: '2026-11-16',
     titulo: 'Pets sem se sobrepor',
