@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.57',
+    data: '2026-11-16',
+    titulo: 'Bastidores: músicas em arquivo próprio',
+    itens: ['O código das músicas e do mini player saiu do arquivo principal para assets/js/musica.js. Nada muda na tela.']
+  },
+  {
     versao: '5.56',
     data: '2026-11-16',
     titulo: 'Bastidores: currículo em arquivo próprio',

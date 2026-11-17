@@ -21,13 +21,14 @@ window.TybaPet = function (ctx) { ...; return { PETS, petFalar, ... }; };
 |---|---|---|
 | `assets/js/pet.js` (`TybaPet`) | cenário do pet, cuidados, conversa | v5.55 |
 | `assets/js/curriculo.js` (`TybaCurriculo`) | adaptador de importação do currículo e a tela | v5.56 |
+| `assets/js/musica.js` (`TybaMusica`) | lista de músicas, ambiente e mini player | v5.57 |
 
 ## Plano de extração
 
 Mapa completo por seção, com linhas e ordem: planilha "Divisão do app.js". Ordem combinada:
 
 1. Currículo (adaptador + tela). **Feito.** As janelas de PDF ficaram no `app.js`, porque as janelas servem também às notas.
-2. Mini player de música e músicas.
+2. Mini player de música e músicas. **Feito.**
 3. Nuvem e conta Google.
 4. Arrastar para reordenar, imagens e janelas.
 5. Tempo, PWA, captura e novidades.

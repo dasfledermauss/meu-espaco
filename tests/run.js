@@ -170,6 +170,18 @@ const TESTES = {
     conferir(/Designer/.test(t), 'revisão da importação lista a experiência');
     conferir(!erros.length, 'sem erros de script' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
   },
+  async 'músicas: lista abre, tocar mostra o mini player'(b) {
+    const { p, ctx } = await pagina(b, { ajustar: (st) => { st.itens.push(
+      { id: 'm1', tipo: 'musica', titulo: 'Faixa de teste um', url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', video: 'aqz-KE-bpKQ', ordem: 1, colecoes: [], criadoEm: new Date().toISOString(), atualizadoEm: new Date().toISOString(), comentarios: [] },
+      { id: 'm2', tipo: 'musica', titulo: 'Faixa de teste dois', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', video: 'dQw4w9WgXcQ', ordem: 2, colecoes: [], criadoEm: new Date().toISOString(), atualizadoEm: new Date().toISOString(), comentarios: [] }); } });
+    const erros = []; p.on('pageerror', (e) => { if (!/Access is denied/.test(e.message)) erros.push(e.message); });  // o iframe do YouTube barra o localStorage no teste
+    await p.goto(BASE + '#/musicas'); await p.waitForTimeout(600);
+    const t = await p.textContent('#conteudo');
+    conferir(/Faixa de teste um/.test(t) && /Faixa de teste dois/.test(t), 'lista mostra as duas músicas');
+    await p.click('[data-act="tocar"][data-id="m1"]').catch(() => p.click('text=Faixa de teste um')); await p.waitForTimeout(600);
+    conferir(await p.evaluate(() => !!document.querySelector('.mini-app, .miniapp, [class*="mini"]')), 'mini player aparece');
+    conferir(!erros.length, 'sem erros de script' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);

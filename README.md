@@ -33,6 +33,7 @@ meu-espaco/
 │   ├── js/app.js           lógica e telas (núcleo)
 │   ├── js/pet.js           módulo do pet (ver docs/ARQUITETURA.md)
 │   ├── js/curriculo.js     módulo do currículo
+│   ├── js/musica.js        módulo das músicas e do mini player
 │   ├── js/config.js        ID do cliente Google e projeto Firebase (públicos)
 │   ├── js/nuvem.js         sincronização com o Firestore
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)
