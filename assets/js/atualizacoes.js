@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.54',
+    data: '2026-11-16',
+    titulo: 'Jack Russell do tamanho dos outros',
+    itens: ['O Jack Russell agora tem o mesmo tamanho do Schnauzer.']
+  },
+  {
     versao: '5.53',
     data: '2026-11-16',
     titulo: 'Novo pet: Jack Russell',

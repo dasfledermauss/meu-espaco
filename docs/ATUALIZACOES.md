@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.54 — 16/11/2026 · Jack Russell do tamanho dos outros
+
+- O Jack Russell agora tem o mesmo tamanho do Schnauzer.
+
 ## 5.53 — 16/11/2026 · Novo pet: Jack Russell
 
 - O Jack Russell entrou na lista de pets (botão Pets do cenário): parado, sentado, andando e abaixado, como os outros.

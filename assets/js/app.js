@@ -1466,7 +1466,7 @@
     frajola: { nome: 'Frajola', arq: 'assets/img/pet/frajola.png', CW: 51, CH: 38, fala: 'MIAU!', som: 'miado' },
     shollie: { nome: 'Shollie', arq: 'assets/img/pet/shollie.png', CW: 62, CH: 42, fala: 'AU AU!', som: 'latido' },
     schnauzer: { nome: 'Schnauzer', arq: 'assets/img/pet/schnauzer.png', CW: 54, CH: 40, fala: 'AU! AU!', som: 'latido' },
-    jackrussell: { nome: 'Jack Russell', arq: 'assets/img/pet/jackrussell.png', CW: 70, CH: 52, fala: 'AU AU AU!', som: 'latido' }
+    jackrussell: { nome: 'Jack Russell', arq: 'assets/img/pet/jackrussell.png', CW: 54, CH: 40, fala: 'AU AU AU!', som: 'latido' }
   };
   /** Cores da casinha (parede, luz da parede, telhado, luz do telhado, rodapé): clicar na casinha troca. */
   const PET_CASAS = [
