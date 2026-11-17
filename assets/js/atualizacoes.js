@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.66',
+    data: '2026-11-17',
+    titulo: 'Ícone na contagem regressiva',
+    itens: ['A contagem regressiva do Início ganhou um ícone de calendário à esquerda, num bloco na cor principal. Títulos longos agora quebram linha em vez de vazar do cartão.']
+  },
+  {
     versao: '5.65',
     data: '2026-11-17',
     titulo: 'Contorno nos lembretes vencidos',

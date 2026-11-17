@@ -236,6 +236,16 @@ const TESTES = {
       await ctx.close();
     }
   },
+  async 'início: contagem regressiva tem ícone e o título quebra linha dentro do cartão'(b) {
+    for (const modo of ['claro', 'escuro']) {
+      const { p, ctx } = await pagina(b, { modo, ajustar: (st) => { const d = new Date(); d.setDate(d.getDate() + 12); const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); st.eventos = (st.eventos || []).concat({ id: 'ec', titulo: 'Viagem para a praia com a família inteira', data: iso, hora: '08:00', contagem: true, criadoEm: new Date().toISOString() }); } });
+      await p.goto(BASE + '#/inicio'); await p.waitForTimeout(600);
+      const r = await p.evaluate(() => { const c = document.querySelector('.contagem'); if (!c) return null; const s = c.querySelector('strong').getBoundingClientRect(), k = c.getBoundingClientRect(); return { ico: !!c.querySelector('.contagem-ico svg'), cabe: s.right <= k.right + 1 }; });
+      conferir(r && r.ico, `${modo}: contagem regressiva mostra o ícone`);
+      conferir(r && r.cabe, `${modo}: título longo quebra linha dentro do cartão`);
+      await ctx.close();
+    }
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);

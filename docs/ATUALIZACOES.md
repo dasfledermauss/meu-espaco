@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.66 — 17/11/2026 · Ícone na contagem regressiva
+
+- A contagem regressiva do Início ("12 dias para…") ganhou um ícone de calendário com check à esquerda, num bloco de 40 px na cor principal. O título longo agora quebra linha (antes vazava do cartão).
+
 ## 5.65 — 17/11/2026 · Contorno nos lembretes vencidos
 
 - O cartão de lembrete vencido e a faixa do Início ganharam um contorno de 1 px na cor principal (45% de opacidade), feito com sombra interna para não mudar o tamanho da caixa.

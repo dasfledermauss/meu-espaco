@@ -1382,7 +1382,7 @@
     const dest = prox.find((e) => e.contagem);
     const lista = prox.filter((e) => e !== dest).slice(0, dest ? 3 : 4);
     const corpo = !prox.length ? `<p class="meta">Nada marcado por vir. <a href="#/agenda">Abrir a agenda</a></p>` : `
-      ${dest ? `<button type="button" class="contagem" data-act="ev-ver" data-id="${dest.id}"><b>${diasAte(dest.data) === 0 ? 'Hoje' : diasAte(dest.data)}</b>
+      ${dest ? `<button type="button" class="contagem" data-act="ev-ver" data-id="${dest.id}"><i class="contagem-ico">${ic('calendar-check-solid')}</i><b>${diasAte(dest.data) === 0 ? 'Hoje' : diasAte(dest.data)}</b>
         <span>${diasAte(dest.data) === 0 ? '' : diasAte(dest.data) === 1 ? 'dia para' : 'dias para'}<strong>${esc(dest.titulo)}</strong></span></button>` : ''}
       <div class="mini-lista">${lista.map((e) => `<button type="button" class="mini-item" data-act="ev-ver" data-id="${e.id}">
         <span class="mini-txt">${esc(e.titulo)}</span><span class="meta num">${quandoEvento(diasAte(e.data))}${e.hora ? ' · ' + esc(e.hora) : ''}</span></button>`).join('')}</div>`;
