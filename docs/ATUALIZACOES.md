@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.58 — 16/11/2026 · Bastidores: conta e sincronização em arquivo próprio
+
+- O código da conta Google e da sincronização com a nuvem (a parte que roda no app) saiu do arquivo principal para `assets/js/conta.js`. O acesso ao Firestore continua em `assets/js/nuvem.js`. Nada muda na tela.
+
 ## 5.57 — 16/11/2026 · Bastidores: músicas em arquivo próprio
 
 - O código das músicas (lista, ambiente) e do mini player saiu do arquivo principal para `assets/js/musica.js`. Nada muda na tela.

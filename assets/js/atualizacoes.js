@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.58',
+    data: '2026-11-16',
+    titulo: 'Bastidores: conta e sincronização em arquivo próprio',
+    itens: ['O código da conta Google e da sincronização saiu do arquivo principal para assets/js/conta.js. Nada muda na tela.']
+  },
+  {
     versao: '5.57',
     data: '2026-11-16',
     titulo: 'Bastidores: músicas em arquivo próprio',
