@@ -18,7 +18,7 @@ A v3 mantém a estrutura de colunas da v2 e troca a pele retrô por uma estétic
 | Fundo | Cinza-azulado claro (`--fundo`) |
 | Superfície | Cartão branco, raio 22 px, **sem borda e sem sombra**; a separação vem do contraste e do espaço |
 | Itálico | Não se usa em lugar nenhum |
-| Cor | Quase tudo neutro. Cor só em ação principal, estado e dado (ouro em estrelas, verde em queda de preço, amarelo em lembrete vencido, vermelho em exclusão) |
+| Cor | Quase tudo neutro. Cor só em ação principal, estado e dado (ouro em estrelas, verde em queda de preço, cor principal em lembrete vencido, vermelho em exclusão) |
 | Selos de tipo | Neutros: fundo cinza-claro e ícone cinza. O tipo é dito pelo ícone e pela palavra, não pela cor |
 | Botões | Pílula. Principal cheio na cor da marca; secundário cinza; fantasma sem fundo |
 | Espaçamento | 20 px dentro do cartão, 18–20 px entre cartões, 26 px entre colunas |
@@ -71,7 +71,7 @@ No celular a navegação fica atrás do botão de menu, a busca ocupa a segunda 
 | Livro ou filme | Capa à esquerda, nome, autor, estrelas, situação e gêneros | **Biblioteca**: prateleiras de madeira com as capas em pé |
 | Desejo | Foto do produto, nome, preço grande, loja e estrelas | **Wishlist**: vitrine de loja em grade, com botão “Ver na loja” |
 | Gasto | Linha compacta, valor grande à direita | **Gastos**: extrato com total do mês, barras por categoria e tabela |
-| Lembrete | Faixa amarela no topo quando vence | **Lembretes**: quadro com colunas Vencidos, Hoje, Próximos 7 dias e Depois |
+| Lembrete | Faixa na cor principal no topo quando vence (amarelo só para alertas de tarefa) | **Lembretes**: quadro com colunas Vencidos, Hoje, Próximos 7 dias e Depois |
 
 Importações em lote entram recolhidas num único bloco do feed, para não empurrar os posts escritos à mão.
 

@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.64 — 17/11/2026 · Lembretes na cor principal
+
+- Lembrete vencido (cartão e faixa do Início), etiqueta e barrinha de lembrete na Agenda, ponto da lista do Início e contador da coluna Vencidos usam a cor principal (`--marca`) em vez do amarelo. Contraste medido em teste: 15:1 (claro) e 12:1 (escuro) nos blocos claros; 5,5:1 na etiqueta sólida da Agenda. O amarelo continua só para tarefas atrasadas.
+
 ## 5.63 — 16/11/2026 · Preço da Amazon corrigido também no site publicado
 
 - A correção da v5.60 estava só no `servidor.py` (computador). O site publicado usa `api/capturar.js` (Vercel), que tinha o mesmo defeito. Agora os dois leem inteiro e centavos do bloco de preço e ignoram o JSON em centavos na Amazon. Teste novo: `tests/capturar_js_teste.mjs`.

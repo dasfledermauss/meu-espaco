@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.64',
+    data: '2026-11-17',
+    titulo: 'Lembretes na cor principal',
+    itens: ['Lembretes vencidos, a faixa do Início, as etiquetas da Agenda e a coluna Vencidos agora seguem a sua cor principal em vez do amarelo, com contraste maior no claro e no escuro.']
+  },
+  {
     versao: '5.63',
     data: '2026-11-16',
     titulo: 'Preço da Amazon corrigido também no site publicado',

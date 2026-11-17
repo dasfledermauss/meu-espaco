@@ -1412,7 +1412,7 @@
         '<a href="#/tarefas">ver todas</a>', 'fino');
     }
     const pend = pendentes().slice(0, 3);
-    if (pend.length) blocos.lembretes = cartao(ic('alarm') + 'Lembretes', `<div class="mini-lista">${pend.map((l) => `<p class="mini-item"><em class="ponto ${venc(l) <= Date.now() ? 'vence' : ''}"></em><span class="mini-txt">${esc(l.texto)}</span><span class="meta num">${fmtNum(l.data)}</span></p>`).join('')}</div>`, '<a href="#/lembretes">ver todas</a>', 'fino');
+    if (pend.length) blocos.lembretes = cartao(ic('alarm') + 'Lembretes', `<div class="mini-lista">${pend.map((l) => `<p class="mini-item"><em class="ponto ${venc(l) <= Date.now() ? 'vence lem' : ''}"></em><span class="mini-txt">${esc(l.texto)}</span><span class="meta num">${fmtNum(l.data)}</span></p>`).join('')}</div>`, '<a href="#/lembretes">ver todas</a>', 'fino');
     const and = doTipo('midia').filter((i) => i.status === 'andamento').slice(0, 4);
     if (and.length) blocos.lendo = cartao(ic('book') + 'Lendo agora', `<div class="mini-capas">${and.map((i) => `<a href="#/item/${i.id}" title="${esc(i.titulo)}">${capaHTML(i, 'p')}</a>`).join('')}</div>`, '<a href="#/biblioteca">ver todas</a>', 'fino');
     const d = doTipo('desejo').filter((i) => !i.comprado).sort((a, x) => x.criadoEm.localeCompare(a.criadoEm))[0];

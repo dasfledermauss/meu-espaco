@@ -360,6 +360,8 @@ dialog::backdrop { background: rgba(21, 25, 36, .45); backdrop-filter: blur(2px)
 .mini-item { display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
 .mini-item .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--linha); flex: none; }
 .mini-item .ponto.vence { background: var(--alerta); }
+.mini-item .ponto.vence.lem { background: var(--marca); }
+.quadro-col .pino.alerta { background: var(--marca-leve); color: var(--marca-escura); }
 .mini-item > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mini-item .ico { color: var(--tinta-3); width: 15px; height: 15px; }
 /* o texto manda: a data fica curta e encolhe antes dele */
@@ -480,14 +482,15 @@ button.mini-item:hover { background: var(--hover-2); }
 .quadro-col { display: flex; flex-direction: column; gap: 12px; }
 .quadro-col > h2 { font-size: 13px; font-weight: 600; color: var(--tinta-2); display: flex; align-items: center; gap: 8px; padding: 0 6px; }
 .lembrete { background: var(--cartao); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-.lembrete.vence { background: var(--alerta-leve); }
+.lembrete.vence { background: var(--marca-leve); }
 .lembrete p { font-size: 14.5px; font-weight: 500; }
 .lembrete .pe { display: flex; align-items: center; gap: 3px; }
 .lembrete .pe .espaco { flex: 1; }
 .lembrete.feito p { text-decoration: line-through; color: var(--tinta-3); font-weight: 400; }
-.faixa-lembrete { background: var(--alerta-leve); border-radius: var(--r-g); padding: 18px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.faixa-lembrete { background: var(--marca-leve); border-radius: var(--r-g); padding: 18px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .faixa-lembrete > div { flex: 1 1 240px; }
 .faixa-lembrete strong { font-weight: 600; }
+.faixa-lembrete > svg { color: var(--marca-escura); flex: none; }
 
 /* ---------- nota em lista ---------- */
 .lista-check { display: flex; flex-direction: column; gap: 9px; margin: 0; padding: 0; list-style: none; }
@@ -1354,13 +1357,13 @@ input[type="range"][data-act="som-vol"]:disabled { opacity: .45; cursor: default
 .ag-chip { display: block; max-width: 100%; font-size: 11.5px; line-height: 16px; padding: 0 6px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ag-chip.ev { background: var(--marca-leve); color: var(--marca-escura); }
 .ag-chip.tar { background: var(--campo); color: var(--tinta-2); box-shadow: inset 0 0 0 1px var(--linha); }
-.ag-chip.lem { background: var(--alerta-leve); color: #8a5a00; }
+.ag-chip.lem { background: var(--marca); color: var(--marca-texto); }
 .ag-dia[aria-pressed="true"] .ag-chip.ev { background: var(--cartao); }
 .ag-mais { font-size: 11.5px; color: var(--tinta-3); padding-left: 2px; }
 .ag-barras { display: none; gap: 2px; }
 .ag-barras i { width: 14px; height: 3px; border-radius: 2px; background: var(--marca); }
 .ag-barras i.tar { background: var(--tinta-3); }
-.ag-barras i.lem { background: var(--alerta); }
+.ag-barras i.lem { background: var(--marca-escura); }
 .ag-painel { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; }
 .ag-painel h2 { font-size: 16px; font-weight: 600; margin: 0; }
 .ag-lista { display: flex; flex-direction: column; gap: 8px; }
@@ -1372,7 +1375,6 @@ a.ag-linha:hover, button.ag-linha:hover { background: var(--hover-2); text-decor
 .ag-txt small { font-size: 12.5px; color: var(--tinta-2); overflow-wrap: anywhere; }
 .ag-linha.feito .ag-txt strong { text-decoration: line-through; color: var(--tinta-3); }
 .ag-linha .menu { flex: none; }
-:root[data-modo="escuro"] .ag-chip.lem { background: rgba(234,168,0,.16); color: #e6b85c; }
 @media (max-width: 1000px) { .ag-layout { grid-template-columns: 1fr; } .ag-painel { position: static; } }
 @media (max-width: 640px) {
   .ag-cal, .ag-painel { padding: 16px; }

@@ -211,6 +211,31 @@ const TESTES = {
     (r.stdout || '').split('\n').filter(Boolean).forEach((l) => console.log(l));
     conferir(r.status === 0, 'casos de preço da Amazon no api/capturar.js' + (r.status ? ': ' + (r.stderr || '').split('\n').filter(Boolean).slice(-1)[0] : ''));
   },
+  async 'lembretes: destaque segue a cor principal, com contraste AA nos dois temas'(b) {
+    for (const modo of ['claro', 'escuro']) {
+      const { p, ctx } = await pagina(b, { modo, ajustar: (st) => { st.lembretes.push({ id: 'lv', texto: 'Lembrete vencido de teste', data: '2026-11-01', hora: '09:00', concluido: false, criadoEm: new Date().toISOString() }); } });
+      const medir = (sel) => p.evaluate((sel) => {
+        const el = document.querySelector(sel); if (!el) return null;
+        const rgb = (c) => c.match(/[\d.]+/g).slice(0, 3).map(Number);
+        const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+        const cs = getComputedStyle(el); const marca = getComputedStyle(document.documentElement).getPropertyValue('--marca-leve').trim();
+        const bg = rgb(cs.backgroundColor), fg = rgb(cs.color); const [a, c] = [lum(bg), lum(fg)];
+        return { ratio: (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05), bg: cs.backgroundColor, marca };
+      }, sel);
+      await p.goto(BASE + '#/inicio'); await p.waitForTimeout(600);
+      const faixa = await medir('.faixa-lembrete');
+      conferir(faixa && faixa.ratio >= 4.5, `${modo}: faixa de lembrete vencido com contraste ${faixa && faixa.ratio.toFixed(1)}`);
+      const corMarca = await p.evaluate(() => { const t = document.createElement('i'); t.style.background = 'var(--marca-leve)'; document.body.appendChild(t); const c = getComputedStyle(t).backgroundColor; t.remove(); return c; });
+      conferir(faixa && faixa.bg === corMarca, `${modo}: faixa usa a cor principal (e não o amarelo)`);
+      await p.goto(BASE + '#/lembretes'); await p.waitForTimeout(600);
+      const card = await medir('.lembrete.vence');
+      conferir(card && card.ratio >= 4.5 && card.bg === corMarca, `${modo}: cartão vencido segue a cor principal, contraste ${card && card.ratio.toFixed(1)}`);
+      await p.goto(BASE + '#/agenda'); await p.waitForTimeout(600);
+      const chip = await medir('.ag-chip.lem');
+      conferir(chip && chip.ratio >= 4.5, `${modo}: etiqueta de lembrete na agenda com contraste ${chip && chip.ratio.toFixed(1)}`);
+      await ctx.close();
+    }
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);
