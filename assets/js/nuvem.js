@@ -30,7 +30,8 @@ window.Nuvem = (function () {
     app = núcleo.initializeApp(cfg());
     auth = autent.getAuth(app);
     try {
-      bd = loja.initializeFirestore(app, { localCache: loja.persistentLocalCache({ tabManager: loja.persistentMultipleTabManager() }) });
+      // detecta sozinho quando a rede ou uma extensão bloqueia o canal de tempo real e troca para o modo alternativo (sem isso, as escritas ficam penduradas)
+      bd = loja.initializeFirestore(app, { localCache: loja.persistentLocalCache({ tabManager: loja.persistentMultipleTabManager() }), experimentalAutoDetectLongPolling: true });
     } catch (e) {
       bd = loja.getFirestore(app); // sem cache local (aba anônima, por exemplo)
     }

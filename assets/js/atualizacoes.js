@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.75',
+    data: '2026-11-17',
+    titulo: 'Conexão com o Firebase mais resistente',
+    itens: ['O Tyba agora detecta sozinho quando a rede ou uma extensão do navegador bloqueia o canal de tempo real do Firebase e usa um modo alternativo. Isso corrige o Correios (e a sincronização) ficando esperando sem resposta.']
+  },
+  {
     versao: '5.74',
     data: '2026-11-17',
     titulo: 'Correios mostra o motivo quando falha',
