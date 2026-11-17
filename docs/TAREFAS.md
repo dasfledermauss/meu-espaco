@@ -73,3 +73,7 @@ Clicar no card (título, descrição ou etiquetas), na tela Tarefas ou no modo t
 ## Quadro no celular (v5.49)
 
 Até 640px o quadro mostra **uma coluna por vez**, com abas A fazer / Fazendo / Feito e a contagem em cada uma (Meu Espaço e visão Quadro da página Tarefas). A aba escolhida fica enquanto a página estiver aberta. Arrastar um cartão até uma aba muda a situação dele; os botões de mover continuam.
+
+## Reordenar arrastando (v5.52)
+
+No quadro (Meu Espaço e visão Quadro) dá para arrastar uma tarefa para **qualquer posição**, na mesma coluna ou em outra. Durante o arrasto uma silhueta marca o lugar e os cartões deslizam para abrir espaço. Ao soltar, a ordem da coluna fica salva em `ordemT` de cada tarefa (0, 1, 2…); tarefas sem `ordemT` (as novas) ficam no topo. Em **Feito** a lista continua por data, então a tarefa entra no topo. Soltar fora das colunas cancela. Nas abas do celular, soltar na aba coloca a tarefa no topo da coluna.

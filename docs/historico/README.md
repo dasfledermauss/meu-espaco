@@ -6,7 +6,9 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.50 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Limpeza: nome Tyba nos docs, avatar neutro, dados pessoais fora de data/. | — |
+| v5.52 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Reordenar tarefas arrastando, com cartões que deslizam. | — |
+| v5.51 | sem captura ainda; registrar aqui antes da próxima mudança visual | Pets: viradas calmas na bolinha e botão Bolinha nos ajustes. | — |
+| v5.50 | sem captura ainda; registrar aqui antes da próxima mudança visual | Limpeza: nome Tyba nos docs, avatar neutro, dados pessoais fora de data/. | — |
 | v5.49 | sem captura ainda; registrar aqui antes da próxima mudança visual | Quadro de tarefas em abas no celular. | — |
 | v5.48 | sem captura ainda; registrar aqui antes da próxima mudança visual | Arrastar tarefa pelo título e suíte de testes em tests/. | — |
 | v5.47 | sem captura ainda; registrar aqui antes da próxima mudança visual | Lápide de exclusão: apagados não voltam da nuvem. | — |

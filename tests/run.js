@@ -11,13 +11,13 @@ const PORTA = 8799, BASE = `http://localhost:${PORTA}/`;
 const versao = () => { const m = require('fs').readFileSync(path.join(RAIZ, 'assets/js/atualizacoes.js'), 'utf8').match(/window\.ATUALIZACOES = \[\s*\{\s*versao:\s*'([^']+)'/); return m[1]; };
 
 const falhas = [];
-const conferir = (ok, msg) => { console.log((ok ? '  ok   ' : '  FALHOU ') + msg); if (!ok) falhas.push(msg); };
+const conferir = (ok, msg) => { if (!ok && /erros/.test(msg) && global.__erros) console.log('   >> ', global.__erros); console.log((ok ? '  ok   ' : '  FALHOU ') + msg); if (!ok) falhas.push(msg); };
 
 async function pagina(browser, { w = 1280, modo = 'claro', ajustar } = {}) {
   const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
   const st = semente(); st.perfil.modo = modo; if (ajustar) ajustar(st);
   await ctx.addInitScript(([s, v]) => { if (!localStorage.getItem('meuEspaco.v1')) localStorage.setItem('meuEspaco.v1', JSON.stringify(s)); localStorage.setItem('meuEspaco.novidades', v); }, [st, versao()]);
-  const p = await ctx.newPage(); p.erros = []; p.on('pageerror', (e) => p.erros.push(e.message));
+  const p = await ctx.newPage(); p.erros = []; p.on('pageerror', (e) => { p.erros.push(e.message); global.__erros = e.message + ' | ' + ((e.stack || '').split('\n')[1] || ''); });
   return { p, ctx };
 }
 const estado = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('meuEspaco.v1')));
@@ -64,6 +64,32 @@ const TESTES = {
     conferir((await estado(p)).perfil.nomeTrabalho === 'Estudo', 'nome do quadro editável e salvo');
     conferir(!p.erros.length, 'sem erros de script'); await ctx.close();
   },
+  async 'reordenar tarefas arrastando: na mesma lista e entre listas, com cartões que deslizam'(b) {
+    const { p, ctx } = await pagina(b, { ajustar: (s) => { s.itens = s.itens.filter((i) => i.tipo !== 'tarefa'); [['A', 'afazer'], ['B', 'afazer'], ['C', 'afazer'], ['X', 'fazendo'], ['Y', 'fazendo']].forEach(([t, e], k) => s.itens.push({ id: 'r' + t, tipo: 'tarefa', titulo: t, etapa: e, concluida: false, colecoes: [], comentarios: [], criadoEm: '2026-11-1' + k + 'T10:00:00.000Z' })); } });
+    await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500); await p.keyboard.press('Shift+Space'); await p.waitForTimeout(250);
+    const ordem = (et) => p.$$eval(`.trab-interno [data-etapa-alvo="${et}"] .tar-cartao`, (c) => c.map((x) => x.textContent.trim().replace(/\s+/g, ' ').slice(0, 1)).join(''));
+    const cartao = (et, n) => p.$(`.trab-interno [data-etapa-alvo="${et}"] .tar-cartao >> nth=${n}`);
+    const inicial = await ordem('afazer'); conferir(inicial.length === 3, `Afazer começa com 3 cartões (${inicial})`);
+    async function arrastar(et, n, destinoEt, destinoN, depois) {
+      const a = await (await cartao(et, n)).boundingBox(), d = await (await cartao(destinoEt, destinoN)).boundingBox();
+      await p.mouse.move(a.x + 90, a.y + 20); await p.mouse.down(); await p.mouse.move(a.x + 100, a.y + 30, { steps: 3 });
+      await p.mouse.move(d.x + 90, d.y + (depois ? d.height - 6 : 6), { steps: 10 }); await p.waitForTimeout(350);
+      const sil = await p.$$eval('.tar-silhueta', (a) => a.length);
+      await p.mouse.up(); await p.waitForTimeout(300); return sil;
+    }
+    const sil1 = await arrastar('afazer', 0, 'afazer', 2, true);
+    conferir(sil1 === 1, 'uma silhueta marca o lugar durante o arrasto');
+    const o1 = await ordem('afazer');
+    conferir(o1.length === 3 && o1[2] === inicial[0] && o1.slice(0, 2) === inicial.slice(1), `mesma lista: primeiro vai para o fim (${inicial} → ${o1})`);
+    const alvoAntes = await ordem('fazendo');
+    await arrastar('afazer', 0, 'fazendo', 1, false);
+    const o2 = await ordem('fazendo'), o3 = await ordem('afazer');
+    conferir(o2.length === 3 && o2[1] === o1[0], `outra lista: entra entre os cartões, na posição do meio (${alvoAntes} → ${o2})`);
+    conferir(o3 === o1.slice(1), `lista de origem perde o cartão (${o3})`);
+    await p.reload(); await p.waitForTimeout(500); await p.keyboard.press('Shift+Space'); await p.waitForTimeout(250);
+    conferir(await ordem('fazendo') === o2, 'a ordem fica salva ao recarregar');
+    conferir(!p.erros.length, 'sem erros de script'); await ctx.close();
+  },
   async 'quadro no celular: abas, uma coluna por vez e arrastar até a aba (390px)'(b) {
     for (const modo of ['claro', 'escuro']) {
       const { p, ctx } = await pagina(b, { w: 390, modo, ajustar: (s) => { s.itens = s.itens.filter((i) => i.tipo !== 'tarefa'); ['afazer', 'afazer', 'fazendo'].forEach((e, k) => s.itens.push({ id: 'tt' + k, tipo: 'tarefa', titulo: 'T' + k, etapa: e, concluida: false, colecoes: [], comentarios: [], criadoEm: '2026-11-15T10:00:00.000Z' })); } });
@@ -85,6 +111,21 @@ const TESTES = {
       const [sw, iw] = await p.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
       conferir(sw <= iw, `${modo}: sem scroll lateral`); conferir(!p.erros.length, `${modo}: sem erros de script`); await ctx.close();
     }
+  },
+  async 'pets: botão Bolinha desliga a brincadeira e dois cães não se cobrem'(b) {
+    const { p, ctx } = await pagina(b, { ajustar: (s) => { s.perfil.pet2 = { tipo: 'frajola', nome: 'Mimi' }; } });
+    await p.goto(BASE + '#/inicio'); await p.waitForTimeout(800);
+    const cena = await p.$('#pet-cena'), r = await cena.boundingBox();
+    await p.click('[data-act="pet-config"]'); await p.waitForTimeout(200);
+    await p.click('[data-act="pet-bolinha"]'); await p.waitForTimeout(200);
+    conferir((await estado(p)).perfil.petSemBola === true, 'botão Bolinha salva o desligado');
+    await p.click('[data-act="pet-config"] >> nth=0').catch(() => {}); await p.waitForTimeout(100);
+    await p.mouse.click(r.x + r.width * .2, r.y + r.height - 14); await p.waitForTimeout(600);
+    conferir(!(await p.$('.pet-bola')), 'com a bolinha desligada, clicar no chão não joga bola');
+    let min = 999;
+    for (let i = 0; i < 20; i++) { await p.waitForTimeout(500); const xs = await p.$$eval('.pet-cao', (a) => a.map((e) => { const q = e.getBoundingClientRect(); return [q.left + q.width / 2, q.width]; })); if (xs.length === 2) min = Math.min(min, Math.abs(xs[0][0] - xs[1][0]) / xs[0][1]); }
+    conferir(min > .7, `cães não ficam um sobre o outro (distância mínima ${min.toFixed(2)} corpos)`);
+    conferir(!p.erros.length, 'sem erros de script'); await ctx.close();
   },
   async 'excluir cria lápide e não volta após recarregar'(b) {
     const { p, ctx } = await pagina(b);

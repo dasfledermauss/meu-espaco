@@ -8,6 +8,16 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.52 — 16/11/2026 · Reordenar tarefas arrastando
+
+- Arraste uma tarefa para qualquer posição, na mesma coluna ou em outra: os cartões deslizam para abrir o espaço onde ela vai entrar, e a ordem fica salva.
+- No celular, arrastar até a aba coloca a tarefa no topo da coluna.
+
+## 5.51 — 16/11/2026 · Pets: bolinha mais calma e com botão para desligar
+
+- Atrás da bolinha, o cachorrinho não vira de um lado a outro sem parar: espera um instante entre uma virada e outra e nunca anda de costas.
+- Nos ajustes do pet há um botão Bolinha para ligar ou desligar a brincadeira.
+
 ## 5.50 — 16/11/2026 · Limpeza: nome Tyba, avatar neutro e dados pessoais fora
 
 - Novos espaços começam com o avatar neutro; a foto do Seu Nome deixou de ser o padrão.

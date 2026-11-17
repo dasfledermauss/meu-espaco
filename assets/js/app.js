@@ -427,7 +427,9 @@
   const abasQuadro = (cont) => `<div class="quadro-abas" role="tablist" aria-label="Situação das tarefas">${Object.entries(ETAPAS).map(([v, n]) =>
     `<button type="button" role="tab" class="quadro-aba ${abaQuadro() === v ? 'ativa' : ''}" aria-selected="${abaQuadro() === v}" data-act="quadro-aba" data-v="${v}" data-aba-alvo="${v}">${n}<em class="pino">${cont[v]}</em></button>`).join('')}</div>`;
   const etapa = (i) => i.concluida ? 'feito' : (i.etapa === 'fazendo' ? 'fazendo' : 'afazer');
-  const tarefas = () => doTipo('tarefa');
+  /* Ordem manual das tarefas (arrastar no quadro): `ordemT` crescente; tarefas ainda sem ordem ficam no topo (as mais novas primeiro, como antes). */
+  const porOrdemT = (a, b) => (a.ordemT === undefined) === (b.ordemT === undefined) ? (a.ordemT === undefined ? 0 : a.ordemT - b.ordemT) : (a.ordemT === undefined ? -1 : 1);
+  const tarefas = () => doTipo('tarefa').slice().sort(porOrdemT);
   const tarefasAbertas = () => tarefas().filter((i) => !i.concluida);
   const atrasada = (i) => !i.concluida && i.prazo && i.prazo < hoje();
   const nomeTipo = (i) => i.tipo === 'midia' ? (i.formato === 'filme' ? 'Filme' : 'Livro') : TIPOS[i.tipo][0];
@@ -1382,6 +1384,13 @@
     salvar(); render();
     toast(i.concluida ? 'Feito: ' + corta(i.titulo, 40) : 'Tarefa reaberta.', i.concluida ? 'check-circle-solid' : 'list');
   }
+  /** Solta uma tarefa numa coluna, numa posição: `ids` é a ordem final dos cartões dessa coluna. */
+  function moverTarefa(id, nova, ids) {
+    const i = item(id); if (!i) return;
+    if (etapa(i) !== nova) { i.etapa = nova; i.concluida = nova === 'feito'; i.editadoEm = agora(); if (i.concluida) concluirLembreteDe(i); }
+    if (nova !== 'feito' && ids) ids.forEach((tid, k) => { const t = item(tid); if (t) t.ordemT = k; });
+    salvar(); render();
+  }
   function mudarEtapa(id, nova) {
     const i = item(id); if (!i) return;
     i.etapa = nova; i.concluida = nova === 'feito'; i.editadoEm = agora();
@@ -1537,6 +1546,7 @@
             <span class="pet-mini" style="width:${d.CW}px;height:${d.CH}px;background-image:url('${d.arq}');background-size:${d.CW * 4}px ${d.CH * 4}px"></span><span>${d.nome}</span></button>`).join('')}</div></div>`; }).join('')}
         <div class="pet-extras">
           <button type="button" class="pet-linha" data-act="pet-som" aria-pressed="${som}">Som: <b>${som ? 'ligado' : 'desligado'}</b></button>
+          <button type="button" class="pet-linha" data-act="pet-bolinha" aria-pressed="${!S.perfil.petSemBola}">Bolinha: <b>${S.perfil.petSemBola ? 'desligada' : 'ligada'}</b></button>
           <button type="button" class="pet-linha" data-act="pet-papo" aria-pressed="${!S.perfil.petCala}">Conversa: <b>${S.perfil.petCala ? 'desligada' : 'ligada'}</b></button>
           <button type="button" class="pet-linha" data-act="pet-alternar" title="Para voltar, use Configurações">Esconder</button></div></div></div>
       <p class="pet-dica ${PET.interagiu || S.perfil.petDicaVista ? 'some' : ''}">Clique no chão para jogar a bolinha, na casinha para mudar a cor e na plaquinha para dar um nome</p></section>`;
@@ -1787,8 +1797,10 @@
       // cada cão corre na sua velocidade (e muda um pouco a cada bolinha); o mais lento fica um corpo atrás
       if (!PET.vBola) PET.vBola = (PET.k ? 105 : 175) * (.85 + Math.random() * .3);
       const atras = PET.k ? Math.sign(dx || PET.dir) * larg * .85 : 0, mdx = dx - atras;
-      if (Math.abs(mdx) > 14 || (Math.abs(mdx) > 4 && Math.sign(mdx) === PET.dir)) { PET.dir = Math.sign(mdx); PET.x += Math.sign(mdx) * Math.min(Math.abs(mdx), PET.vBola * dt); }  // sempre de frente para onde corre; perto da bola não dá passinhos para trás
-      else if (Math.abs(dx) > 24) PET.dir = Math.sign(dx);                // parado: olha para a bolinha, sem ficar virando
+      PET.viraT = Math.max(0, (PET.viraT || 0) - dt);   // depois de virar, espera um pouco antes de virar de novo (a bolinha cruza de um lado a outro)
+      const vira = (d) => { if (d !== PET.dir && PET.viraT <= 0) { PET.dir = d; PET.viraT = .6; } };
+      if ((Math.abs(mdx) > 14 && (Math.sign(mdx) === PET.dir || PET.viraT <= 0)) || (Math.abs(mdx) > 4 && Math.sign(mdx) === PET.dir)) { vira(Math.sign(mdx)); PET.x += Math.sign(mdx) * Math.min(Math.abs(mdx), PET.vBola * dt); }  // sempre de frente para onde corre; perto da bola não dá passinhos para trás
+      else if (Math.abs(dx) > larg * .8) vira(Math.sign(dx));              // parado: olha para a bolinha só se ela estiver longe, sem ficar virando
       if (Math.abs(dx) < larg * .45 && b.cd <= 0 && b.chutes < 6) {
         // chuta para o lado de lá (ou para o outro, se a parede estiver perto)
         let lado = Math.sign(dx) || PET.dir; if ((lado > 0 && L - b.x < 110) || (lado < 0 && b.x < 110)) lado = -lado;
@@ -1879,6 +1891,7 @@
     // o corpo do bichinho não pega clique (para não tapar a casinha, a plaquinha e as vasilhas): o latido é achado pela posição
     const toque = PETS.slice(0, petSlots().length).find((d) => { const el = cena.querySelector(`.pet-cao[data-k="${d.k}"]`); if (!el) return false; const r = el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
     if (toque) return petLatir(toque);
+    if (S.perfil.petSemBola) return;   // bolinha desligada nos ajustes do pet
     petBolaEm(e.clientX - cena.getBoundingClientRect().left, cena);
   });
   Object.values(PET_TIPOS).forEach((d) => { const folha = new Image(); folha.src = d.arq; });
@@ -3514,9 +3527,10 @@
         if (k) S.perfil.pet2 = Object.assign({}, S.perfil.pet2, { casa: prox }); else S.perfil.petCasa = prox;
         salvar(); b.style.cssText = petCasaVars(prox); b.classList.remove('troca'); void b.offsetWidth; b.classList.add('troca'); PET.interagiu = true; return;
       }
+      case 'pet-bolinha': { e.preventDefault(); S.perfil.petSemBola = !S.perfil.petSemBola; if (S.perfil.petSemBola) { if (PET.bola && PET.bola.el) PET.bola.el.remove(); PET.bola = null; PETS.forEach((c) => { if (c.fila === 'brincar') c.fila = ''; c.vBola = 0; if (c.estado === 'brincando') { c.estado = 'parado'; c.espera = 3; } }); } salvar(); UI.pularColheita = true; render(); return; }
       case 'pet-papo': e.preventDefault(); S.perfil.petCala = !S.perfil.petCala; salvar(); UI.pularColheita = true; render(); if (!S.perfil.petCala) petFalar('Oba, vamos conversar!', 2); return;
       case 'pet-encher': e.preventDefault(); petEncher(b.dataset.pote); return;
-      case 'pet-brincar': e.preventDefault(); PET.interagiu = true; if (!PET.bola) PETS.forEach((c) => { c.fila = 'brincar'; }); petFalar('Bolinha!', 1); return;
+      case 'pet-brincar': e.preventDefault(); if (S.perfil.petSemBola) return; PET.interagiu = true; if (!PET.bola) PETS.forEach((c) => { c.fila = 'brincar'; }); petFalar('Bolinha!', 1); return;
       case 'pet-banho': e.preventDefault(); PET.interagiu = true; PETS.forEach((c) => { c.fila = 'banho'; c.visita = null; }); if (PET.bola) { if (PET.bola.el) PET.bola.el.remove(); PET.bola = null; } PET = PETS[0]; petFalar('Banho!', 1); return;
       case 'pet-nome': e.preventDefault(); return abrirModal({ tipo: 'pet-nome', k: +b.dataset.k || 0 });
       case 'clima-local': e.preventDefault(); UI.climaMsg = ''; return abrirModal({ tipo: 'clima-local' });
@@ -4456,18 +4470,35 @@
       const col = [...document.querySelectorAll('.quadro-col[data-etapa-alvo]')].find((c) => { const r = c.getBoundingClientRect(); return r.width > 0 && x >= r.left - 6 && x <= r.right + 6; });
       return col ? { etapa: col.dataset.etapaAlvo, col } : null;
     };
+    const reduz = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /** Faz `mudanca()` e, em seguida, desliza os cartões das colunas da posição antiga para a nova (técnica FLIP). */
+    function deslizar(mudanca) {
+      const els = [...document.querySelectorAll('.quadro-col > .tar-cartao, .quadro-col > .tar-silhueta')].filter((e) => e !== s.it);
+      const antes = new Map(els.map((e) => [e, e.getBoundingClientRect().top]));
+      mudanca();
+      if (reduz()) return;
+      els.forEach((e) => {
+        const d = antes.get(e) - e.getBoundingClientRect().top;
+        if (!d) return;
+        e.style.transition = 'none'; e.style.transform = `translateY(${d}px)`;
+        requestAnimationFrame(() => { e.style.transition = 'transform .2s ease-out'; e.style.transform = ''; setTimeout(() => { e.style.transition = ''; }, 230); });
+      });
+    }
     function iniciar() {
       if (!s || s.ativo) return;
       s.ativo = true; UI.arrastando = true; clearTimeout(s.timer);
       const r = s.it.getBoundingClientRect();
       s.dx = s.x - r.left; s.dy = s.y - r.top; s.tilt = 0; s.pxAnt = s.x; s.altura = r.height;
       if (innerWidth <= 640) { s.dx = r.width / 2; s.dy = r.height + 18; }   // no celular o cartão fica acima do dedo, para o destino (as abas) continuar à vista
-      s.origem = (s.it.closest('[data-etapa-alvo]') || {dataset: {}}).dataset.etapaAlvo;
+      s.origem = (s.it.closest('[data-etapa-alvo]') || { dataset: {} }).dataset.etapaAlvo;
       const f = s.it.cloneNode(true);
       f.removeAttribute('data-tarefa'); f.classList.add('fantasma');
       f.style.cssText = `width:${r.width}px;height:${r.height}px;transform:translate(${r.left}px,${r.top}px)`;
       document.body.appendChild(f); s.f = f;
-      s.it.classList.add('vaga'); document.body.classList.add('arrastando-ord');
+      // a silhueta ocupa o lugar do cartão (que some da lista): é ela que anda entre os outros cartões
+      const sil = document.createElement('div'); sil.className = 'tar-silhueta'; sil.style.height = s.altura + 'px';
+      s.it.before(sil); s.it.style.display = 'none'; s.sil = sil;
+      document.body.classList.add('arrastando-ord');
       const volta = () => { if (!s || !s.ativo) return; quadro(); s.raf = requestAnimationFrame(volta); };
       s.raf = requestAnimationFrame(volta);
     }
@@ -4478,27 +4509,39 @@
       const alvo = colunaSob(s.x, s.y);
       document.querySelectorAll('.quadro-aba.alvo-aba').forEach((x) => { if (!alvo || x !== alvo.aba) x.classList.remove('alvo-aba'); });
       if (alvo && alvo.aba && alvo.etapa !== s.origem) alvo.aba.classList.add('alvo-aba');
-      // só uma silhueta do espaço que o cartão ocuparia, no fim da coluna sob o ponteiro
-      const c = alvo && alvo.col, mesma = !c || alvo.etapa === s.origem;
-      let sil = document.querySelector('.tar-silhueta');
-      if (mesma) { if (sil) sil.remove(); return; }
-      if (!sil) { sil = document.createElement('div'); sil.className = 'tar-silhueta'; sil.style.height = s.altura + 'px'; }
-      if (sil.parentElement !== c) c.appendChild(sil);
+      const c = alvo && alvo.col;
+      if (!c) return;   // fora das colunas (ou numa aba): a silhueta fica onde está
+      // posição: antes do primeiro cartão cujo meio está abaixo do ponteiro (em "Feito" a lista é por data, então entra no topo).
+      // Usa a posição de layout (offsetTop), não a visual, para os cartões em deslize não causarem vai e vem.
+      const cartoes = [...c.children].filter((e) => e.classList.contains('tar-cartao') && e !== s.it);
+      const yCol = s.y - c.getBoundingClientRect().top + c.offsetTop;
+      const ref = c.dataset.etapaAlvo === 'feito' ? (cartoes[0] || null) : (cartoes.find((e) => yCol < e.offsetTop + e.offsetHeight / 2) || null);
+      const prox = ref || null, ja = s.sil.parentElement === c && (prox ? s.sil.nextElementSibling === prox : !cartoes.some((e) => e.compareDocumentPosition(s.sil) & Node.DOCUMENT_POSITION_PRECEDING));
+      if (!ja) deslizar(() => c.insertBefore(s.sil, prox));
     }
     function encerrar(cancelar) {
       if (!s) return;
       const e = s; s = null; clearTimeout(e.timer); cancelAnimationFrame(e.raf);
       if (!e.ativo) return;
       UI.arrastando = false; document.body.classList.remove('arrastando-ord');
-      const c = cancelar ? null : colunaSob(e.x, e.y);
-      document.querySelectorAll('.tar-silhueta').forEach((x) => x.remove());
+      const alvo = cancelar ? null : colunaSob(e.x, e.y);
       document.querySelectorAll('.alvo-aba').forEach((x) => x.classList.remove('alvo-aba'));
       suprimir = true; setTimeout(() => { suprimir = false; }, 60);
-      const i = item(e.it.dataset.tarefa);
-      if (c && i && etapa(i) !== c.etapa) { e.f.remove(); UI.pularColheita = true; mudarEtapa(i.id, c.etapa); return; }
+      const id = e.it.dataset.tarefa;
+      if (alvo) {
+        // ordem final = a dos cartões da coluna, com a silhueta no lugar do cartão solto (numa aba, ele entra no topo)
+        const col = alvo.col || document.querySelector(`.quadro-col[data-etapa-alvo="${alvo.etapa}"]`);
+        const ids = alvo.col && e.sil.parentElement === col
+          ? [...col.children].map((el) => (el === e.sil ? id : (el.classList.contains('tar-cartao') && el !== e.it ? el.dataset.tarefa : null))).filter(Boolean)
+          : [id, ...[...col.children].filter((el) => el.classList.contains('tar-cartao') && el !== e.it).map((el) => el.dataset.tarefa)];
+        e.f.remove(); e.sil.remove(); e.it.style.display = '';
+        UI.pularColheita = true; UI.renderPendente = false; moverTarefa(id, alvo.etapa, ids); return;
+      }
+      // cancelado ou solto fora: o cartão volta ao lugar de origem
+      e.sil.remove(); e.it.style.display = '';
       const r = e.it.getBoundingClientRect();
       e.f.style.transition = 'transform .18s ease-out'; e.f.style.transform = `translate(${r.left}px, ${r.top}px) rotate(0deg)`;
-      setTimeout(() => { e.f.remove(); e.it.classList.remove('vaga'); }, 190);
+      setTimeout(() => { e.f.remove(); }, 190);
       if (UI.renderPendente) { UI.pularColheita = true; render(); }
       UI.renderPendente = false;
     }

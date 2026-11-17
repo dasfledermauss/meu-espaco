@@ -51,3 +51,5 @@ Com dois cães, o de trás (o segundo) se afasta devagar quando para ou senta a 
 Ao ir ao mesmo potinho ou à mesma bolinha, o primeiro cão chega na frente e o segundo para um corpo atrás (ou corre atrás da bola nessa distância).
 
 **Direção (v5.44).** O cão sempre olha para onde anda (nada de andar de costas nem virar de um lado a outro). Parado ou sentado, fica de frente para o outro cão. Na brincadeira da bolinha cada um corre na sua velocidade (o primeiro mais rápido, o segundo mais lento, com variação a cada bola) e o mais lento fica um corpo atrás.
+
+**Bolinha (v5.51).** Depois de virar, o cão espera 0,6s antes de virar de novo e, se a bola estiver do outro lado nesse intervalo, fica parado em vez de andar de costas. Parado, só olha para a bola se ela estiver a mais de 0,8 corpo. Nos ajustes do pet, o botão **Bolinha** liga/desliga a brincadeira (`perfil.petSemBola`): desligada, clicar no chão não joga bola e a bola em campo some.

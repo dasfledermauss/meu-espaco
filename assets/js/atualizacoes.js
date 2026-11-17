@@ -10,6 +10,24 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.52',
+    data: '2026-11-16',
+    titulo: 'Reordenar tarefas arrastando',
+    itens: [
+      'Arraste uma tarefa para qualquer posição, na mesma coluna ou em outra: os cartões deslizam para abrir o espaço onde ela vai entrar, e a ordem fica salva.',
+      'No celular, arrastar até a aba coloca a tarefa no topo da coluna.'
+    ]
+  },
+  {
+    versao: '5.51',
+    data: '2026-11-16',
+    titulo: 'Pets: bolinha mais calma e com botão para desligar',
+    itens: [
+      'Atrás da bolinha, o cachorrinho não vira de um lado a outro sem parar: espera um instante entre uma virada e outra e nunca anda de costas.',
+      'Nos ajustes do pet há um botão Bolinha para ligar ou desligar a brincadeira.'
+    ]
+  },
+  {
     versao: '5.50',
     data: '2026-11-16',
     titulo: 'Limpeza: nome Tyba, avatar neutro e dados pessoais fora',
