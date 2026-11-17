@@ -8,7 +8,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.78 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: envio com 30 s e sem duplicar. | — |
+| v5.79 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: envio pela API REST do Firestore. | — |
+| v5.78 | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: envio com 30 s e sem duplicar. | — |
 | v5.77 | sem captura ainda; registrar aqui antes da próxima mudança visual | Firestore com cache em memória (sem disputa entre janelas). | — |
 | v5.76 | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: estados de registrando/falha e Procurando. | — |
 | v5.75 | sem captura ainda; registrar aqui antes da próxima mudança visual | Firestore com detecção automática de long polling. | — |

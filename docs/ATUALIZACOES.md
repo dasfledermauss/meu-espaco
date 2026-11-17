@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.79 — 17/11/2026 · Correios: envio direto pela API do Firebase
+
+- Enviar a carta usa a API REST do Firestore (PATCH com o token do login), não mais a fila de escrita do SDK. Erros aparecem com o código HTTP e a mensagem do Firebase.
+
 ## 5.78 — 17/11/2026 · Correios: envio com mais tempo e sem duplicar
 
 - O envio espera até 30 s e mostra o motivo se falhar. Reenviar o mesmo item para a mesma pessoa reaproveita o id da carta, então não duplica se a primeira tentativa tiver chegado.

@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.79',
+    data: '2026-11-17',
+    titulo: 'Correios: envio direto pela API do Firebase',
+    itens: ['O envio da carta agora é uma chamada direta à API do Firebase, que responde na hora e mostra o erro exato se algo falhar (em vez de ficar esperando na fila do SDK).']
+  },
+  {
     versao: '5.78',
     data: '2026-11-17',
     titulo: 'Correios: envio com mais tempo e sem duplicar',

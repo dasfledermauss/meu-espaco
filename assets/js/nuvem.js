@@ -122,6 +122,16 @@ window.Nuvem = (function () {
   /* ---------- Correios: enviar itens para outra pessoa ---------- */
   /** Não deixa uma chamada ao Firestore ficar pendurada para sempre (sem rede, ou esperando a resposta do servidor). */
   const comTempo = (p, ms = 10000) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('tempo-esgotado')), ms))]);
+  /** Converte um objeto JS para o formato de valores da API REST do Firestore. */
+  function paraFirestore(v) {
+    if (v === null || v === undefined) return { nullValue: null };
+    if (typeof v === 'boolean') return { booleanValue: v };
+    if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+    if (typeof v === 'string') return { stringValue: v };
+    if (Array.isArray(v)) return { arrayValue: v.length ? { values: v.map(paraFirestore) } : {} };
+    const campos = {}; Object.keys(v).forEach((k) => { if (v[k] !== undefined) campos[k] = paraFirestore(v[k]); });
+    return { mapValue: { fields: campos } };
+  }
   const correios = {
     disponivel: () => !!(uid && sdk && bd),
     /** Guarda o código de amigo desta conta (só o primeiro nome). Falha se o código já for de outra pessoa ou se as regras não permitirem. */
@@ -135,9 +145,21 @@ window.Nuvem = (function () {
       const d = await comTempo(sdk.loja.getDoc(sdk.loja.doc(bd, 'codigos', codigo)));
       return d.exists() ? { uid: d.data().uid, nome: d.data().nome || '' } : null;
     },
+    /** Envia pela API REST do Firestore (uma chamada HTTPS comum), que responde na hora com o erro exato em vez de ficar esperando na fila do SDK. */
     async enviar(destino, carta) {
       if (!correios.disponivel()) throw new Error('sem conexão com a nuvem');
-      await comTempo(sdk.loja.setDoc(sdk.loja.doc(bd, 'correios', destino, 'cartas', carta.id), Object.assign({}, carta, { de: uid })), 30000);
+      const token = await comTempo(auth.currentUser.getIdToken(), 15000);
+      const url = 'https://firestore.googleapis.com/v1/projects/' + encodeURIComponent(cfg().projectId) + '/databases/(default)/documents/correios/' + encodeURIComponent(destino) + '/cartas/' + encodeURIComponent(carta.id);
+      const corpo = paraFirestore(Object.assign({}, carta, { de: uid })).mapValue;
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 30000);
+      let r;
+      try { r = await fetch(url, { method: 'PATCH', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(corpo), signal: ctl.signal }); }
+      catch (e) { throw Object.assign(new Error(e && e.name === 'AbortError' ? 'tempo-esgotado' : 'sem-rede'), { code: e && e.name === 'AbortError' ? 'tempo-esgotado' : 'sem-rede' }); }
+      finally { clearTimeout(t); }
+      if (!r.ok) {
+        let msg = ''; try { msg = ((await r.json()).error || {}).message || ''; } catch (e) { /* sem corpo */ }
+        throw Object.assign(new Error('http-' + r.status + (msg ? ': ' + msg : '')), { code: 'http-' + r.status });
+      }
     },
     /** Avisa com a lista inteira da caixa de entrada sempre que algo chega ou sai. Devolve a função que para de ouvir. */
     ouvir(aoMudar) {
@@ -151,5 +173,5 @@ window.Nuvem = (function () {
   };
 
   return { configurado, iniciar, entrarComGoogle, sair, baixarTudo, enviar, ouvir, pararDeOuvir, avisar,
-    correios, aoEvento: (f) => ouvintes.push(f), get uid() { return uid; } };
+    correios, _paraFirestore: paraFirestore, aoEvento: (f) => ouvintes.push(f), get uid() { return uid; } };
 })();
