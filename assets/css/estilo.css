@@ -482,12 +482,12 @@ button.mini-item:hover { background: var(--hover-2); }
 .quadro-col { display: flex; flex-direction: column; gap: 12px; }
 .quadro-col > h2 { font-size: 13px; font-weight: 600; color: var(--tinta-2); display: flex; align-items: center; gap: 8px; padding: 0 6px; }
 .lembrete { background: var(--cartao); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-.lembrete.vence { background: var(--marca-leve); }
+.lembrete.vence { background: var(--marca-leve); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--marca) 45%, transparent); }
 .lembrete p { font-size: 14.5px; font-weight: 500; }
 .lembrete .pe { display: flex; align-items: center; gap: 3px; }
 .lembrete .pe .espaco { flex: 1; }
 .lembrete.feito p { text-decoration: line-through; color: var(--tinta-3); font-weight: 400; }
-.faixa-lembrete { background: var(--marca-leve); border-radius: var(--r-g); padding: 18px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.faixa-lembrete { background: var(--marca-leve); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--marca) 45%, transparent); border-radius: var(--r-g); padding: 18px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .faixa-lembrete > div { flex: 1 1 240px; }
 .faixa-lembrete strong { font-weight: 600; }
 .faixa-lembrete > svg { color: var(--marca-escura); flex: none; }

@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.65 — 17/11/2026 · Contorno nos lembretes vencidos
+
+- O cartão de lembrete vencido e a faixa do Início ganharam um contorno de 1 px na cor principal (45% de opacidade), feito com sombra interna para não mudar o tamanho da caixa.
+
 ## 5.64 — 17/11/2026 · Lembretes na cor principal
 
 - Lembrete vencido (cartão e faixa do Início), etiqueta e barrinha de lembrete na Agenda, ponto da lista do Início e contador da coluna Vencidos usam a cor principal (`--marca`) em vez do amarelo. Contraste medido em teste: 15:1 (claro) e 12:1 (escuro) nos blocos claros; 5,5:1 na etiqueta sólida da Agenda. O amarelo continua só para tarefas atrasadas.

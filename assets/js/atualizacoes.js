@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.65',
+    data: '2026-11-17',
+    titulo: 'Contorno nos lembretes vencidos',
+    itens: ['O cartão de lembrete vencido e a faixa do Início ganharam um contorno fino na cor principal.']
+  },
+  {
     versao: '5.64',
     data: '2026-11-17',
     titulo: 'Lembretes na cor principal',
