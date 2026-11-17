@@ -7,6 +7,7 @@ Um pet em pixel art no alto do Início, acima de "O que você quer guardar?".
 - **Parado:** quadros de respiração; de tempos em tempos senta e volta a ficar de pé.
 - **Clique nele:** late (balão "AU! AU!", pulinho e som sintetizado, sem arquivo de áudio).
 - **Clique no chão:** joga a bolinha ali (cai do alto); ele corre atrás e chuta de um lado para o outro.
+- **Código:** vive em `assets/js/pet.js` (fábrica `window.TybaPet(ctx)`, carregada antes do `app.js`); o `app.js` só a liga ao estado e às utilidades.
 - **Pets:** salsicha, pinscher, frajola, shollie, schnauzer e jack russell, escolhidos no botão **Pets** do cenário (popup com um card por pet). Cada um tem folha própria, tamanho de célula e voz (`PET_TIPOS`).
 - **Dois pets:** o popup tem “Pet 1” (`perfil.petTipo`) e “Pet 2” (`perfil.pet2.tipo`, ou Nenhum). Cada pet tem a sua casinha, plaquinha com nome e cor. Os dois brincam com a bolinha, comem, tomam banho e fazem cocô; quem fala é sorteado entre os dois. A bolinha, as vasilhas e a conversa são da cena toda.
 - **Casinha:** clique nela para trocar a cor (6 opções em `PET_CASAS`): `perfil.petCasa` e `perfil.pet2.casa`.

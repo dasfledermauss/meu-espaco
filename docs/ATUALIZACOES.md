@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.55 — 16/11/2026 · Bastidores: pet em arquivo próprio
+
+- O código do pet saiu do arquivo principal para `assets/js/pet.js`. Nada muda na tela.
+
 ## 5.54 — 16/11/2026 · Jack Russell do tamanho dos outros
 
 - O Jack Russell agora tem o mesmo tamanho do Schnauzer.

@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.55',
+    data: '2026-11-16',
+    titulo: 'Bastidores: pet em arquivo próprio',
+    itens: ['O código do pet saiu do arquivo principal para assets/js/pet.js. Nada muda na tela.']
+  },
+  {
     versao: '5.54',
     data: '2026-11-16',
     titulo: 'Jack Russell do tamanho dos outros',
