@@ -137,7 +137,7 @@ window.Nuvem = (function () {
     },
     async enviar(destino, carta) {
       if (!correios.disponivel()) throw new Error('sem conexão com a nuvem');
-      await comTempo(sdk.loja.setDoc(sdk.loja.doc(bd, 'correios', destino, 'cartas', carta.id), Object.assign({}, carta, { de: uid })));
+      await comTempo(sdk.loja.setDoc(sdk.loja.doc(bd, 'correios', destino, 'cartas', carta.id), Object.assign({}, carta, { de: uid })), 30000);
     },
     /** Avisa com a lista inteira da caixa de entrada sempre que algo chega ou sai. Devolve a função que para de ouvir. */
     ouvir(aoMudar) {

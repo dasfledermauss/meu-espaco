@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.78',
+    data: '2026-11-17',
+    titulo: 'Correios: envio com mais tempo e sem duplicar',
+    itens: ['O envio espera até 30 segundos pela resposta do Firebase e, se falhar, o aviso mostra o motivo. Tentar de novo o mesmo envio não cria carta duplicada.']
+  },
+  {
     versao: '5.77',
     data: '2026-11-17',
     titulo: 'Correios: escrita não fica mais presa entre janelas',

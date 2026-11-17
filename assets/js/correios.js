@@ -104,6 +104,7 @@ window.TybaCorreios = function (ctx) {
     if (c.tipo === 'midia') c.status = 'quero';
     return c;
   }
+  const idsDeEnvio = {};   // o mesmo item para a mesma pessoa reaproveita o id da carta: se a primeira tentativa chegou apesar do tempo esgotado, o reenvio sobrescreve em vez de duplicar
   const tamanho = (o) => new Blob([JSON.stringify(o)]).size;
 
   /** Manda os itens `ids` para a pessoa `destino` (uid). Uma carta por item. Devolve quantas seguiram. */
@@ -113,10 +114,11 @@ window.TybaCorreios = function (ctx) {
     let n = 0, grandes = 0;
     for (const id of ids) {
       const i = item(id); if (!podeEnviar(i)) continue;
-      const carta = { id: uid('car'), de: uidProprio, deNome: String(u.nome || 'Alguém').split(' ')[0], bilhete: String(bilhete || '').trim().slice(0, 280), enviadoEm: agora(), item: empacotar(i) };
+      const chave = id + '>' + destino; idsDeEnvio[chave] = idsDeEnvio[chave] || uid('car');
+      const carta = { id: idsDeEnvio[chave], de: uidProprio, deNome: String(u.nome || 'Alguém').split(' ')[0], bilhete: String(bilhete || '').trim().slice(0, 280), enviadoEm: agora(), item: empacotar(i) };
       if (tamanho(carta) > LIMITE_BYTES) { grandes++; continue; }
-      try { await a.enviar(destino, carta); n++; }
-      catch (e) { toast('Não consegui enviar agora. Tente de novo em instantes.'); return n; }
+      try { await a.enviar(destino, carta); n++; delete idsDeEnvio[chave]; }
+      catch (e) { toast('Não consegui enviar (' + String((e && (e.code || e.message)) || e).slice(0, 60) + '). Pode tentar de novo.'); return n; }
     }
     if (grandes) toast(grandes + (grandes === 1 ? ' item é grande demais para enviar.' : ' itens são grandes demais para enviar.'));
     return n;

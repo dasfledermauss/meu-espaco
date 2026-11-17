@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.78 — 17/11/2026 · Correios: envio com mais tempo e sem duplicar
+
+- O envio espera até 30 s e mostra o motivo se falhar. Reenviar o mesmo item para a mesma pessoa reaproveita o id da carta, então não duplica se a primeira tentativa tiver chegado.
+
 ## 5.77 — 17/11/2026 · Correios: escrita não fica mais presa entre janelas
 
 - O Firestore passa a usar cache só em memória (antes: em disco, compartilhado entre abas). Com o app instalado e o navegador abertos juntos, a escrita podia ficar esperando a outra janela ("tempo-esgotado"). Os dados continuam no navegador e são reenviados pelo ciclo de sincronização.
