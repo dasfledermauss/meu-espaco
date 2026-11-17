@@ -37,14 +37,14 @@ window.TybaCorreios = function (ctx) {
     const u = conta() || {};
     uidProprio = (window.Nuvem && window.Nuvem.uid) || uidProprio;
     const nome = String(u.nome || u.email || 'Alguém').split(' ')[0];
-    const tentativas = meuCodigo() ? 1 : 5;   // código novo pode colidir com o de outra conta: sorteia outro
+    const tentativas = meuCodigo() ? 1 : 3;   // código novo pode colidir com o de outra conta: sorteia outro
     for (let k = 0; k < tentativas; k++) {
       const codigo = meuCodigo() || novoCodigo();
       try {
         await a.registrar(nome, codigo);
         if (!meuCodigo()) { S.perfil.codigoAmigo = codigo; salvar(); }
         registrado = true; falha = false; motivo = ''; return true;
-      } catch (e) { motivo = String((e && (e.code || e.message)) || e); }
+      } catch (e) { motivo = String((e && (e.code || e.message)) || e); if (motivo !== 'permission-denied') break; }   // só sorteia outro código se foi recusado (código de outra conta); sem rede ou tempo esgotado, tentar de novo não adianta
     }
     registrado = false; falha = true; return false;
   }
@@ -66,6 +66,7 @@ window.TybaCorreios = function (ctx) {
   }
   async function adicionarAmigo(texto) {
     const a = API(); if (!a || !a.disponivel()) return toast('Entre com a conta Google para usar o Correios.');
+    toast('Procurando…', 'refresh');
     const codigo = normalizar(texto);
     if (codigo.length !== 6) return toast('O código tem 6 letras e números, como ABC-123.');
     if (codigo === meuCodigo()) return toast('Esse é o seu próprio código.');
@@ -163,14 +164,14 @@ window.TybaCorreios = function (ctx) {
     const lista = amigos();
     return `<section class="cartao amigos-cartao" aria-label="Amigos do Correios">
       <h2 class="amigos-tit">${ic('user-circle')}Amigos</h2>
-      <p class="meta">Seu código: <strong class="codigo-amigo">${meuCodigo() ? esc(mostrarCodigo(meuCodigo())) : '…'}</strong> ${meuCodigo() ? btn('correios-copiar', ic('copy') + 'Copiar', '', 'btn-f btn-p') : ''}</p>
+      <p class="meta">Seu código: <strong class="codigo-amigo">${meuCodigo() ? esc(mostrarCodigo(meuCodigo())) : (falha ? 'não registrado' : 'registrando…')}</strong> ${meuCodigo() ? btn('correios-copiar', ic('copy') + 'Copiar', '', 'btn-f btn-p') : ''}</p>
       <p class="meta">Passe seu código para quem quer te mandar coisas. Para mandar para alguém, coloque o código dessa pessoa aqui:</p>
       <form class="amigo-form" data-form="correios-amigo"><input name="codigo" type="text" required maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Código do amigo (ABC-123)" aria-label="Código do amigo"><button class="btn-1" type="submit">${ic('plus')}Adicionar</button></form>
       ${lista.length ? `<ul class="lista-amigos">${lista.map((x) => `<li><span>${esc(x.nome)}</span>${ctx.btnIco('amigo-remover', 'xmark', 'Remover ' + x.nome, `data-uid="${esc(x.uid)}"`)}</li>`).join('')}</ul>` : '<p class="meta">Nenhum amigo ainda.</p>'}</section>`;
   }
   function renderCorreios() {
     const on = disponivel();
-    if (on && !registrado && !UI.correiosRegistrando) { UI.correiosRegistrando = true; registrarMe().then(() => { UI.correiosRegistrando = false; if ((location.hash || '').startsWith('#/correios')) { UI.pularColheita = true; render(); } }); }
+    if (on && !registrado && !UI.correiosRegistrando) { falha = false; UI.correiosRegistrando = true; registrarMe().then(() => { UI.correiosRegistrando = false; if ((location.hash || '').startsWith('#/correios')) { UI.pularColheita = true; render(); } }); }
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('mail')}Correios</h1></header>
       <p class="meta" style="margin:-6px 0 14px">Itens que amigos mandaram para você. Para mandar um, abra o menu ⋯ do item e escolha “Enviar pelo Correios”.</p>
       ${on && falha ? '<p class="dica" style="margin-bottom:14px">' + ic('priority-high') + '<span>Não consegui registrar seu código no Firebase. Recarregue a página; se continuar, as regras do Firebase não foram publicadas (veja docs/CORREIOS.md).' + (motivo ? '<br><span class="suave">Motivo: ' + esc(motivo) + '</span>' : '') + '</span></p>' : ''}

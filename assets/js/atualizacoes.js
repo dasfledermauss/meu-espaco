@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.76',
+    data: '2026-11-17',
+    titulo: 'Correios com feedback em cada etapa',
+    itens: ['Na página Correios, o código mostra "registrando…" enquanto espera e "não registrado" se falhar, junto com o motivo. Ao adicionar um amigo aparece "Procurando…". Sem rede, o app desiste em 10 segundos em vez de 50.']
+  },
+  {
     versao: '5.75',
     data: '2026-11-17',
     titulo: 'Conexão com o Firebase mais resistente',

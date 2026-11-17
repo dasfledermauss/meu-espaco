@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.76 — 17/11/2026 · Correios com feedback em cada etapa
+
+- O código mostra "registrando…" ou "não registrado" (com o motivo); "Procurando…" ao adicionar amigo; só tenta outro código quando o Firebase recusa, não quando falta rede.
+
 ## 5.75 — 17/11/2026 · Conexão com o Firebase mais resistente
 
 - O Firestore passa a detectar bloqueio do canal de tempo real (rede, extensão, proxy) e usa long polling. Corrige escritas penduradas ("tempo esgotado" no Correios).
