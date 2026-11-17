@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.60',
+    data: '2026-11-16',
+    titulo: 'Preço da Amazon sem a vírgula errada',
+    itens: ['Livros da Amazon apareciam com o preço cem vezes maior (R$ 20,60 virava R$ 2.060,00). O Tyba agora lê o preço certo da página. Para corrigir os que já estão guardados, use o recapturar de cada um.']
+  },
+  {
     versao: '5.59',
     data: '2026-11-16',
     titulo: 'Fim do loop na captura de links que falham',

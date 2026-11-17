@@ -192,6 +192,11 @@ const TESTES = {
     conferir(chamadas <= 1, `não repetiu a captura que falhou (${chamadas} chamadas em 5 s)`);
     await ctx.close();
   },
+  async 'servidor: preço da Amazon (partes separadas e centavos)'() {
+    const r = require('child_process').spawnSync('python3', [path.join(__dirname, 'servidor_teste.py')], { encoding: 'utf8' });
+    (r.stdout || '').split('\n').filter(Boolean).forEach((l) => console.log(l));
+    conferir(r.status === 0, 'casos de preço da Amazon' + (r.status ? ': ' + (r.stderr || '').split('\n').filter(Boolean).pop() : ''));
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);

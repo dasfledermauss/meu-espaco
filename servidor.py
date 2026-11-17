@@ -341,13 +341,17 @@ def amazon(pagina, r):
             m = re.search(r'id="landingImage"[^>]*\ssrc="([^"]+)"', pagina)
             if m:
                 r["imagem"] = m.group(1)
+    if r["preco"] is None:  # inteiro e centavos em partes separadas: "20" + "60" = 20,60
+        m = re.search(r'class="a-price-whole">\s*([\d.]+)(?:<[^>]*>[^<]*){0,4}?<span class="a-price-fraction">\s*(\d{1,2})\s*<', pagina)
+        if m:
+            r["preco"] = numero(m.group(1).replace(".", "") + "." + m.group(2).ljust(2, "0"))
     if r["preco"] is None:
         for padrao in (r'id="corePrice[^"]*"[\s\S]{0,800}?class="a-offscreen">\s*([^<]+)<',
                        r'class="a-price[^"]*"[^>]*>\s*<span class="a-offscreen">\s*([^<]+)<',
                        r'id="priceblock_[^"]*"[^>]*>\s*([^<]+)<'):
             m = re.search(padrao, pagina)
             if m:
-                r["preco"] = numero(m.group(1))
+                r["preco"] = numero(html.unescape(m.group(1)))
                 break
     if r["estrelas"] is None:
         m = re.search(r'([\d.,]+)\s*(?:de|out of)\s*5\s*(?:estrelas|stars)', pagina)
@@ -500,7 +504,10 @@ def extrair(pagina, url):
         r["preco"] = numero(m.get("product:price:amount") or m.get("og:price:amount") or m.get("price"))
     r["moeda"] = r["moeda"] or m.get("product:price:currency") or m.get("og:price:currency") or m.get("pricecurrency")
     if r["preco"] is None:  # últimos recursos para páginas sem dados estruturados
-        for padrao in (r'"priceAmount"\s*:\s*"?([\d.,]+)', r'class="a-offscreen"[^>]*>\s*R\$\s*([\d.,]+)', r'itemprop="price"[^>]*content="([\d.,]+)"', r'"price"\s*:\s*"?(\d[\d.,]*)'):
+        padroes = (r'"priceAmount"\s*:\s*"?([\d.,]+)', r'class="a-offscreen"[^>]*>\s*R\$\s*([\d.,]+)', r'itemprop="price"[^>]*content="([\d.,]+)"', r'"price"\s*:\s*"?(\d[\d.,]*)')
+        if "amazon." in (urlparse(url).hostname or ""):
+            padroes = padroes[1:3]  # os "price" em JSON da Amazon vêm em centavos (2060 = R$ 20,60)
+        for padrao in padroes:
             achou = re.search(padrao, pagina)
             if achou:
                 r["preco"] = numero(achou.group(1))

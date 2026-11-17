@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.60 — 16/11/2026 · Preço da Amazon sem a vírgula errada
+
+- Livros da Amazon apareciam com o preço cem vezes maior (R$ 20,60 virava R$ 2.060,00): na falta de outro dado, a captura pegava um valor em centavos do JSON da página. Agora lê inteiro e centavos do bloco de preço e ignora o JSON em centavos na Amazon. Desejos já guardados com o valor errado se corrigem ao recapturar.
+
 ## 5.59 — 16/11/2026 · Fim do loop na captura de links que falham
 
 - Quando uma loja bloqueia a captura (como a Centauro), o desejo fica marcado como falho e o Tyba só tenta de novo depois de 12 horas, em vez de repetir sem parar. O botão de recapturar continua funcionando na hora. Antes, o item que falhava nunca ganhava data de captura e a conferência da Wishlist o pegava a cada redesenho da tela (12 tentativas em 5 s no teste).
