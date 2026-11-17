@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.61',
+    data: '2026-11-16',
+    titulo: 'Repositório sem dados pessoais',
+    itens: ['Foto, links pessoais, capturas de tela e e-mail foram apagados do código e de todo o histórico do Git. O app continua igual; seus dados ficam só no seu navegador e na sua conta.']
+  },
+  {
     versao: '5.60',
     data: '2026-11-16',
     titulo: 'Preço da Amazon sem a vírgula errada',

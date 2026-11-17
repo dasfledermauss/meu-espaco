@@ -15,7 +15,6 @@ Construa uma versão navegável do **Tyba**, meu portal pessoal privado. Quero a
 | `docs/DIRECAO_VISUAL_MVP.md` | Direção visual vigente. Use a organização funcional das telas anteriores com a aparência de portal retrô deste documento. |
 | `data/curriculo.json` | Modelo em branco do currículo (só a estrutura), para o importador. Inspecione as chaves, níveis, textos, datas e listas presentes. |
 | `data/links-exemplo.json` | Exemplo neutro do formato de importação de links (listas com cartões). Os links pessoais do Seu Nome saíram do repositório; use o seu próprio arquivo neste formato. |
-| `assets/img/foto-perfil.jpg` | Foto do perfil do Seu Nome, só para quem já a tem salva. Novos espaços começam com o avatar neutro (ícone de pessoa). |
 
 Preserve os arquivos de entrada. O formato v1 descrito no escopo orienta a exportação; o adaptador de entrada deve aceitar também a estrutura encontrada nos exemplos. Preserve títulos, descrições, ordem, precisão das datas e campos adicionais. Represente informações ausentes como opcionais. Quando um item de exemplo vier sem data de postagem, mostre-o na coleção como importado. Se aparecer no feed, indique a data de importação.
 

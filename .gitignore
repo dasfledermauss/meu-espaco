@@ -12,3 +12,9 @@ Thumbs.db
 node_modules/
 .vercel/
 config.local.json
+
+# capturas de histórico ficam só no computador (podem mostrar dados pessoais)
+docs/historico/*/*.png
+data/links-*.json
+!data/links-exemplo.json
+assets/img/foto-perfil.*

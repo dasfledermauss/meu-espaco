@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.61 — 16/11/2026 · Repositório sem dados pessoais
+
+- Foto de perfil, currículo e links pessoais antigos, capturas de tela do histórico e e-mail foram apagados do código **e de todo o histórico do Git** (que foi reescrito). Nomes de pessoas nos exemplos de teste foram trocados por genéricos. O `.gitignore` agora barra `data/links-*.json` (menos o exemplo), `foto-perfil.*` e as capturas de `docs/historico`.
+- O app não muda: os dados ficam no navegador e na conta do usuário.
+
 ## 5.60 — 16/11/2026 · Preço da Amazon sem a vírgula errada
 
 - Livros da Amazon apareciam com o preço cem vezes maior (R$ 20,60 virava R$ 2.060,00): na falta de outro dado, a captura pegava um valor em centavos do JSON da página. Agora lê inteiro e centavos do bloco de preço e ignora o JSON em centavos na Amazon. Desejos já guardados com o valor errado se corrigem ao recapturar.

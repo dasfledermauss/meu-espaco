@@ -41,8 +41,7 @@ meu-espaco/
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)
 │   ├── js/atualizacoes.js  lista do popup "O que há de novo"
 │   ├── fonts/              Lexend
-│   ├── vendor/             pdf.js (leitor de PDF)
-│   └── img/foto-perfil.jpg
+│   └── vendor/             pdf.js (leitor de PDF)
 ├── data/                   currículo e links de exemplo
 └── docs/
     ├── ESCOPO.md  OUTRAS_FEATURES.md  DIRECAO_VISUAL_MVP.md

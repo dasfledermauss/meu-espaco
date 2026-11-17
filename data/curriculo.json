@@ -1,0 +1,52 @@
+{
+  "nome": "",
+  "titulo_profissional": "",
+  "contato": {
+    "email": "",
+    "telefone": "",
+    "portfolio": "",
+    "linkedin": ""
+  },
+  "sobre": "",
+  "projeto_em_desenvolvimento": {
+    "titulo": "",
+    "url": ""
+  },
+  "experiencia": [
+    {
+      "titulo": "",
+      "organizacao": "",
+      "periodo": {
+        "texto": "",
+        "inicio": "",
+        "fim": null,
+        "em_andamento": false
+      },
+      "atividades": [
+        ""
+      ],
+      "portfolio": ""
+    }
+  ],
+  "habilidades": [
+    {
+      "titulo": "",
+      "itens": [
+        ""
+      ]
+    }
+  ],
+  "formacao": [
+    {
+      "titulo": "",
+      "instituicao": "",
+      "ano": ""
+    }
+  ],
+  "idiomas": [
+    {
+      "idioma": "",
+      "nivel": ""
+    }
+  ]
+}

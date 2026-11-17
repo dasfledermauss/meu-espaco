@@ -1,12 +1,15 @@
 # Histórico visual do Meu Espaço
 
+> **Capturas fora do Git (v5.61).** As imagens das pastas abaixo foram apagadas do repositório e do histórico por conterem dados pessoais. As pastas continuam como índice de versões. Capturas novas ficam só no seu computador: `docs/historico/*/*.png` está no `.gitignore`.
+
 **Regra:** antes de qualquer mudança de layout ou de módulo, capturar a versão atual do **Início** e de **Coleções** (desktop 1280 px e celular 390 px) e salvar aqui numa pasta `AAAA-MM-DD_vN-descricao/`. As capturas usam os dados de exemplo, sem edições pessoais. Desde a v3 as coleções vivem dentro de **Links**, então é essa a tela guardada como `colecoes-*.png`.
 
 | Versão | Pasta | O que era | Por que mudou |
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.60 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Preço da Amazon lido certo (sem centavos virando reais). | — |
+| v5.61 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Repositório sem dados pessoais (histórico reescrito). | — |
+| v5.60 | sem captura ainda; registrar aqui antes da próxima mudança visual | Preço da Amazon lido certo (sem centavos virando reais). | — |
 | v5.59 | sem captura ainda; registrar aqui antes da próxima mudança visual | Captura que falha não repete em loop; arrastar movido para assets/js/arrastar.js. | — |
 | v5.58 | sem captura ainda; registrar aqui antes da próxima mudança visual | Conta Google e sincronização movidas para assets/js/conta.js (sem mudança visual). | — |
 | v5.57 | sem captura ainda; registrar aqui antes da próxima mudança visual | Músicas e mini player movidos para assets/js/musica.js (sem mudança visual). | — |
