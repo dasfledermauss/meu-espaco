@@ -30,7 +30,9 @@ meu-espaco/
 ├── firestore.rules         regras de acesso do banco (publicar no Firebase)
 ├── assets/
 │   ├── css/estilo.css      visual (v3)
-│   ├── js/app.js           lógica e telas
+│   ├── js/app.js           lógica e telas (núcleo)
+│   ├── js/pet.js           módulo do pet (ver docs/ARQUITETURA.md)
+│   ├── js/curriculo.js     módulo do currículo
 │   ├── js/config.js        ID do cliente Google e projeto Firebase (públicos)
 │   ├── js/nuvem.js         sincronização com o Firestore
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)

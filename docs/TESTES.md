@@ -7,6 +7,7 @@ O que cobre hoje:
 - sem scroll lateral em 390px em todas as páginas, no claro e no escuro, e sem erros de script;
 - onboarding: abre em espaço novo, tem 7 passos e salva a cor Personalizada;
 - quadro de tarefas (Meu Espaço): arrastar pelo título até uma coluna vazia, botão de mover e nome editável;
+- currículo: a tela abre e importar um JSON mostra a revisão, sem erros de script;
 - excluir cria a lápide e o item não volta ao recarregar;
 - wishlist em lote (um link por linha, repetido pulado);
 - menu em gaveta e dia do calendário em folha de baixo no celular;

@@ -23,7 +23,7 @@ module.exports = function semente() {
       { id: 'l1', texto: 'Mandar a proposta do cliente', data: dia(0), hora: '18:00', concluido: false, criadoEm: t(8) },
       { id: 'l2', texto: 'Renovar o domínio', data: dia(4), hora: '', concluido: false, criadoEm: t(40) }
     ],
-    curriculo: { perfil: {}, extras: {} },
+    curriculo: { perfil: {}, extras: {}, experiencias: [], formacao: [], cursos: [], habilidades: [], idiomas: [] },
     destinoPadrao: '',
     baseEm: t(1)
   };

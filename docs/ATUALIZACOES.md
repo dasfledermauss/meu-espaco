@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.56 — 16/11/2026 · Bastidores: currículo em arquivo próprio
+
+- O código do currículo (importação e tela) saiu do arquivo principal para `assets/js/curriculo.js`. Nada muda na tela. A arquitetura está em `docs/ARQUITETURA.md`.
+
 ## 5.55 — 16/11/2026 · Bastidores: pet em arquivo próprio
 
 - O código do pet saiu do arquivo principal para `assets/js/pet.js`. Nada muda na tela.

@@ -159,6 +159,17 @@ const TESTES = {
     await p.click('.ag-painel .ag-sheet-cab .ico-btn'); await p.waitForTimeout(350);
     conferir(await p.$eval('.ag-painel', (e) => getComputedStyle(e).visibility) === 'hidden', 'botão fecha a folha'); await ctx.close();
   },
+  async 'currículo: tela abre e importar JSON mostra a revisão'(b) {
+    const { p, ctx } = await pagina(b);
+    const erros = []; p.on('pageerror', (e) => erros.push(e.message));
+    await p.goto(BASE + '#/curriculo'); await p.waitForTimeout(500);
+    conferir((await p.textContent('#conteudo')).includes('Meu currículo'), 'tela do currículo abre');
+    const json = JSON.stringify({ perfil: { nome: 'Teste CV' }, experiencias: [{ cargo: 'Designer', organizacao: 'Tyba', inicio: '2020-01' }] });
+    await p.setInputFiles('#arquivo-cv', { name: 'cv.json', mimeType: 'application/json', buffer: Buffer.from(json) }); await p.waitForTimeout(600);
+    const t = await p.textContent('#conteudo');
+    conferir(/Designer/.test(t), 'revisão da importação lista a experiência');
+    conferir(!erros.length, 'sem erros de script' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);
