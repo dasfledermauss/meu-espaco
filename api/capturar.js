@@ -145,12 +145,16 @@ function amazon(pagina, r) {
     }
     if (!r.imagem) { m = pagina.match(/id="landingImage"[^>]*\ssrc="([^"]+)"/); if (m) r.imagem = m[1]; }
   }
+  if (r.preco === null) { // inteiro e centavos em partes separadas: "20" + "60" = 20,60
+    const m = pagina.match(/class="a-price-whole">\s*([\d.]+)(?:<[^>]*>[^<]*){0,4}?<span class="a-price-fraction">\s*(\d{1,2})\s*</);
+    if (m) r.preco = numero(m[1].replace(/\./g, '') + '.' + m[2].padEnd(2, '0'));
+  }
   if (r.preco === null) {
     for (const p of [/id="corePrice[^"]*"[\s\S]{0,800}?class="a-offscreen">\s*([^<]+)</,
       /class="a-price[^"]*"[^>]*>\s*<span class="a-offscreen">\s*([^<]+)</,
       /id="priceblock_[^"]*"[^>]*>\s*([^<]+)</]) {
       const m = pagina.match(p);
-      if (m) { r.preco = numero(m[1]); break; }
+      if (m) { r.preco = numero(desescapar(m[1])); break; }
     }
   }
   if (r.estrelas === null) {
@@ -189,7 +193,7 @@ function proximoSalto(pagina, url) {
   return null;
 }
 
-function extrair(pagina, url) {
+export function extrair(pagina, url) {
   const m = metas(pagina);
   const r = { nome: null, descricao: null, imagem: null, favicon: null, preco: null, moeda: null, estrelas: null, avaliacoes: null, loja: null };
   const produto = jsonLd(pagina).find((d) => ehTipo(d, 'Product'));
@@ -222,7 +226,9 @@ function extrair(pagina, url) {
   if (r.preco === null) r.preco = numero(m['product:price:amount'] || m['og:price:amount'] || m.price);
   r.moeda = r.moeda || m['product:price:currency'] || m['og:price:currency'] || m.pricecurrency || null;
   if (r.preco === null) {
-    for (const p of [/"priceAmount"\s*:\s*"?([\d.,]+)/, /class="a-offscreen"[^>]*>\s*R\$\s*([\d.,]+)/, /itemprop="price"[^>]*content="([\d.,]+)"/, /"price"\s*:\s*"?(\d[\d.,]*)/]) {
+    let padroes = [/"priceAmount"\s*:\s*"?([\d.,]+)/, /class="a-offscreen"[^>]*>\s*R\$\s*([\d.,]+)/, /itemprop="price"[^>]*content="([\d.,]+)"/, /"price"\s*:\s*"?(\d[\d.,]*)/];
+    if (new URL(url).hostname.includes('amazon.')) padroes = padroes.slice(1, 3); // os "price" em JSON da Amazon vêm em centavos (2060 = R$ 20,60)
+    for (const p of padroes) {
       const a = pagina.match(p);
       if (a) { r.preco = numero(a[1]); break; }
     }

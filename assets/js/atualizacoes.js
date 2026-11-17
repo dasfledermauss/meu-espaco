@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.63',
+    data: '2026-11-16',
+    titulo: 'Preço da Amazon corrigido também no site publicado',
+    itens: ['A correção do preço (R$ 20,60 virando R$ 2.060,00) só valia para o servidor do computador. Agora vale também para o capturador do site na Vercel. Recapture os livros que ficaram com preço errado.']
+  },
+  {
     versao: '5.62',
     data: '2026-11-16',
     titulo: 'Bastidores: tempo, captura e novidades em arquivos próprios',

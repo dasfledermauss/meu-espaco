@@ -206,6 +206,11 @@ const TESTES = {
     conferir((await p.textContent('body')).includes('versão ' + ver), `popup de novidades mostra a versão ${ver}`);
     conferir(!erros.length, 'sem erros de script' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
   },
+  async 'capturador da Vercel (api/capturar.js): preço da Amazon'() {
+    const r = require('child_process').spawnSync('node', [path.join(__dirname, 'capturar_js_teste.mjs')], { encoding: 'utf8' });
+    (r.stdout || '').split('\n').filter(Boolean).forEach((l) => console.log(l));
+    conferir(r.status === 0, 'casos de preço da Amazon no api/capturar.js' + (r.status ? ': ' + (r.stderr || '').split('\n').filter(Boolean).slice(-1)[0] : ''));
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);

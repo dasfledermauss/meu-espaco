@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.63 — 16/11/2026 · Preço da Amazon corrigido também no site publicado
+
+- A correção da v5.60 estava só no `servidor.py` (computador). O site publicado usa `api/capturar.js` (Vercel), que tinha o mesmo defeito. Agora os dois leem inteiro e centavos do bloco de preço e ignoram o JSON em centavos na Amazon. Teste novo: `tests/capturar_js_teste.mjs`.
+
 ## 5.62 — 16/11/2026 · Bastidores: tempo, captura e novidades em arquivos próprios
 
 - Previsão do tempo (`clima.js`), captura de links e produtos (`captura.js`) e popup de novidades (`novidades.js`) saíram do `app.js`, que passou de ~4900 para ~3400 linhas. Nada muda na tela. Fecha o plano de divisão (ver `docs/ARQUITETURA.md`).

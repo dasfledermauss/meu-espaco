@@ -12,6 +12,7 @@ O que cobre hoje:
 - wishlist: captura que falha não é repetida em loop (servidor simulado devolvendo erro);
 - servidor: preço da Amazon em partes (`tests/servidor_teste.py`, sem rede);
 - Início: cartão da previsão do tempo e popup de novidades com a versão do topo;
+- capturador da Vercel (`tests/capturar_js_teste.mjs`): mesmos casos de preço da Amazon;
 - excluir cria a lápide e o item não volta ao recarregar;
 - wishlist em lote (um link por linha, repetido pulado);
 - menu em gaveta e dia do calendário em folha de baixo no celular;
