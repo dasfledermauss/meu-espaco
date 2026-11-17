@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.62',
+    data: '2026-11-16',
+    titulo: 'Bastidores: tempo, captura e novidades em arquivos próprios',
+    itens: ['Previsão do tempo, captura de links e popup de novidades saíram do arquivo principal. O app.js ficou com cerca de 3400 linhas (eram 4900). Nada muda na tela.']
+  },
+  {
     versao: '5.61',
     data: '2026-11-16',
     titulo: 'Repositório sem dados pessoais',

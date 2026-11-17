@@ -11,6 +11,7 @@ O que cobre hoje:
 - músicas: a lista abre e tocar mostra o mini player (erros do iframe do YouTube são ignorados);
 - wishlist: captura que falha não é repetida em loop (servidor simulado devolvendo erro);
 - servidor: preço da Amazon em partes (`tests/servidor_teste.py`, sem rede);
+- Início: cartão da previsão do tempo e popup de novidades com a versão do topo;
 - excluir cria a lápide e o item não volta ao recarregar;
 - wishlist em lote (um link por linha, repetido pulado);
 - menu em gaveta e dia do calendário em folha de baixo no celular;

@@ -36,6 +36,9 @@ meu-espaco/
 │   ├── js/musica.js        módulo das músicas e do mini player
 │   ├── js/conta.js         módulo da conta Google e do ciclo de sincronização
 │   ├── js/arrastar.js      módulo de arrastar e reordenar
+│   ├── js/clima.js         previsão do tempo
+│   ├── js/captura.js       captura de links e produtos
+│   ├── js/novidades.js     popup de novidades
 │   ├── js/config.js        ID do cliente Google e projeto Firebase (públicos)
 │   ├── js/nuvem.js         sincronização com o Firestore
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)

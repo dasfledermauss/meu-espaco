@@ -13,10 +13,10 @@ const versao = () => { const m = require('fs').readFileSync(path.join(RAIZ, 'ass
 const falhas = [];
 const conferir = (ok, msg) => { if (!ok && /erros/.test(msg) && global.__erros) console.log('   >> ', global.__erros); console.log((ok ? '  ok   ' : '  FALHOU ') + msg); if (!ok) falhas.push(msg); };
 
-async function pagina(browser, { w = 1280, modo = 'claro', ajustar } = {}) {
+async function pagina(browser, { w = 1280, modo = 'claro', ajustar, novidades = true } = {}) {
   const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
   const st = semente(); st.perfil.modo = modo; if (ajustar) ajustar(st);
-  await ctx.addInitScript(([s, v]) => { if (!localStorage.getItem('meuEspaco.v1')) localStorage.setItem('meuEspaco.v1', JSON.stringify(s)); localStorage.setItem('meuEspaco.novidades', v); }, [st, versao()]);
+  await ctx.addInitScript(([s, v, nov]) => { if (!localStorage.getItem('meuEspaco.v1')) localStorage.setItem('meuEspaco.v1', JSON.stringify(s)); if (nov) localStorage.setItem('meuEspaco.novidades', v); }, [st, versao(), novidades]);
   const p = await ctx.newPage(); p.erros = []; p.on('pageerror', (e) => { p.erros.push(e.message); global.__erros = e.message + ' | ' + ((e.stack || '').split('\n')[1] || ''); });
   return { p, ctx };
 }
@@ -196,6 +196,15 @@ const TESTES = {
     const r = require('child_process').spawnSync('python3', [path.join(__dirname, 'servidor_teste.py')], { encoding: 'utf8' });
     (r.stdout || '').split('\n').filter(Boolean).forEach((l) => console.log(l));
     conferir(r.status === 0, 'casos de preço da Amazon' + (r.status ? ': ' + (r.stderr || '').split('\n').filter(Boolean).pop() : ''));
+  },
+  async 'início: previsão do tempo e popup de novidades'(b) {
+    const { p, ctx } = await pagina(b, { novidades: false });
+    const erros = []; p.on('pageerror', (e) => erros.push(e.message));
+    await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);
+    conferir(/Previsão do tempo/.test(await p.textContent('body')), 'cartão da previsão do tempo aparece');
+    const ver = versao();
+    conferir((await p.textContent('body')).includes('versão ' + ver), `popup de novidades mostra a versão ${ver}`);
+    conferir(!erros.length, 'sem erros de script' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
   },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });

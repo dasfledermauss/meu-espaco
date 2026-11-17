@@ -1111,42 +1111,10 @@
     marcarOnboardingVisto(); marcarNovidadesVistas(); UI.onb = null; UI.colPadrao = null; UI.modal = null; UI.pularColheita = true; render();
   }
 
-  /* ---------------- novidades ----------------
-     A lista vem de assets/js/atualizacoes.js, da mais nova para a mais antiga.
-     O popup abre sozinho quando a versão do topo ainda não foi vista aqui. */
-  const listaNovidades = () => (Array.isArray(window.ATUALIZACOES) ? window.ATUALIZACOES : []);
-  const versaoNova = () => (listaNovidades()[0] || {}).versao || '';
-  const versaoVista = () => { try { return localStorage.getItem(CHAVE_NOVID) || ''; } catch (e) { return versaoNova(); } };
-  const temNovidade = () => !!versaoNova() && versaoVista() !== versaoNova();
-  function marcarNovidadesVistas() { try { localStorage.setItem(CHAVE_NOVID, versaoNova()); } catch (e) { /* ignora */ } }
-  function novidadesHTML() {
-    const lista = listaNovidades();
-    if (!lista.length) return '<p class="meta">Nada por aqui ainda.</p>';
-    // uma página por dia, da mais nova para a mais antiga
-    const dias = [];
-    lista.forEach((a) => {
-      const d = dias.find((x) => x.data === a.data);
-      (d ? d.itens : (dias.push({ data: a.data, itens: [] }), dias[dias.length - 1].itens)).push(a);
-    });
-    const vista = versaoVista();
-    let n = UI.novidPagina;
-    if (n === undefined || n < 0 || n >= dias.length) {
-      n = dias.findIndex((d) => d.itens.some((a) => !vista || a.versao > vista));
-      if (n < 0) n = 0;
-    }
-    const pag = dias[n];
-    const bloco = (a) => `<section class="novid">
-      <h3>${esc(a.titulo)}<small>versão ${esc(a.versao)}</small></h3>
-      <ul>${(a.itens || []).map((t) => `<li>${esc(t)}</li>`).join('')}</ul></section>`;
-    return `<div class="novid-dia"><span>${ic('calendar')}${esc(fmtDia(pag.data))}</span>
-        <span class="meta">${n + 1} de ${dias.length}</span></div>
-      ${pag.itens.map(bloco).join('')}
-      ${dias.length > 1 ? `<div class="novid-pag">
-        ${btn('novid-ir', ic('nav-arrow-left') + 'Mais novo', `data-n="${n - 1}" ${n === 0 ? 'disabled' : ''}`, 'btn-f btn-p')}
-        <span class="espaco"></span>
-        ${btn('novid-ir', 'Mais antigo' + ic('nav-arrow-right'), `data-n="${n + 1}" ${n === dias.length - 1 ? 'disabled' : ''}`, 'btn-f btn-p')}</div>` : ''}`;
-  }
-
+  /* ---------------- popup de novidades (O que há de novo) ----------------
+     Mora em assets/js/novidades.js. Aqui só o ligamos ao estado e às utilidades do app. */
+  const NOVIM = window.TybaNovidades({ S: () => S, UI, CHAVE_NOVID, esc: (...a) => esc(...a), fmtDia: (...a) => fmtDia(...a), ic: (...a) => ic(...a), btn: (...a) => btn(...a), quando: (...a) => quando(...a) });
+  const { versaoNova, temNovidade, marcarNovidadesVistas, novidadesHTML } = NOVIM;
   /* ---------------- posts ---------------- */
   function acoesPost(i, opts = {}) {
     const b = [btnAlterna('fav', i.id, i.favorito, 'star', 'Favorito', 'Favoritar', 'estrela')];
@@ -1538,67 +1506,9 @@
       <ul>${l.map(([k, t, f, a]) => `<li><button type="button" class="${f() ? 'feito' : ''}" ${a}>${ic(f() ? 'check-circle-solid' : 'check-circle')}<span>${t}</span></button></li>`).join('')}</ul></section>`;
   }
   /* ---------------- previsão do tempo ----------------
-     Open-Meteo (sem chave, sem cadastro). A cidade fica em perfil.clima; a última resposta é guardada
-     por 30 minutos no navegador para não consultar a cada tela. Sem internet, mostra a última guardada. */
-  const CLIMA_CHAVE = 'meuEspaco.clima', CLIMA_VALE = 30 * 60e3;
-  const CLIMA_COD = (c) => c === 0 ? ['Céu limpo', 'sol'] : c <= 2 ? ['Poucas nuvens', 'solnuvem'] : c === 3 ? ['Nublado', 'nuvem'] : c <= 48 ? ['Neblina', 'nevoa']
-    : c <= 57 ? ['Garoa', 'chuva'] : c <= 67 ? ['Chuva', 'chuva'] : c <= 77 ? ['Neve', 'neve'] : c <= 82 ? ['Pancadas de chuva', 'chuva'] : c <= 86 ? ['Neve', 'neve'] : ['Tempestade', 'raio'];
-  const CLIMA_SVG = {
-    sol: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/>',
-    solnuvem: '<circle cx="9" cy="8.5" r="3"/><path d="M9 2.5v1.2M3 8.5h1.2M4.8 4.3l.9.9M13.2 4.3l-.9.9"/><path d="M8 20h9a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.4 1.3A3 3 0 0 0 8 20Z"/>',
-    nuvem: '<path d="M7 19h10.5a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.3 3.3 0 0 0 7 19Z"/>',
-    nevoa: '<path d="M4 9h16M3 13h18M6 17h12"/>',
-    chuva: '<path d="M7 15h10.5a3.8 3.8 0 0 0 .5-7.6 6 6 0 0 0-11.3 1.5A3.2 3.2 0 0 0 7 15Z"/><path d="M8.5 18l-1 2.5M12.5 18l-1 2.5M16.5 18l-1 2.5"/>',
-    neve: '<path d="M7 14h10.5a3.8 3.8 0 0 0 .5-7.6A6 6 0 0 0 6.700 7.900 3.200 3.200 0 0 0 7 14Z"/><path d="M8.500 18h.01M12 20h.01M15.500 18h.01"/>',
-    raio: '<path d="M7 14h10.5a3.8 3.8 0 0 0 .5-7.6A6 6 0 0 0 6.700 7.900 3.200 3.200 0 0 0 7 14Z"/><path d="M12.500 14l-2.500 4h3.500l-2 3.500"/>'
-  };
-  const climaIco = (k, cls = '') => `<svg class="clima-ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CLIMA_SVG[k] || CLIMA_SVG.nuvem}</svg>`;
-  const graus = (n) => Math.round(n) + '°';
-  const climaGuardado = () => { try { return JSON.parse(localStorage.getItem(CLIMA_CHAVE) || 'null'); } catch (e) { return null; } };
-  function climaDados() {
-    const l = S.perfil.clima; if (!l) return null;
-    const g = UI.clima || climaGuardado();
-    return g && g.lat === l.lat && g.lon === l.lon ? g : null;
-  }
-  async function carregarClima(forcar) {
-    const l = S.perfil.clima; if (!l || UI.climaCarregando) return;
-    const g = climaDados(); if (!forcar && g && Date.now() - g.em < CLIMA_VALE) { UI.clima = g; return; }
-    UI.climaCarregando = true; UI.climaErro = false; climaAtualizar();
-    try {
-      const u = `https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=6`;
-      const r = await fetch(u); if (!r.ok) throw new Error(r.status);
-      const j = await r.json();
-      UI.clima = { lat: l.lat, lon: l.lon, em: Date.now(), atual: j.current, dia: j.daily };
-      try { localStorage.setItem(CLIMA_CHAVE, JSON.stringify(UI.clima)); } catch (e) { /* sem espaço: segue sem guardar */ }
-    } catch (e) { UI.climaErro = true; }
-    UI.climaCarregando = false; climaAtualizar();
-  }
-  const climaAtualizar = () => { const el = document.getElementById('clima-card'); if (el) el.outerHTML = climaHTML(true); };
-  function climaHTML(semBusca) {
-    const l = S.perfil.clima;
-    if (!l) return `<section class="cartao clima clima-vazio" id="clima-card">${climaIco('solnuvem')}<div><strong>Previsão do tempo</strong><p class="meta">Escolha a sua cidade para ver o tempo de hoje e dos próximos dias.</p></div>${btn('clima-local', 'Escolher cidade', '', 'btn-1')}</section>`;
-    const g = climaDados();
-    if (!semBusca && (!g || Date.now() - g.em >= CLIMA_VALE)) setTimeout(() => carregarClima(false), 0);
-    const cab = `<div class="clima-cab"><span class="clima-cidade">${ic('pin')}${esc(l.nome)}</span><span class="clima-acoes">${btnIco('clima-atualizar', 'refresh', 'Atualizar')}${btnIco('clima-local', 'edit-pencil', 'Trocar a cidade')}</span></div>`;
-    if (!g) return `<section class="cartao clima" id="clima-card" aria-busy="true">${cab}<p class="meta">${UI.climaErro ? 'Não deu para buscar a previsão agora. Tente atualizar.' : 'Buscando a previsão…'}</p></section>`;
-    const a = g.atual, d = g.dia, [txt, ico] = CLIMA_COD(a.weather_code), chuva = d.precipitation_probability_max[0] || 0;
-    const dias = d.time.slice(1, 6).map((t, k) => { const x = new Date(t + 'T12:00'); return `<li><span>${x.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}</span>${climaIco(CLIMA_COD(d.weather_code[k + 1])[1])}<b>${graus(d.temperature_2m_max[k + 1])}</b><span class="min">${graus(d.temperature_2m_min[k + 1])}</span></li>`; }).join('');
-    const dica = chuva >= 50 ? 'Leve guarda-chuva.' : a.temperature_2m >= 32 ? 'Dia quente: água por perto.' : a.temperature_2m <= 14 ? 'Frio: leve um casaco.' : '';
-    const aberto = !!UI.climaAberto;
-    const fatos = `<ul class="clima-fatos"><li><span>Máx / mín</span><b>${graus(d.temperature_2m_max[0])} / ${graus(d.temperature_2m_min[0])}</b></li><li><span>Sensação</span><b>${graus(a.apparent_temperature)}</b></li><li><span>Chuva</span><b>${chuva}%</b></li><li><span>Vento</span><b>${Math.round(a.wind_speed_10m)} km/h</b></li></ul>`;
-    return `<section class="cartao clima ${aberto ? 'aberto' : ''}" id="clima-card" aria-label="Previsão do tempo em ${esc(l.nome)}">${cab}
-      <div class="clima-corpo" data-act="clima-alternar" role="button" tabindex="0" aria-expanded="${aberto}" title="${aberto ? 'Recolher' : 'Ver mais'}">
-        <div class="clima-agora">${climaIco(ico, 'grande')}<div><p class="clima-temp">${graus(a.temperature_2m)}</p><p class="clima-txt">${txt}</p></div>
-          <span class="clima-mm">${graus(d.temperature_2m_max[0])} / ${graus(d.temperature_2m_min[0])}</span><span class="clima-seta">${ic('nav-arrow-down')}</span></div>
-        ${aberto ? `${fatos}<ul class="clima-dias">${dias}</ul>${dica ? `<p class="clima-dica">${dica}</p>` : ''}` : ''}</div></section>`;
-  }
-  async function climaBuscar(cidade) {
-    const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=pt&name=' + encodeURIComponent(cidade));
-    const j = await r.json(); const x = (j.results || [])[0]; if (!x) return null;
-    return { nome: [x.name, x.admin1].filter(Boolean).join(', '), lat: +x.latitude.toFixed(3), lon: +x.longitude.toFixed(3) };
-  }
-  function climaDefinir(l) { S.perfil.clima = l; UI.clima = null; salvar(); UI.modal = null; render(); carregarClima(true); }
-
+     Mora em assets/js/clima.js. Aqui só o ligamos ao estado e às utilidades do app. */
+  const CLIMM = window.TybaClima({ S: () => S, UI, main, esc: (...a) => esc(...a), hoje: (...a) => hoje(...a), agora: (...a) => agora(...a), ic: (...a) => ic(...a), btnIco: (...a) => btnIco(...a), btn: (...a) => btn(...a), salvar: (...a) => salvar(...a), cartao: (...a) => cartao(...a), vazio: (...a) => vazio(...a), txt: (...a) => txt(...a), render: (...a) => render(...a), limpo: (...a) => limpo(...a) });
+  const { climaDados, carregarClima, climaHTML, climaBuscar, climaDefinir } = CLIMM;
   const renderInicio = () => { main.innerHTML = faixaLembrete() + petHTML() + compositor() + primeirosPassosHTML() + `<div class="feed">${conteudoFeed()}</div>`; };
 
   /* ---------------- Mural ---------------- */
@@ -2334,46 +2244,10 @@
     }
   }
 
-  /* ---------------- captura (links, produtos) ---------------- */
-  async function capturar(i, silencioso) {
-    if (!UI.servidor) {
-      i.capturaStatus = 'pendente'; salvar(); render();
-      if (!silencioso) toast(i.tipo === 'desejo' ? 'Link salvo. A captura precisa do servidor ligado.' : 'Link salvo sem prévia: a captura precisa do servidor.');
-      return;
-    }
-    i.capturaStatus = 'capturando'; render();
-    try {
-      const r = await fetch('api/capturar?url=' + encodeURIComponent(i.url));
-      const j = await r.json();
-      if (!r.ok || j.erro) throw new Error(j.erro || 'falha');
-      if (j.nome && !i.tituloManual) i.titulo = j.nome;
-      if (j.descricao && !i.descricao) i.descricao = j.descricao;
-      if (j.imagem && !i.imagemManual) i.imagem = j.imagem;
-      if (j.favicon) i.favicon = j.favicon;
-      if (j.loja) i.loja = j.loja;
-      if (j.estrelas != null) i.estrelas = j.estrelas;
-      if (j.avaliacoes != null) i.avaliacoes = j.avaliacoes;
-      if (j.moeda) i.moeda = j.moeda;
-      if (i.tipo === 'desejo' && j.preco != null) {
-        i.historicoPreco = i.historicoPreco || [];
-        const u = i.historicoPreco[i.historicoPreco.length - 1];
-        if (!u || u.preco !== j.preco) i.historicoPreco.push({ em: agora(), preco: j.preco });
-        i.preco = j.preco;
-      }
-      i.faltando = i.tipo === 'desejo'
-        ? [['nome', i.titulo], ['foto', i.imagem], ['preço', i.preco]].filter(([, v]) => v === undefined || v === null || v === '').map(([k]) => k)
-        : [];
-      i.capturaStatus = i.faltando.length ? 'parcial' : 'ok';
-      i.capturaEm = agora(); delete i.capturaErro;
-      if (!silencioso) toast(i.faltando.length ? 'Capturei em parte. Faltou: ' + i.faltando.join(', ') + '.' : 'Capturado.', 'check-circle-solid');
-    } catch (e) {
-      i.capturaStatus = 'falhou'; i.capturaErro = String(e.message || e);
-      if (!silencioso) toast('Não consegui ler essa página (' + i.capturaErro + '). O link ficou salvo.');
-    }
-    i.capturaTentativaEm = agora();   // falha também conta: a conferência automática só tenta de novo depois de HORAS_CONFERIR
-    salvar(); render();
-  }
-
+  /* ---------------- captura de links e produtos ----------------
+     Mora em assets/js/captura.js. Aqui só o ligamos ao estado e às utilidades do app. */
+  const CAPTM = window.TybaCaptura({ S: () => S, UI, HORAS_CONFERIR, agora: (...a) => agora(...a), toast: (...a) => toast(...a), salvar: (...a) => salvar(...a), render: (...a) => render(...a) });
+  const { capturar } = CAPTM;
   /* ---------------- tema ---------------- */
   function mistura(hex, alvo, p) {
     const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;

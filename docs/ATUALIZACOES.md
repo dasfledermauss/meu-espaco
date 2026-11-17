@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.62 — 16/11/2026 · Bastidores: tempo, captura e novidades em arquivos próprios
+
+- Previsão do tempo (`clima.js`), captura de links e produtos (`captura.js`) e popup de novidades (`novidades.js`) saíram do `app.js`, que passou de ~4900 para ~3400 linhas. Nada muda na tela. Fecha o plano de divisão (ver `docs/ARQUITETURA.md`).
+
 ## 5.61 — 16/11/2026 · Repositório sem dados pessoais
 
 - Foto de perfil, currículo e links pessoais antigos, capturas de tela do histórico e e-mail foram apagados do código **e de todo o histórico do Git** (que foi reescrito). Nomes de pessoas nos exemplos de teste foram trocados por genéricos. O `.gitignore` agora barra `data/links-*.json` (menos o exemplo), `foto-perfil.*` e as capturas de `docs/historico`.
