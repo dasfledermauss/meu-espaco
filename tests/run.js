@@ -246,6 +246,15 @@ const TESTES = {
       await ctx.close();
     }
   },
+  async 'agenda: título longo no painel do dia quebra linha dentro do cartão'(b) {
+    for (const [w, modo] of [[1280, 'escuro'], [390, 'claro']]) {
+      const { p, ctx } = await pagina(b, { w, modo, ajustar: (st) => { const d = new Date(); const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); st.lembretes = (st.lembretes || []).concat({ id: 'lx', texto: 'Texto bem comprido para testar a quebra de linha dentro dos cartões do painel do dia na agenda', data: iso, hora: '02:45', concluido: false, criadoEm: new Date().toISOString() }); } });
+      await p.goto(BASE + '#/agenda'); await p.waitForTimeout(600);
+      const r = await p.evaluate(() => { const l = document.querySelector('.ag-linha'); if (!l) return null; const s = l.querySelector('strong').getBoundingClientRect(), k = l.getBoundingClientRect(); return { cabe: s.right <= k.right + 1, ws: getComputedStyle(l).whiteSpace }; });
+      conferir(r && r.cabe && r.ws === 'normal', `${modo} ${w}px: texto longo da agenda fica dentro do cartão`);
+      await ctx.close();
+    }
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);

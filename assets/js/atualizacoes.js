@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.67',
+    data: '2026-11-17',
+    titulo: 'Texto da Agenda não escapa mais do cartão',
+    itens: ['Títulos longos no painel do dia da Agenda agora quebram linha dentro do cartão em vez de vazar para fora.']
+  },
+  {
     versao: '5.66',
     data: '2026-11-17',
     titulo: 'Ícone na contagem regressiva',

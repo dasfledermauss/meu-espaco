@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.67 — 17/11/2026 · Texto da Agenda não escapa mais do cartão
+
+- Títulos longos no painel do dia da Agenda agora quebram linha dentro do cartão em vez de vazar. A causa era o `white-space: nowrap` global dos botões, que anulava a quebra.
+
 ## 5.66 — 17/11/2026 · Ícone na contagem regressiva
 
 - A contagem regressiva do Início ("12 dias para…") ganhou um ícone de calendário com check à esquerda, num bloco de 40 px na cor principal. O título longo agora quebra linha (antes vazava do cartão).

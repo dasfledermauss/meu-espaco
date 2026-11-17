@@ -8,7 +8,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.66 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Ícone na contagem regressiva do Início. | — |
+| v5.67 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Texto longo do painel do dia da Agenda quebra linha dentro do cartão. | — |
+| v5.66 | sem captura ainda; registrar aqui antes da próxima mudança visual | Ícone na contagem regressiva do Início. | — |
 | v5.65 | sem captura ainda; registrar aqui antes da próxima mudança visual | Contorno nos lembretes vencidos. | — |
 | v5.64 | sem captura ainda; registrar aqui antes da próxima mudança visual | Lembretes na cor principal em vez de amarelo. | — |
 | v5.63 | sem captura ainda; registrar aqui antes da próxima mudança visual | Preço da Amazon corrigido no capturador da Vercel. | — |
