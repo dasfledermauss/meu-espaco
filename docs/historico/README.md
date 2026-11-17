@@ -6,7 +6,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.58 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Conta Google e sincronização movidas para assets/js/conta.js (sem mudança visual). | — |
+| v5.59 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Captura que falha não repete em loop; arrastar movido para assets/js/arrastar.js. | — |
+| v5.58 | sem captura ainda; registrar aqui antes da próxima mudança visual | Conta Google e sincronização movidas para assets/js/conta.js (sem mudança visual). | — |
 | v5.57 | sem captura ainda; registrar aqui antes da próxima mudança visual | Músicas e mini player movidos para assets/js/musica.js (sem mudança visual). | — |
 | v5.56 | sem captura ainda; registrar aqui antes da próxima mudança visual | Currículo movido para assets/js/curriculo.js (sem mudança visual). | — |
 | v5.55 | sem captura ainda; registrar aqui antes da próxima mudança visual | Pet movido para assets/js/pet.js (sem mudança visual). | — |

@@ -58,6 +58,8 @@ A pessoa só cola o **link do produto**. O resto é capturado da página. **Em l
 
 **Como a captura funciona.** O navegador não pode ler outros sites sozinho. Por isso existe o `servidor.py` (aberto pelo `iniciar.bat`), que roda só no computador, busca a página do produto e devolve os dados. Sem o servidor, o link é salvo como “Aguardando captura” e pode ser capturado depois.
 
+**Conferência automática (v5.59).** Ao abrir a Wishlist, o Tyba reconfere até 5 desejos cuja última tentativa de captura foi há mais de 12 horas. Toda tentativa, mesmo a que falha, grava `capturaTentativaEm`; por isso uma loja que bloqueia a captura não é repetida em loop. O botão de recapturar ignora essa espera.
+
 | Situação do cartão | Significado |
 |---|---|
 | Sem selo | Captura completa. |

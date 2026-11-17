@@ -9,6 +9,7 @@ O que cobre hoje:
 - quadro de tarefas (Meu Espaço): arrastar pelo título até uma coluna vazia, botão de mover e nome editável;
 - currículo: a tela abre e importar um JSON mostra a revisão, sem erros de script;
 - músicas: a lista abre e tocar mostra o mini player (erros do iframe do YouTube são ignorados);
+- wishlist: captura que falha não é repetida em loop (servidor simulado devolvendo erro);
 - excluir cria a lápide e o item não volta ao recarregar;
 - wishlist em lote (um link por linha, repetido pulado);
 - menu em gaveta e dia do calendário em folha de baixo no celular;

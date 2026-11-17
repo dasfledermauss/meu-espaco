@@ -182,6 +182,16 @@ const TESTES = {
     conferir(await p.evaluate(() => !!document.querySelector('.mini-app, .miniapp, [class*="mini"]')), 'mini player aparece');
     conferir(!erros.length, 'sem erros de script' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
   },
+  async 'wishlist: captura que falha não entra em loop'(b) {
+    const { p, ctx } = await pagina(b, { ajustar: (st) => { const d = st.itens.find((x) => x.tipo === 'desejo'); delete d.capturaEm; d.capturaStatus = 'falhou'; } });
+    let chamadas = 0;
+    await p.route('**/api/status', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }));
+    await p.route('**/api/capturar*', (r) => { chamadas++; r.fulfill({ status: 502, contentType: 'application/json', body: '{"erro":"bloqueio"}' }); });
+    await p.goto(BASE + '#/wishlist'); await p.waitForTimeout(5000);
+    conferir(chamadas >= 1, `tentou capturar (${chamadas})`);
+    conferir(chamadas <= 1, `não repetiu a captura que falhou (${chamadas} chamadas em 5 s)`);
+    await ctx.close();
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);

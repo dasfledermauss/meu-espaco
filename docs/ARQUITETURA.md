@@ -22,6 +22,7 @@ window.TybaPet = function (ctx) { ...; return { PETS, petFalar, ... }; };
 | `assets/js/pet.js` (`TybaPet`) | cenário do pet, cuidados, conversa | v5.55 |
 | `assets/js/curriculo.js` (`TybaCurriculo`) | adaptador de importação do currículo e a tela | v5.56 |
 | `assets/js/musica.js` (`TybaMusica`) | lista de músicas, ambiente e mini player | v5.57 |
+| `assets/js/arrastar.js` (`TybaArrastar`) | reordenar arrastando (post-its, menu, blocos da direita) e arrastar cartões de tarefa | v5.59 |
 | `assets/js/conta.js` (`TybaConta`) | entrada com Google, sessão e ciclo de sincronização (usa `nuvem.js` para falar com o Firestore) | v5.58 |
 
 ## Plano de extração
@@ -31,7 +32,7 @@ Mapa completo por seção, com linhas e ordem: planilha "Divisão do app.js". Or
 1. Currículo (adaptador + tela). **Feito.** As janelas de PDF ficaram no `app.js`, porque as janelas servem também às notas.
 2. Mini player de música e músicas. **Feito.**
 3. Nuvem e conta Google. **Feito.** (Sem teste automático do login: precisa de Google e Firebase reais. O teste de todas as telas garante que o app abre em modo local sem erro.)
-4. Arrastar para reordenar, imagens e janelas.
+4. Arrastar para reordenar. **Feito.** Imagens (colar/soltar) e janelas ficaram no `app.js`: misturam código de outras áreas (tarefas, menu, atalhos) e não separam sem reescrever.
 5. Tempo, PWA, captura e novidades.
 
 Ficam no núcleo: utilidades, estado, consultas, componentes, tema, roteamento, ações, envio de formulários, modal e as telas pequenas.

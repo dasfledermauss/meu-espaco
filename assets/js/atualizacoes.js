@@ -10,6 +10,15 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.59',
+    data: '2026-11-16',
+    titulo: 'Fim do loop na captura de links que falham',
+    itens: [
+      'Quando uma loja bloqueia a captura (como a Centauro), o desejo agora fica marcado como falho e o Tyba só tenta de novo depois de 12 horas, em vez de repetir sem parar. O botão de recapturar continua funcionando na hora.',
+      'Bastidores: o código de arrastar e reordenar saiu do arquivo principal para assets/js/arrastar.js. Nada muda na tela.'
+    ]
+  },
+  {
     versao: '5.58',
     data: '2026-11-16',
     titulo: 'Bastidores: conta e sincronização em arquivo próprio',

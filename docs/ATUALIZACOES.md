@@ -8,6 +8,11 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.59 — 16/11/2026 · Fim do loop na captura de links que falham
+
+- Quando uma loja bloqueia a captura (como a Centauro), o desejo fica marcado como falho e o Tyba só tenta de novo depois de 12 horas, em vez de repetir sem parar. O botão de recapturar continua funcionando na hora. Antes, o item que falhava nunca ganhava data de captura e a conferência da Wishlist o pegava a cada redesenho da tela (12 tentativas em 5 s no teste).
+- Bastidores: o código de arrastar e reordenar saiu do arquivo principal para `assets/js/arrastar.js`. Nada muda na tela.
+
 ## 5.58 — 16/11/2026 · Bastidores: conta e sincronização em arquivo próprio
 
 - O código da conta Google e da sincronização com a nuvem (a parte que roda no app) saiu do arquivo principal para `assets/js/conta.js`. O acesso ao Firestore continua em `assets/js/nuvem.js`. Nada muda na tela.

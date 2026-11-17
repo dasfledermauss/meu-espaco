@@ -35,6 +35,7 @@ meu-espaco/
 │   ├── js/curriculo.js     módulo do currículo
 │   ├── js/musica.js        módulo das músicas e do mini player
 │   ├── js/conta.js         módulo da conta Google e do ciclo de sincronização
+│   ├── js/arrastar.js      módulo de arrastar e reordenar
 │   ├── js/config.js        ID do cliente Google e projeto Firebase (públicos)
 │   ├── js/nuvem.js         sincronização com o Firestore
 │   ├── js/icones.js        ícones Iconoir embutidos ("-solid" = estado ativo)
