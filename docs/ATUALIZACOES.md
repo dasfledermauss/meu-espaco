@@ -8,6 +8,13 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.68 — 17/11/2026 · Correios: mande itens para outra pessoa
+
+- Novo lugar no menu, **Correios**. Pelo menu ⋯ de um item (ou pelo modo Selecionar, para vários), "Enviar pelo Correios" abre a lista de quem usa o Tyba, com um bilhete opcional.
+- Quem recebe vê a carta na **Caixa de entrada**, com selo no menu. **Salvar** copia o item para a mesma seção do Tyba dela; **Dispensar** apaga a carta.
+- Vale para link, livro/filme, artigo, imagem, nota, música e desejo. Comentários, favorito, coleção e histórico de preço não viajam.
+- **Passo manual:** publicar de novo o `firestore.rules` no Firebase (ver `docs/CORREIOS.md`).
+
 ## 5.67 — 17/11/2026 · Texto da Agenda não escapa mais do cartão
 
 - Títulos longos no painel do dia da Agenda agora quebram linha dentro do cartão em vez de vazar. A causa era o `white-space: nowrap` global dos botões, que anulava a quebra.

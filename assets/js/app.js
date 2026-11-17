@@ -587,6 +587,7 @@
         <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
           <button class="btn-1" type="submit">${ic('check')}Salvar</button></footer></form>`;
     }
+    if (m.tipo === 'correios-enviar') return TC.modalEnvio(m);
     if (m.tipo === 'mover-lote') {
       const n = UI.moverUm ? 1 : (UI.sel || []).length;
       return `<form class="modal" method="dialog" data-form="mover-lote">
@@ -914,6 +915,7 @@
           <span class="pin-acoes">${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorita', 'Favoritar', 'estrela')}
             ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
               { act: 'imagem-grupo', id: i.id, ico: 'folder', txt: 'Mover para grupo' },
+              { act: 'correios-enviar', id: i.id, ico: 'send', txt: 'Enviar pelo Correios' },
               { act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' },
               i.origem ? { act: 'abrir-origem', id: i.id, ico: 'open-new-window', txt: 'Abrir a origem' } : null,
               '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }], 'esq')}</span></div></article>`;
@@ -1148,6 +1150,7 @@
     if (i.tipo === 'imagem') mais.push({ act: 'imagem-grupo', id: i.id, ico: 'folder', txt: 'Mover para grupo' });
     if (i.tipo === 'nota' || i.tipo === 'link' || i.tipo === 'tarefa' || i.tipo === 'imagem') mais.push({ act: 'organizar-em', id: i.id, ico: 'folder', txt: 'Mover para coleção' });
     if (i.tipo === 'midia') mais.push({ act: 'progresso', id: i.id, ico: 'bookmark', txt: 'Onde parei' });
+    if (TC.podeEnviar(i)) mais.push({ act: 'correios-enviar', id: i.id, ico: 'send', txt: 'Enviar pelo Correios' });
     mais.push({ act: 'lembrar-item', id: i.id, ico: 'alarm', txt: 'Criar lembrete' });
     mais.push('-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true });
     return `<footer class="post-acoes">${b.join('')}<span class="espaco"></span>${menuMais(mais)}</footer>`;
@@ -1325,7 +1328,7 @@
     if (sum && e.target === sum && e.key === 'ArrowDown') { e.preventDefault(); sum.parentElement.setAttribute('open', ''); const p1 = sum.parentElement.querySelector('.mp-grupo a, .mp-grupo button'); if (p1) p1.focus(); }
   });
   /* A ordem das áreas fica no perfil: arrastar muda, e áreas novas entram no fim. */
-  /* A barra tem 8 áreas. Agenda e Biblioteca reúnem várias páginas, que aparecem como abas no alto da tela. */
+  /* A barra tem 9 áreas (com o Correios). Agenda e Biblioteca reúnem várias páginas, que aparecem como abas no alto da tela. */
   const GRUPO_DE = { agenda: 'agenda', tarefas: 'agenda', lembretes: 'agenda', biblioteca: 'biblioteca', links: 'biblioteca', imagens: 'biblioteca', estudos: 'biblioteca' };
   const ABAS = { agenda: ['agenda', 'tarefas', 'lembretes'], biblioteca: ['biblioteca', 'links', 'imagens', 'estudos'] };
   const ABA_NOME = { agenda: 'Calendário', tarefas: 'Tarefas', lembretes: 'Lembretes', biblioteca: 'Livros e filmes', links: 'Links', imagens: 'Imagens', estudos: 'Estudos' };
@@ -1335,7 +1338,7 @@
     ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['musicas', 'Músicas', 'ytmusic', musicas().length],
     ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length + doTipo('link').length + doTipo('imagem').length + doTipo('artigo').length],
     ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
-    ['gastos', 'Gastos', 'wallet', ''], ['curriculo', 'Currículo', 'suitcase', '']];
+    ['correios', 'Correios', 'mail', TC.pendentes() || ''], ['gastos', 'Gastos', 'wallet', ''], ['curriculo', 'Currículo', 'suitcase', '']];
   /** A ordem das abas de cada área fica no perfil (arrastar muda; abas novas entram no fim). */
   function abasOrdenadas(g) {
     const salva = ((S.perfil.ordemAbas || {})[g] || []).filter((r) => ABAS[g].includes(r));
@@ -1641,6 +1644,7 @@
     main.insertAdjacentHTML('beforeend', `<div class="barra-sel" role="toolbar" aria-label="Ações em lote"><strong>${n} selecionado${n === 1 ? '' : 's'}</strong>
       ${btn('sel-todos', 'Todos', '', 'btn-f')}
       ${rota === 'wishlist' ? btn('sel-comprar', ic('check-circle') + (UI.wlFiltro === 'comprados' ? 'Voltar para Quero' : 'Marcar comprado'), vazio ? 'disabled' : '', 'btn-f') : ''}
+      ${btn('sel-enviar', ic('send') + 'Enviar', vazio ? 'disabled' : '', 'btn-f')}
       ${btn('sel-mover', ic('folder') + 'Mover', vazio ? 'disabled' : '', 'btn-f')}
       ${btn('sel-excluir', ic('trash') + 'Excluir', vazio ? 'disabled' : '', 'btn-f perigo')}
       ${btnIco('sel-sair', 'xmark', 'Cancelar seleção')}</div>`);
@@ -2283,7 +2287,7 @@
   }
 
   /* ---------------- roteamento ---------------- */
-  const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, imagens: renderImagens, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
+  const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, correios: () => TC.renderCorreios(), imagens: renderImagens, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
     agenda: renderAgenda, wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
   function rotaAtual() { return location.hash.replace(/^#\/?/, '').split('/'); }
   function render(focar) {
@@ -2405,6 +2409,10 @@
       case 'sel-ligar': UI.sel = []; UI.selRota = rotaAtual()[0]; return render();
       case 'sel-sair': UI.sel = null; return render();
       case 'sel-todos': { const todos = cartoesSel().map(idCartao); UI.sel = UI.sel.length === todos.length ? [] : todos; return render(); }
+      case 'sel-enviar': return UI.sel.length ? TC.abrirEnvio(UI.sel.slice()) : undefined;
+      case 'correios-enviar': fecharMenu(); return TC.abrirEnvio([id]);
+      case 'carta-salvar': return TC.salvarCarta(id);
+      case 'carta-dispensar': return TC.dispensar(id);
       case 'sel-mover': return UI.sel.length ? abrirModal({ tipo: 'mover-lote' }) : undefined;
       case 'sel-comprar': {
         const alvo = UI.wlFiltro !== 'comprados';
@@ -2898,6 +2906,7 @@
       else { const g = { id: uid('gimg'), nome }; S.gruposImagem.push(g); UI.grupoImagem = g.id; }
       UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
     }
+    if (tipo === 'correios-enviar') return TC.enviarForm(d);
     if (tipo === 'mover-lote') {
       const ids = UI.moverUm ? [UI.moverUm] : (UI.sel || []);
       ids.map(item).filter(Boolean).forEach((x) => { x.colecoes = d.colecao ? [{ id: d.colecao, grupo: '' }] : []; x.organizar = !x.colecoes.length; x.editadoEm = agora(); });
@@ -3363,7 +3372,8 @@
 
   /* ---------------- conta Google e sincronização com a nuvem ----------------
      Mora em assets/js/conta.js. Aqui só o ligamos ao estado e às utilidades do app. */
-  const CONTAM = window.TybaConta({ S: () => S, UI, main, navLateral, direita, layout, topoPerfil, esc: (...a) => esc(...a), agora: (...a) => agora(...a), fmtHora: (...a) => fmtHora(...a), corta: (...a) => corta(...a), canon: (...a) => canon(...a), ic: (...a) => ic(...a), toast: (...a) => toast(...a), salvar: (...a) => salvar(...a), carregar: (...a) => carregar(...a), migrar: (...a) => migrar(...a), cartao: (...a) => cartao(...a), rotaAtual: (...a) => rotaAtual(...a), render: (...a) => render(...a), confirmar: (...a) => confirmar(...a), excluidoAntes: (...a) => excluidoAntes(...a) });
+  const TC = window.TybaCorreios({ S: () => S, UI, main, esc: (...a) => esc(...a), ic: (...a) => ic(...a), btn: (...a) => btn(...a), btnIco: (...a) => btnIco(...a), toast: (...a) => toast(...a), agora: (...a) => agora(...a), uid: (...a) => uid(...a), salvar: (...a) => salvar(...a), render: (...a) => render(...a), item: (...a) => item(...a), nomeTipo: (...a) => nomeTipo(...a), icoTipo: (...a) => icoTipo(...a), tituloItem: (...a) => tituloItem(...a), fmtDataHora: (...a) => fmtDataHora(...a), vazio: (...a) => vazio(...a), conta: (...a) => conta(...a), migrar: (...a) => migrar(...a), abrirModal: (...a) => abrirModal(...a) });
+  const CONTAM = window.TybaConta({ correiosLigar: () => TC.ligar(), correiosDesligar: () => TC.desligar(), S: () => S, UI, main, navLateral, direita, layout, topoPerfil, esc: (...a) => esc(...a), agora: (...a) => agora(...a), fmtHora: (...a) => fmtHora(...a), corta: (...a) => corta(...a), canon: (...a) => canon(...a), ic: (...a) => ic(...a), toast: (...a) => toast(...a), salvar: (...a) => salvar(...a), carregar: (...a) => carregar(...a), migrar: (...a) => migrar(...a), cartao: (...a) => cartao(...a), rotaAtual: (...a) => rotaAtual(...a), render: (...a) => render(...a), confirmar: (...a) => confirmar(...a), excluidoAntes: (...a) => excluidoAntes(...a) });
   const { CLIENTE_GOOGLE, logado, conta, carregarScript, lerSessao, renderEntrada, aoEntrar, sair, limpo, quando, nuvemLigada, agendarSync, pintarNuvem, textoNuvem, ligarNuvem } = CONTAM;
   /* ---------------- início ---------------- */
   (async function iniciar() {
@@ -3404,6 +3414,6 @@
       else pintarNuvem();
     }
     pintarAvisoPwa();
-    window.__meuEspaco = { get estado() { return S; }, get ui() { return UI; }, pet: PETS[0], pets: PETS };
+    window.__meuEspaco = { get estado() { return S; }, get ui() { return UI; }, pet: PETS[0], pets: PETS, correios: TC };
   })();
 })();

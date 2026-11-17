@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.68',
+    data: '2026-11-17',
+    titulo: 'Correios: mande itens para outra pessoa',
+    itens: ['Novo lugar no menu: Correios. Pelo menu ⋯ de qualquer link, livro, filme, artigo, imagem, nota, música ou desejo, escolha “Enviar pelo Correios”, a pessoa e, se quiser, um bilhete.', 'Quem recebe vê a carta na Caixa de entrada e clica em Salvar: o item cai na mesma seção do Tyba dela. Dá para enviar vários de uma vez pelo modo Selecionar.', 'Precisa da conta Google ligada à nuvem, e as regras do Firestore precisam ser publicadas de novo (passo em docs/CORREIOS.md).']
+  },
+  {
     versao: '5.67',
     data: '2026-11-17',
     titulo: 'Texto da Agenda não escapa mais do cartão',

@@ -16,6 +16,7 @@ O que cobre hoje:
 - lembretes: destaque na cor principal com contraste AA (claro e escuro);
 - Início: contagem regressiva com ícone e título que quebra linha;
 - Agenda: título longo no painel do dia quebra linha dentro do cartão;
+- Correios: receber carta, salvar na mesma seção e enviar itens (com a nuvem simulada);
 - excluir cria a lápide e o item não volta ao recarregar;
 - wishlist em lote (um link por linha, repetido pulado);
 - menu em gaveta e dia do calendário em folha de baixo no celular;

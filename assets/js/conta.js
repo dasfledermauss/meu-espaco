@@ -69,6 +69,7 @@ window.TybaConta = function (ctx) {
     if (!(await confirmar('Sair da conta?\n\nOs registros continuam guardados neste navegador.', { ok: 'Sair', perigo: false, icone: 'undo' }))) return;
     try { await fetch('api/sessao', { method: 'DELETE' }); } catch (e) { /* ignora */ }
     try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) { /* ignora */ }
+    try { ctx.correiosDesligar(); } catch (e) { /* ignora */ }
     try { if (window.Nuvem) await Nuvem.sair(); } catch (e) { /* ignora */ }
     UI.nuvem = { estado: 'local', em: '', erro: '' };
     UI.sessao = { modo: 'deslogado', restrito: UI.sessao.restrito };
@@ -194,6 +195,7 @@ window.TybaConta = function (ctx) {
     try {
       await puxarEMesclar();
       Nuvem.ouvir(aplicarRemoto);
+      try { ctx.correiosLigar(); } catch (e) { /* o Correios é opcional */ }
       UI.nuvem.estado = 'ligada'; UI.nuvem.em = agora(); UI.nuvem.erro = '';
       UI.pularColheita = true; render();
       agendarSync(300);

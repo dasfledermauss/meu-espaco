@@ -5,6 +5,8 @@
      espacos/{uid}                     perfil, coleções, pastas, currículo
      espacos/{uid}/itens/{id}          notas, links, livros, artigos, desejos, gastos
      espacos/{uid}/lembretes/{id}      lembretes
+     membros/{uid}                     quem usa o Tyba (só o primeiro nome), para o Correios
+     correios/{uid}/cartas/{id}        caixa de entrada: itens que outras pessoas enviaram
 
    O login é o mesmo da tela de entrada: o token do Google vai para o Firebase Auth. */
 window.Nuvem = (function () {
@@ -115,6 +117,34 @@ window.Nuvem = (function () {
   }
   function pararDeOuvir() { if (ouvindo) { ouvindo(); ouvindo = null; } }
 
+  /* ---------- Correios: enviar itens para outra pessoa ---------- */
+  const correios = {
+    disponivel: () => !!(uid && sdk && bd),
+    /** Aparece na lista de quem pode receber. Guarda só o primeiro nome. */
+    async registrar(nome) {
+      if (!correios.disponivel()) return;
+      await sdk.loja.setDoc(sdk.loja.doc(bd, 'membros', uid), { nome: String(nome || '').slice(0, 40), atualizadoEm: new Date().toISOString() });
+    },
+    async membros() {
+      if (!correios.disponivel()) return [];
+      const r = await sdk.loja.getDocs(sdk.loja.collection(bd, 'membros'));
+      return r.docs.map((d) => ({ uid: d.id, nome: (d.data() || {}).nome || '' }));
+    },
+    async enviar(destino, carta) {
+      if (!correios.disponivel()) throw new Error('sem conexão com a nuvem');
+      await sdk.loja.setDoc(sdk.loja.doc(bd, 'correios', destino, 'cartas', carta.id), Object.assign({}, carta, { de: uid }));
+    },
+    /** Avisa com a lista inteira da caixa de entrada sempre que algo chega ou sai. Devolve a função que para de ouvir. */
+    ouvir(aoMudar) {
+      if (!correios.disponivel()) return () => {};
+      return sdk.loja.onSnapshot(sdk.loja.collection(bd, 'correios', uid, 'cartas'), (s) => aoMudar(s.docs.map((d) => d.data())), () => aoMudar(null));
+    },
+    async apagar(id) {
+      if (!correios.disponivel()) return;
+      await sdk.loja.deleteDoc(sdk.loja.doc(bd, 'correios', uid, 'cartas', id));
+    }
+  };
+
   return { configurado, iniciar, entrarComGoogle, sair, baixarTudo, enviar, ouvir, pararDeOuvir, avisar,
-    aoEvento: (f) => ouvintes.push(f), get uid() { return uid; } };
+    correios, aoEvento: (f) => ouvintes.push(f), get uid() { return uid; } };
 })();

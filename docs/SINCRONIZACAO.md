@@ -37,6 +37,8 @@ match /espacos/{uid} {
 }
 ```
 
+(O arquivo `firestore.rules` tem também as regras do Correios, ver `CORREIOS.md`: copie sempre o arquivo inteiro.)
+
 Sem essa regra, ou o banco recusa tudo, ou fica aberto para qualquer pessoa. Ela garante que cada conta só alcança o próprio espaço.
 
 ### 3. Nada a fazer no código

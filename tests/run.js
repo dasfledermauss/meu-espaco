@@ -255,6 +255,32 @@ const TESTES = {
       await ctx.close();
     }
   },
+  async 'correios: receber carta, salvar na mesma seção e enviar itens'(b) {
+    for (const [w, modo] of [[1280, 'claro'], [390, 'escuro']]) {
+      const { p, ctx } = await pagina(b, { w, modo });
+      await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);
+      await p.evaluate(() => { let cb = null; window.__env = []; const caixa = [];
+        window.Nuvem.correios = { disponivel: () => true, registrar: async () => {}, membros: async () => [{ uid: 'u2', nome: 'Ana' }, { uid: 'u3', nome: 'Beto' }],
+          enviar: async (d, c) => { window.__env.push([d, c]); }, ouvir: (f) => { cb = f; f([]); window.__push = (c) => { caixa.push(c); cb(caixa.slice()); }; return () => {}; },
+          apagar: async (id) => { const k = caixa.findIndex((x) => x.id === id); if (k >= 0) caixa.splice(k, 1); cb(caixa.slice()); } }; });
+      await p.evaluate(() => window.__meuEspaco.correios.ligar()); await p.waitForTimeout(300);
+      await p.evaluate(() => window.__push({ id: 'c1', de: 'u2', deNome: 'Ana', bilhete: 'olha isso', enviadoEm: new Date().toISOString(), item: { tipo: 'link', url: 'https://exemplo.com/a-b', titulo: 'Um link enviado' } }));
+      await p.waitForTimeout(300);
+      conferir(await p.evaluate(() => (document.querySelector('[data-area=correios]') || {}).textContent.includes('1')), `${modo} ${w}px: Correios mostra 1 carta no menu`);
+      await p.goto(BASE + '#/correios'); await p.waitForTimeout(400);
+      conferir(await p.evaluate(() => document.querySelectorAll('.carta').length) === 1, `${modo} ${w}px: carta aparece na caixa de entrada`);
+      const antes = await p.evaluate(() => window.__meuEspaco.estado.itens.length);
+      await p.click('[data-act=carta-salvar]'); await p.waitForTimeout(400);
+      const r = await p.evaluate(() => { const it = window.__meuEspaco.estado.itens.find((i) => i.url === 'https://exemplo.com/a-b'); return { n: window.__meuEspaco.estado.itens.length, tipo: it && it.tipo, cartas: document.querySelectorAll('.carta').length }; });
+      conferir(r.n === antes + 1 && r.tipo === 'link' && r.cartas === 0, `${modo} ${w}px: Salvar cria o item na mesma seção e tira a carta`);
+      const id = await p.evaluate(() => window.__meuEspaco.estado.itens.find((i) => i.tipo === 'link').id);
+      await p.evaluate((x) => window.__meuEspaco.correios.abrirEnvio([x]), id); await p.waitForTimeout(500);
+      await p.fill('textarea[name=bilhete]', 'para você'); await p.click('.modal button[type=submit]'); await p.waitForTimeout(400);
+      const env = await p.evaluate(() => window.__env.map(([d, c]) => [d, c.bilhete, c.item.tipo, 'id' in c.item, 'comentarios' in c.item]));
+      conferir(env.length === 1 && env[0][0] === 'u2' && env[0][1] === 'para você' && env[0][2] === 'link' && !env[0][3] && !env[0][4], `${modo} ${w}px: envio leva só o conteúdo do item para a pessoa escolhida`);
+      await ctx.close();
+    }
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);
