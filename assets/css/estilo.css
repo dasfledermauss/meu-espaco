@@ -1714,3 +1714,12 @@ body.janela-arrastando { user-select: none; }
   .carta-capa { width: 100%; height: 140px; }
 }
 .modal-pe button[disabled] { opacity: .45; cursor: not-allowed; }
+.amigos-cartao { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.amigos-tit, .cartas-tit { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
+.cartas-tit { margin: 4px 0 10px; }
+.codigo-amigo { font-size: 18px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.amigo-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.amigo-form input { flex: 1 1 200px; min-width: 0; text-transform: uppercase; }
+.lista-amigos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lista-amigos li { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 6px 0 14px; border-radius: var(--r-m); background: var(--cartao-2); font-weight: 500; }
+.lista-amigos li span { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }

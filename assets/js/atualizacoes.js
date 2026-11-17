@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.73',
+    data: '2026-11-17',
+    titulo: 'Correios: amigos por código',
+    itens: ['Cada pessoa tem um código de amigo (tipo ABC-123) na página Correios. Para mandar algo, adicione o código do amigo uma vez e ele fica na sua lista de envio, sem depender de aparecer sozinho.', 'Quem recebe uma carta de alguém que ainda não é amigo ganha um botão para adicionar a pessoa.', 'Passo manual: publicar de novo o firestore.rules no Firebase (as regras mudaram).']
+  },
+  {
     versao: '5.72',
     data: '2026-11-17',
     titulo: 'Correios: cadastro mais confiável',

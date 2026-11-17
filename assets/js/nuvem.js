@@ -5,7 +5,7 @@
      espacos/{uid}                     perfil, coleções, pastas, currículo
      espacos/{uid}/itens/{id}          notas, links, livros, artigos, desejos, gastos
      espacos/{uid}/lembretes/{id}      lembretes
-     membros/{uid}                     quem usa o Tyba (só o primeiro nome), para o Correios
+     codigos/{codigo}                  código de amigo → conta (só o primeiro nome), para o Correios
      correios/{uid}/cartas/{id}        caixa de entrada: itens que outras pessoas enviaram
 
    O login é o mesmo da tela de entrada: o token do Google vai para o Firebase Auth. */
@@ -120,15 +120,16 @@ window.Nuvem = (function () {
   /* ---------- Correios: enviar itens para outra pessoa ---------- */
   const correios = {
     disponivel: () => !!(uid && sdk && bd),
-    /** Aparece na lista de quem pode receber. Guarda só o primeiro nome. */
-    async registrar(nome) {
+    /** Guarda o código de amigo desta conta (só o primeiro nome). Falha se o código já for de outra pessoa ou se as regras não permitirem. */
+    async registrar(nome, codigo) {
       if (!correios.disponivel()) return;
-      await sdk.loja.setDoc(sdk.loja.doc(bd, 'membros', uid), { nome: String(nome || '').slice(0, 40), atualizadoEm: new Date().toISOString() });
+      await sdk.loja.setDoc(sdk.loja.doc(bd, 'codigos', codigo), { uid, nome: String(nome || '').slice(0, 40), atualizadoEm: new Date().toISOString() });
     },
-    async membros() {
-      if (!correios.disponivel()) return [];
-      const r = await sdk.loja.getDocs(sdk.loja.collection(bd, 'membros'));
-      return r.docs.map((d) => ({ uid: d.id, nome: (d.data() || {}).nome || '' }));
+    /** Procura quem tem esse código. Devolve { uid, nome } ou null. */
+    async buscar(codigo) {
+      if (!correios.disponivel()) return null;
+      const d = await sdk.loja.getDoc(sdk.loja.doc(bd, 'codigos', codigo));
+      return d.exists() ? { uid: d.data().uid, nome: d.data().nome || '' } : null;
     },
     async enviar(destino, carta) {
       if (!correios.disponivel()) throw new Error('sem conexão com a nuvem');

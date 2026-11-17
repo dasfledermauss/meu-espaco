@@ -260,7 +260,7 @@ const TESTES = {
       const { p, ctx } = await pagina(b, { w, modo });
       await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);
       await p.evaluate(() => { let cb = null; window.__env = []; const caixa = [];
-        window.Nuvem.correios = { disponivel: () => true, registrar: async () => {}, membros: async () => [{ uid: 'u2', nome: 'Ana' }, { uid: 'u3', nome: 'Beto' }],
+        window.Nuvem.correios = { disponivel: () => true, registrar: async () => {}, buscar: async (c) => (c === 'ANA123' ? { uid: 'u2', nome: 'Ana' } : null),
           enviar: async (d, c) => { window.__env.push([d, c]); }, ouvir: (f) => { cb = f; f([]); window.__push = (c) => { caixa.push(c); cb(caixa.slice()); }; return () => {}; },
           apagar: async (id) => { const k = caixa.findIndex((x) => x.id === id); if (k >= 0) caixa.splice(k, 1); cb(caixa.slice()); } }; });
       await p.evaluate(() => window.__meuEspaco.correios.ligar()); await p.waitForTimeout(300);
@@ -273,14 +273,20 @@ const TESTES = {
       await p.click('[data-act=carta-salvar]'); await p.waitForTimeout(400);
       const r = await p.evaluate(() => { const it = window.__meuEspaco.estado.itens.find((i) => i.url === 'https://exemplo.com/a-b'); return { n: window.__meuEspaco.estado.itens.length, tipo: it && it.tipo, cartas: document.querySelectorAll('.carta').length }; });
       conferir(r.n === antes + 1 && r.tipo === 'link' && r.cartas === 0, `${modo} ${w}px: Salvar cria o item na mesma seção e tira a carta`);
+      await p.waitForTimeout(200);
+      conferir(/^[A-Z2-9]{3}-[A-Z2-9]{3}$/.test(await p.evaluate(() => (document.querySelector('.codigo-amigo') || {}).textContent || '')), `${modo} ${w}px: Correios mostra o seu código de amigo`);
+      await p.fill('.amigo-form input', 'xx-0000'); await p.click('.amigo-form button[type=submit]'); await p.waitForTimeout(300);
+      conferir(await p.evaluate(() => window.__meuEspaco.correios.amigos().length) === 0, `${modo} ${w}px: código inválido não adiciona ninguém`);
+      await p.fill('.amigo-form input', 'ana-123'); await p.click('.amigo-form button[type=submit]'); await p.waitForTimeout(400);
+      conferir(await p.evaluate(() => window.__meuEspaco.correios.amigos().map((x) => x.nome).join()) === 'Ana' && await p.evaluate(() => document.querySelectorAll('.lista-amigos li').length) === 1, `${modo} ${w}px: adicionar amigo pelo código`);
       const id = await p.evaluate(() => window.__meuEspaco.estado.itens.find((i) => i.tipo === 'link').id);
       await p.evaluate((x) => window.__meuEspaco.correios.abrirEnvio([x]), id); await p.waitForTimeout(500);
       await p.fill('textarea[name=bilhete]', 'para você'); await p.click('.modal button[type=submit]'); await p.waitForTimeout(400);
       const env = await p.evaluate(() => window.__env.map(([d, c]) => [d, c.bilhete, c.item.tipo, 'id' in c.item, 'comentarios' in c.item]));
       conferir(env.length === 1 && env[0][0] === 'u2' && env[0][1] === 'para você' && env[0][2] === 'link' && !env[0][3] && !env[0][4], `${modo} ${w}px: envio leva só o conteúdo do item para a pessoa escolhida`);
-      await p.evaluate(() => { window.Nuvem.correios.membros = async () => { throw new Error('permission-denied'); }; });
+      await p.evaluate(() => window.__meuEspaco.correios.removerAmigo('u2')); await p.waitForTimeout(200);
       await p.evaluate((x) => window.__meuEspaco.correios.abrirEnvio([x]), id); await p.waitForTimeout(500);
-      conferir(await p.evaluate(() => /regras/.test((document.querySelector('.modal .dica') || {}).textContent || '')), `${modo} ${w}px: falha ao ler a lista avisa sobre as regras do Firestore`);
+      conferir(await p.evaluate(() => /código/.test((document.querySelector('.modal .dica') || {}).textContent || '') && document.querySelector('.modal button[type=submit]').disabled), `${modo} ${w}px: sem amigos, o envio explica e o botão fica apagado`);
       await ctx.close();
     }
   },

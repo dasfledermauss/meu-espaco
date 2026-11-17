@@ -2411,6 +2411,9 @@
       case 'sel-todos': { const todos = cartoesSel().map(idCartao); UI.sel = UI.sel.length === todos.length ? [] : todos; return render(); }
       case 'sel-enviar': return UI.sel.length ? TC.abrirEnvio(UI.sel.slice()) : undefined;
       case 'correios-enviar': fecharMenu(); return TC.abrirEnvio([id]);
+      case 'correios-copiar': return TC.copiarCodigo();
+      case 'amigo-remover': return TC.removerAmigo(b.dataset.uid);
+      case 'carta-amigo': return TC.adicionarRemetente(id);
       case 'carta-salvar': return TC.salvarCarta(id);
       case 'carta-dispensar': return TC.dispensar(id);
       case 'sel-mover': return UI.sel.length ? abrirModal({ tipo: 'mover-lote' }) : undefined;
@@ -2907,6 +2910,7 @@
       UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
     }
     if (tipo === 'correios-enviar') return TC.enviarForm(d);
+    if (tipo === 'correios-amigo') { TC.adicionarAmigo(d.codigo); f.reset(); return; }
     if (tipo === 'mover-lote') {
       const ids = UI.moverUm ? [UI.moverUm] : (UI.sel || []);
       ids.map(item).filter(Boolean).forEach((x) => { x.colecoes = d.colecao ? [{ id: d.colecao, grupo: '' }] : []; x.organizar = !x.colecoes.length; x.editadoEm = agora(); });

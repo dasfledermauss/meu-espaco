@@ -14,29 +14,44 @@ window.TybaCorreios = function (ctx) {
   const LIMITE_BYTES = 700 * 1024;   // o Firestore aceita 1 MB por registro; deixa folga para o bilhete e os dados da carta
 
   let caixa = [];            // cartas que chegaram (mais novas primeiro)
-  let membros = [];          // quem pode receber
   let parar = null;          // para de ouvir a caixa
   let uidProprio = '';
-  let registrado = false;    // o cadastro da própria pessoa chegou ao Firebase (é o que faz os outros a verem)
-  let falha = '';            // '', 'registrar' ou 'ler': o que deu errado ao falar com o Firestore (quase sempre regras não publicadas)
+  let registrado = false;    // o código de amigo desta conta chegou ao Firebase (é o que permite os outros te adicionarem)
+  let falha = false;         // não consegui registrar o código (quase sempre regras do Firestore não publicadas)
 
   const pendentes = () => caixa.length;
   const podeEnviar = (i) => !!i && TIPOS_QUE_VIAJAM.includes(i.tipo);
 
-  /** Aparece na lista dos outros. Tenta de novo sempre que a pessoa abre o Correios ou o envio, para não depender de uma única tentativa ao abrir o app. */
+  /* ---------- amigos e código ---------- */
+  const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // sem 0/O/1/I, para não confundir ao digitar
+  const novoCodigo = () => Array.from({ length: 6 }, () => ALFABETO[Math.floor(Math.random() * ALFABETO.length)]).join('');
+  const normalizar = (t) => String(t || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const mostrarCodigo = (c) => c ? c.slice(0, 3) + '-' + c.slice(3) : '';
+  const amigos = () => (S.perfil.amigos = S.perfil.amigos || []);
+  const meuCodigo = () => (S.perfil || {}).codigoAmigo || '';
+
+  /** Garante que esta conta tem um código de amigo e que ele está no Firebase. Roda ao abrir o app, o Correios e o envio. */
   async function registrarMe() {
     const a = API(); if (!a || !a.disponivel()) return false;
     const u = conta() || {};
     uidProprio = (window.Nuvem && window.Nuvem.uid) || uidProprio;
-    try { await a.registrar(String(u.nome || u.email || 'Alguém').split(' ')[0]); registrado = true; if (falha === 'registrar') falha = ''; return true; }
-    catch (e) { registrado = false; falha = 'registrar'; return false; }
+    const nome = String(u.nome || u.email || 'Alguém').split(' ')[0];
+    const tentativas = meuCodigo() ? 1 : 5;   // código novo pode colidir com o de outra conta: sorteia outro
+    for (let k = 0; k < tentativas; k++) {
+      const codigo = meuCodigo() || novoCodigo();
+      try {
+        await a.registrar(nome, codigo);
+        if (!meuCodigo()) { S.perfil.codigoAmigo = codigo; salvar(); }
+        registrado = true; falha = false; return true;
+      } catch (e) { /* tenta outro código */ }
+    }
+    registrado = false; falha = true; return false;
   }
 
   /* ---------- ligar: aparece na lista e passa a ouvir a caixa ---------- */
   async function ligar() {
     const a = API(); if (!a || !a.disponivel()) return;
     if (parar) { parar(); parar = null; }
-    const u = conta() || {};
     uidProprio = (window.Nuvem && window.Nuvem.uid) || '';
     await registrarMe();
     parar = a.ouvir((lista) => {
@@ -48,10 +63,34 @@ window.TybaCorreios = function (ctx) {
       UI.pularColheita = true; render();
     });
   }
-  async function carregarMembros() {
-    const a = API(); if (!a || !a.disponivel()) return [];
-    try { membros = (await a.membros()).filter((m) => m.uid !== uidProprio); if (falha === 'ler') falha = ''; } catch (e) { membros = []; falha = 'ler'; }
-    return membros;
+  async function adicionarAmigo(texto) {
+    const a = API(); if (!a || !a.disponivel()) return toast('Entre com a conta Google para usar o Correios.');
+    const codigo = normalizar(texto);
+    if (codigo.length !== 6) return toast('O código tem 6 letras e números, como ABC-123.');
+    if (codigo === meuCodigo()) return toast('Esse é o seu próprio código.');
+    let achou = null;
+    try { achou = await a.buscar(codigo); } catch (e) { return toast('Não consegui buscar agora. Confira as regras do Firebase (docs/CORREIOS.md).'); }
+    if (!achou) return toast('Não achei ninguém com esse código.');
+    if (achou.uid === uidProprio) return toast('Esse é o seu próprio código.');
+    if (amigos().some((x) => x.uid === achou.uid)) return toast(achou.nome + ' já está nos seus amigos.');
+    amigos().push({ uid: achou.uid, nome: achou.nome || 'Amigo' });
+    salvar(); UI.pularColheita = true; render();
+    toast(achou.nome + ' adicionado(a) aos amigos.', 'check-circle-solid');
+  }
+  function removerAmigo(id) {
+    const a = amigos().find((x) => x.uid === id); if (!a) return;
+    S.perfil.amigos = amigos().filter((x) => x.uid !== id);
+    salvar(); UI.pularColheita = true; render(); toast(a.nome + ' saiu dos amigos.');
+  }
+  function adicionarRemetente(idCarta) {
+    const c = caixa.find((x) => x.id === idCarta); if (!c || !c.de) return;
+    if (amigos().some((x) => x.uid === c.de)) return;
+    amigos().push({ uid: c.de, nome: c.deNome || 'Amigo' });
+    salvar(); UI.pularColheita = true; render(); toast((c.deNome || 'Amigo') + ' adicionado(a) aos amigos.', 'check-circle-solid');
+  }
+  async function copiarCodigo() {
+    try { await navigator.clipboard.writeText(mostrarCodigo(meuCodigo())); toast('Código copiado.', 'check-circle-solid'); }
+    catch (e) { toast('Seu código: ' + mostrarCodigo(meuCodigo())); }
   }
 
   /* ---------- o que viaja na carta ---------- */
@@ -117,42 +156,47 @@ window.TybaCorreios = function (ctx) {
         <h3>${esc(tituloItem(it))}</h3>
         ${c.bilhete ? `<p class="porque">${esc(c.bilhete)}</p>` : ''}
         ${it.url ? `<p class="meta carta-url">${esc(String(it.url).replace(/^https?:\/\/(www\.)?/, '').slice(0, 60))}</p>` : ''}
-        <div class="acoes-form">${btn('carta-salvar', ic('check') + 'Salvar no meu Tyba', `data-id="${esc(c.id)}"`, 'btn-1')}${btn('carta-dispensar', 'Dispensar', `data-id="${esc(c.id)}"`, 'btn-f')}</div></div></article>`;
+        <div class="acoes-form">${btn('carta-salvar', ic('check') + 'Salvar no meu Tyba', `data-id="${esc(c.id)}"`, 'btn-1')}${btn('carta-dispensar', 'Dispensar', `data-id="${esc(c.id)}"`, 'btn-f')}${c.de && !amigos().some((x) => x.uid === c.de) ? btn('carta-amigo', ic('plus') + 'Adicionar ' + esc(c.deNome || 'amigo') + ' aos amigos', `data-id="${esc(c.id)}"`, 'btn-f') : ''}</div></div></article>`;
+  }
+  function amigosHTML() {
+    const lista = amigos();
+    return `<section class="cartao amigos-cartao" aria-label="Amigos do Correios">
+      <h2 class="amigos-tit">${ic('user-circle')}Amigos</h2>
+      <p class="meta">Seu código: <strong class="codigo-amigo">${meuCodigo() ? esc(mostrarCodigo(meuCodigo())) : '…'}</strong> ${meuCodigo() ? btn('correios-copiar', ic('copy') + 'Copiar', '', 'btn-f btn-p') : ''}</p>
+      <p class="meta">Passe seu código para quem quer te mandar coisas. Para mandar para alguém, coloque o código dessa pessoa aqui:</p>
+      <form class="amigo-form" data-form="correios-amigo"><input name="codigo" type="text" required maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Código do amigo (ABC-123)" aria-label="Código do amigo"><button class="btn-1" type="submit">${ic('plus')}Adicionar</button></form>
+      ${lista.length ? `<ul class="lista-amigos">${lista.map((x) => `<li><span>${esc(x.nome)}</span>${ctx.btnIco('amigo-remover', 'xmark', 'Remover ' + x.nome, `data-uid="${esc(x.uid)}"`)}</li>`).join('')}</ul>` : '<p class="meta">Nenhum amigo ainda.</p>'}</section>`;
   }
   function renderCorreios() {
     const on = disponivel();
     if (on && !registrado && !UI.correiosRegistrando) { UI.correiosRegistrando = true; registrarMe().then(() => { UI.correiosRegistrando = false; if ((location.hash || '').startsWith('#/correios')) { UI.pularColheita = true; render(); } }); }
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('mail')}Correios</h1></header>
-      <p class="meta" style="margin:-6px 0 14px">Itens que outras pessoas mandaram para você. Para mandar um, abra o menu ⋯ do item e escolha “Enviar pelo Correios”.</p>
-      ${on && falha === 'registrar' ? '<p class="dica" style="margin-bottom:14px">' + ic('priority-high') + '<span>Não consegui cadastrar você no Correios, por isso os outros não te veem na lista. Recarregue a página; se continuar, as regras do Firebase não foram publicadas (veja docs/CORREIOS.md).</span></p>' : ''}
+      <p class="meta" style="margin:-6px 0 14px">Itens que amigos mandaram para você. Para mandar um, abra o menu ⋯ do item e escolha “Enviar pelo Correios”.</p>
+      ${on && falha ? '<p class="dica" style="margin-bottom:14px">' + ic('priority-high') + '<span>Não consegui registrar seu código no Firebase. Recarregue a página; se continuar, as regras do Firebase não foram publicadas (veja docs/CORREIOS.md).</span></p>' : ''}
       ${!on ? vazio('mail', 'O Correios funciona com a conta Google ligada à nuvem. Entre com sua conta e espere a sincronização ligar.')
-        : caixa.length ? `<div class="cartas">${caixa.map(cartaHTML).join('')}</div>`
-        : vazio('mail', 'Sua caixa de entrada está vazia.')}`;
+        : `${amigosHTML()}<h2 class="cartas-tit">Caixa de entrada</h2>${caixa.length ? `<div class="cartas">${caixa.map(cartaHTML).join('')}</div>` : vazio('mail', 'Sua caixa de entrada está vazia.')}`}`;
   }
 
   /* ---------- janela de envio ---------- */
   function modalEnvio(m) {
     const ids = m.ids || [];
     const n = ids.length;
-    const lista = m.carregando ? '<p class="meta">Procurando quem está no Tyba…</p>'
-      : falha ? '<p class="dica">' + ic('priority-high') + '<span>Não consegui acessar a lista do Correios no Firebase. Quase sempre é porque as regras novas ainda não foram publicadas (veja docs/CORREIOS.md).</span></p>'
-      : !membros.length ? '<p class="dica">' + ic('priority-high') + '<span>Só você aparece por enquanto. A outra pessoa precisa abrir o Tyba (versão nova) logada com a conta Google, esperar "Sincronizado" e recarregar uma vez.</span></p>'
-      : `<div class="opcoes-amigos" role="radiogroup" aria-label="Para quem">${membros.map((p, k) => `<label class="opcao-amigo"><input type="radio" name="destino" value="${esc(p.uid)}" ${k === 0 ? 'checked' : ''} required><span>${esc(p.nome || 'Sem nome')}</span></label>`).join('')}</div>`;
+    const am = amigos();
+    const lista = !am.length ? '<p class="dica">' + ic('priority-high') + '<span>Você ainda não tem amigos no Correios. Abra o <a href="#/correios">Correios</a> e adicione o código de um amigo.</span></p>'
+      : `<div class="opcoes-amigos" role="radiogroup" aria-label="Para quem">${am.map((p, k) => `<label class="opcao-amigo"><input type="radio" name="destino" value="${esc(p.uid)}" ${k === 0 ? 'checked' : ''} required><span>${esc(p.nome || 'Sem nome')}</span></label>`).join('')}</div>`;
     return `<form class="modal" method="dialog" data-form="correios-enviar">
       <header class="modal-cab">${ic('send')}<h2>Enviar ${n} ${n === 1 ? 'item' : 'itens'} pelo Correios</h2>${ctx.btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
       <div class="modal-corpo"><div class="form">${lista}
         <label class="campo"><span>Bilhete <span class="opcional">(opcional)</span></span><textarea name="bilhete" rows="2" maxlength="280" placeholder="ex.: lembrei de você quando vi isso"></textarea></label></div></div>
       <footer class="modal-pe"><span class="espaco"></span>${btn('modal-fechar', 'Cancelar', '', 'btn-f')}
-        <button class="btn-1" type="submit" ${membros.length ? '' : 'disabled'}>${ic('send')}Enviar</button></footer></form>`;
+        <button class="btn-1" type="submit" ${am.length ? '' : 'disabled'}>${ic('send')}Enviar</button></footer></form>`;
   }
   async function abrirEnvio(ids) {
     const lista = (ids || []).filter((id) => podeEnviar(item(id)));
     if (!lista.length) return toast('Esse tipo de item não viaja pelo Correios.');
     if (!disponivel()) return toast('Entre com a conta Google para usar o Correios.');
-    ctx.abrirModal({ tipo: 'correios-enviar', ids: lista, carregando: true });
-    await registrarMe();
-    await carregarMembros();
-    if (UI.modal && UI.modal.tipo === 'correios-enviar') { UI.modal.carregando = false; UI.pularColheita = true; render(); }
+    ctx.abrirModal({ tipo: 'correios-enviar', ids: lista });
+    registrarMe();
   }
   async function enviarForm(d) {
     const m = UI.modal || {};
@@ -162,13 +206,13 @@ window.TybaCorreios = function (ctx) {
     const n = await enviar(m.ids || [], d.destino, d.bilhete);
     if (!n && bt) { bt.disabled = false; bt.innerHTML = ic('send') + 'Enviar'; }
     if (n) {
-      const quem = (membros.find((p) => p.uid === d.destino) || {}).nome || 'a pessoa';
+      const quem = (amigos().find((p) => p.uid === d.destino) || {}).nome || 'a pessoa';
       UI.modal = null; if (Array.isArray(UI.sel)) UI.sel = [];
       UI.pularColheita = true; render(); toast(n + (n === 1 ? ' item enviado' : ' itens enviados') + ' para ' + quem + '.', 'check-circle-solid');
     }
   }
 
-  function desligar() { if (parar) { parar(); parar = null; } caixa = []; membros = []; UI.correiosVisto = false; }
+  function desligar() { if (parar) { parar(); parar = null; } caixa = []; UI.correiosVisto = false; }
 
-  return { desligar, renderCorreios, modalEnvio, abrirEnvio, enviarForm, salvarCarta, dispensar, ligar, pendentes, podeEnviar, disponivel };
+  return { adicionarAmigo, removerAmigo, adicionarRemetente, copiarCodigo, amigos, meuCodigo, desligar, renderCorreios, modalEnvio, abrirEnvio, enviarForm, salvarCarta, dispensar, ligar, pendentes, podeEnviar, disponivel };
 };

@@ -9,9 +9,12 @@ Lugar do menu para **mandar um item guardado para outra pessoa** que usa o Tyba.
 - Vale para link, livro/filme, artigo, imagem, nota, música e desejo. Não viajam: comentários, favorito, coleção, anotações, histórico de preço, "comprado", progresso de leitura. Livro/filme chega como "na fila"; desejo chega como "quero".
 - Se já existe um item com o mesmo endereço (link, desejo), o Tyba avisa e não duplica.
 
-## Quem aparece na lista
+## Amigos e código
 
-Quem abriu o Tyba logado com a conta Google e com a nuvem ligada. Só o **primeiro nome** fica guardado (`membros/{uid}`). Não há código de amigo nem pedido de aceite: o grupo é pequeno.
+- Cada conta tem um **código de amigo** de 6 letras e números (ex.: `ABC-123`), criado sozinho na primeira vez e mostrado na página Correios, com botão Copiar.
+- Para mandar algo para alguém, a pessoa passa o código dela e você o digita em **Correios → Amigos → Adicionar**. A partir daí ela está na sua lista de envio (a lista fica no seu perfil e sincroniza entre aparelhos).
+- Não precisa de aceite: quem tem o seu código pode te mandar cartas. Quem te manda uma carta e ainda não é seu amigo ganha um botão "Adicionar … aos amigos" na carta, para você poder responder.
+- No Firebase, `codigos/{codigo}` guarda só o código, o uid e o primeiro nome. Dá para buscar um código que você conhece, mas não listar todos.
 
 ## Como funciona
 
@@ -31,4 +34,4 @@ Sem isso o Correios mostra a caixa vazia e o envio falha com erro de permissão.
 ## Limites conhecidos
 
 - Quem só usa o Tyba neste navegador, sem conta, não participa.
-- Todo mundo que usa o Tyba vê o primeiro nome de todos na lista de envio. Se o grupo crescer, vale trocar por código de amigo.
+- Se você perder o código, ele continua o mesmo (fica no seu perfil). Quem apagar os dados do navegador e entrar de novo recupera o código pela sincronização.

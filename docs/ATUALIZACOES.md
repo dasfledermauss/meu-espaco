@@ -8,6 +8,12 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.73 — 17/11/2026 · Correios: amigos por código
+
+- Cada conta tem um **código de amigo** (ex.: `ABC-123`), mostrado na página Correios. Você adiciona o código de um amigo uma vez e ele passa a aparecer na sua lista de envio. A lista automática de "quem abriu o Tyba" saiu.
+- Quem recebe uma carta de alguém que não é amigo vê o botão "Adicionar … aos amigos".
+- **Passo manual:** publicar de novo o `firestore.rules` (trocou `membros` por `codigos`).
+
 ## 5.72 — 17/11/2026 · Correios: cadastro mais confiável
 
 - O cadastro (que faz os outros te verem na lista) é refeito ao abrir o Correios e a janela de envio, com aviso se falhar.
