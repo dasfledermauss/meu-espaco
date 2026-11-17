@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.77',
+    data: '2026-11-17',
+    titulo: 'Correios: escrita não fica mais presa entre janelas',
+    itens: ['A conexão com o Firebase deixou de usar o cache em disco compartilhado entre abas e o app instalado, que podia deixar o registro do código esperando para sempre. O que você guarda continua salvo no navegador e sincroniza como antes.']
+  },
+  {
     versao: '5.76',
     data: '2026-11-17',
     titulo: 'Correios com feedback em cada etapa',

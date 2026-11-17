@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.77 — 17/11/2026 · Correios: escrita não fica mais presa entre janelas
+
+- O Firestore passa a usar cache só em memória (antes: em disco, compartilhado entre abas). Com o app instalado e o navegador abertos juntos, a escrita podia ficar esperando a outra janela ("tempo-esgotado"). Os dados continuam no navegador e são reenviados pelo ciclo de sincronização.
+
 ## 5.76 — 17/11/2026 · Correios com feedback em cada etapa
 
 - O código mostra "registrando…" ou "não registrado" (com o motivo); "Procurando…" ao adicionar amigo; só tenta outro código quando o Firebase recusa, não quando falta rede.

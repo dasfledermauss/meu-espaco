@@ -31,7 +31,8 @@ window.Nuvem = (function () {
     auth = autent.getAuth(app);
     try {
       // detecta sozinho quando a rede ou uma extensão bloqueia o canal de tempo real e troca para o modo alternativo (sem isso, as escritas ficam penduradas)
-      bd = loja.initializeFirestore(app, { localCache: loja.persistentLocalCache({ tabManager: loja.persistentMultipleTabManager() }), experimentalAutoDetectLongPolling: true });
+      // cache só em memória: o Tyba já guarda tudo no navegador e reenvia o que mudou, e o cache em disco compartilhado entre abas/janelas (app instalado) podia deixar a escrita presa esperando outra janela
+      bd = loja.initializeFirestore(app, { localCache: loja.memoryLocalCache(), experimentalAutoDetectLongPolling: true });
     } catch (e) {
       bd = loja.getFirestore(app); // sem cache local (aba anônima, por exemplo)
     }
