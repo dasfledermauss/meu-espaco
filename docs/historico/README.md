@@ -8,7 +8,8 @@
 |---|---|---|---|
 | v4.0 | `2026-11-13_v4-modo-trabalho/` | A v3.5 mais músicas como mini app, modo trabalho (Shift + Espaço), bento nas coleções e menus reordenáveis. | Faltava guardar imagens como em um mural de referências. |
 | v4.5 | `2026-11-13_v4.5-antes-do-pwa/` | A v4.1 mais Imagens, boas-vindas, emoji do dia e notas soltas na coleção. | Pedido: transformar em aplicativo instalável (PWA). |
-| v5.71 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: feedback ao enviar. | — |
+| v5.72 (atual) | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: cadastro refeito ao abrir, com aviso de falha. | — |
+| v5.71 | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: feedback ao enviar. | — |
 | v5.70 | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: botão Enviar apagado sem destinatário. | — |
 | v5.69 | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: aviso claro quando a lista não carrega. | — |
 | v5.68 | sem captura ainda; registrar aqui antes da próxima mudança visual | Correios: caixa de entrada e envio de itens entre contas. | — |

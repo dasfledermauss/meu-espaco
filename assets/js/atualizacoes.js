@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.72',
+    data: '2026-11-17',
+    titulo: 'Correios: cadastro mais confiável',
+    itens: ['O cadastro de quem usa o Correios agora é refeito toda vez que você abre o Correios ou a janela de envio, e o app avisa se não conseguir. Antes dependia de uma única tentativa ao abrir o app, e quem falhava não aparecia para os outros.']
+  },
+  {
     versao: '5.71',
     data: '2026-11-17',
     titulo: 'Correios mostra que está enviando',

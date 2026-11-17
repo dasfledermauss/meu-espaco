@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.72 — 17/11/2026 · Correios: cadastro mais confiável
+
+- O cadastro (que faz os outros te verem na lista) é refeito ao abrir o Correios e a janela de envio, com aviso se falhar.
+
 ## 5.71 — 17/11/2026 · Correios mostra que está enviando
 
 - Ao clicar em Enviar, o botão vira "Enviando…"; ao terminar, aviso "enviado para [nome]". Se falhar ou faltar escolher a pessoa, o app avisa.

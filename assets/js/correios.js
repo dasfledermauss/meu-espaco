@@ -17,10 +17,20 @@ window.TybaCorreios = function (ctx) {
   let membros = [];          // quem pode receber
   let parar = null;          // para de ouvir a caixa
   let uidProprio = '';
+  let registrado = false;    // o cadastro da própria pessoa chegou ao Firebase (é o que faz os outros a verem)
   let falha = '';            // '', 'registrar' ou 'ler': o que deu errado ao falar com o Firestore (quase sempre regras não publicadas)
 
   const pendentes = () => caixa.length;
   const podeEnviar = (i) => !!i && TIPOS_QUE_VIAJAM.includes(i.tipo);
+
+  /** Aparece na lista dos outros. Tenta de novo sempre que a pessoa abre o Correios ou o envio, para não depender de uma única tentativa ao abrir o app. */
+  async function registrarMe() {
+    const a = API(); if (!a || !a.disponivel()) return false;
+    const u = conta() || {};
+    uidProprio = (window.Nuvem && window.Nuvem.uid) || uidProprio;
+    try { await a.registrar(String(u.nome || u.email || 'Alguém').split(' ')[0]); registrado = true; if (falha === 'registrar') falha = ''; return true; }
+    catch (e) { registrado = false; falha = 'registrar'; return false; }
+  }
 
   /* ---------- ligar: aparece na lista e passa a ouvir a caixa ---------- */
   async function ligar() {
@@ -28,7 +38,7 @@ window.TybaCorreios = function (ctx) {
     if (parar) { parar(); parar = null; }
     const u = conta() || {};
     uidProprio = (window.Nuvem && window.Nuvem.uid) || '';
-    try { await a.registrar(String(u.nome || u.email || 'Alguém').split(' ')[0]); } catch (e) { falha = 'registrar'; }
+    await registrarMe();
     parar = a.ouvir((lista) => {
       if (!lista) return;   // erro de permissão: as regras do Firestore ainda não foram publicadas
       const antes = caixa.length;
@@ -111,8 +121,10 @@ window.TybaCorreios = function (ctx) {
   }
   function renderCorreios() {
     const on = disponivel();
+    if (on && !registrado && !UI.correiosRegistrando) { UI.correiosRegistrando = true; registrarMe().then(() => { UI.correiosRegistrando = false; if ((location.hash || '').startsWith('#/correios')) { UI.pularColheita = true; render(); } }); }
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('mail')}Correios</h1></header>
       <p class="meta" style="margin:-6px 0 14px">Itens que outras pessoas mandaram para você. Para mandar um, abra o menu ⋯ do item e escolha “Enviar pelo Correios”.</p>
+      ${on && falha === 'registrar' ? '<p class="dica" style="margin-bottom:14px">' + ic('priority-high') + '<span>Não consegui cadastrar você no Correios, por isso os outros não te veem na lista. Recarregue a página; se continuar, as regras do Firebase não foram publicadas (veja docs/CORREIOS.md).</span></p>' : ''}
       ${!on ? vazio('mail', 'O Correios funciona com a conta Google ligada à nuvem. Entre com sua conta e espere a sincronização ligar.')
         : caixa.length ? `<div class="cartas">${caixa.map(cartaHTML).join('')}</div>`
         : vazio('mail', 'Sua caixa de entrada está vazia.')}`;
@@ -138,6 +150,7 @@ window.TybaCorreios = function (ctx) {
     if (!lista.length) return toast('Esse tipo de item não viaja pelo Correios.');
     if (!disponivel()) return toast('Entre com a conta Google para usar o Correios.');
     ctx.abrirModal({ tipo: 'correios-enviar', ids: lista, carregando: true });
+    await registrarMe();
     await carregarMembros();
     if (UI.modal && UI.modal.tipo === 'correios-enviar') { UI.modal.carregando = false; UI.pularColheita = true; render(); }
   }
