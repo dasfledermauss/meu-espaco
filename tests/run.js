@@ -278,6 +278,9 @@ const TESTES = {
       await p.fill('textarea[name=bilhete]', 'para você'); await p.click('.modal button[type=submit]'); await p.waitForTimeout(400);
       const env = await p.evaluate(() => window.__env.map(([d, c]) => [d, c.bilhete, c.item.tipo, 'id' in c.item, 'comentarios' in c.item]));
       conferir(env.length === 1 && env[0][0] === 'u2' && env[0][1] === 'para você' && env[0][2] === 'link' && !env[0][3] && !env[0][4], `${modo} ${w}px: envio leva só o conteúdo do item para a pessoa escolhida`);
+      await p.evaluate(() => { window.Nuvem.correios.membros = async () => { throw new Error('permission-denied'); }; });
+      await p.evaluate((x) => window.__meuEspaco.correios.abrirEnvio([x]), id); await p.waitForTimeout(500);
+      conferir(await p.evaluate(() => /regras/.test((document.querySelector('.modal .dica') || {}).textContent || '')), `${modo} ${w}px: falha ao ler a lista avisa sobre as regras do Firestore`);
       await ctx.close();
     }
   },

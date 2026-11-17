@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.69',
+    data: '2026-11-17',
+    titulo: 'Correios avisa quando não consegue ler a lista',
+    itens: ['Na janela de envio do Correios, se o Firebase recusar a leitura da lista (regras não publicadas), o aviso diz isso, em vez de só "ninguém apareceu".']
+  },
+  {
     versao: '5.68',
     data: '2026-11-17',
     titulo: 'Correios: mande itens para outra pessoa',

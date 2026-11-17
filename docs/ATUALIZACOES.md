@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.69 — 17/11/2026 · Correios avisa quando não consegue ler a lista
+
+- Na janela de envio, se o Firebase recusar a leitura da lista de pessoas (quase sempre regras não publicadas), o aviso explica isso. Se a lista só está sem outras pessoas, o texto diz que só você aparece.
+
 ## 5.68 — 17/11/2026 · Correios: mande itens para outra pessoa
 
 - Novo lugar no menu, **Correios**. Pelo menu ⋯ de um item (ou pelo modo Selecionar, para vários), "Enviar pelo Correios" abre a lista de quem usa o Tyba, com um bilhete opcional.

@@ -17,6 +17,7 @@ window.TybaCorreios = function (ctx) {
   let membros = [];          // quem pode receber
   let parar = null;          // para de ouvir a caixa
   let uidProprio = '';
+  let falha = '';            // '', 'registrar' ou 'ler': o que deu errado ao falar com o Firestore (quase sempre regras não publicadas)
 
   const pendentes = () => caixa.length;
   const podeEnviar = (i) => !!i && TIPOS_QUE_VIAJAM.includes(i.tipo);
@@ -27,7 +28,7 @@ window.TybaCorreios = function (ctx) {
     if (parar) { parar(); parar = null; }
     const u = conta() || {};
     uidProprio = (window.Nuvem && window.Nuvem.uid) || '';
-    try { await a.registrar(String(u.nome || u.email || 'Alguém').split(' ')[0]); } catch (e) { /* tenta de novo na próxima vez */ }
+    try { await a.registrar(String(u.nome || u.email || 'Alguém').split(' ')[0]); } catch (e) { falha = 'registrar'; }
     parar = a.ouvir((lista) => {
       if (!lista) return;   // erro de permissão: as regras do Firestore ainda não foram publicadas
       const antes = caixa.length;
@@ -39,7 +40,7 @@ window.TybaCorreios = function (ctx) {
   }
   async function carregarMembros() {
     const a = API(); if (!a || !a.disponivel()) return [];
-    try { membros = (await a.membros()).filter((m) => m.uid !== uidProprio); } catch (e) { membros = []; }
+    try { membros = (await a.membros()).filter((m) => m.uid !== uidProprio); if (falha === 'ler') falha = ''; } catch (e) { membros = []; falha = 'ler'; }
     return membros;
   }
 
@@ -122,7 +123,8 @@ window.TybaCorreios = function (ctx) {
     const ids = m.ids || [];
     const n = ids.length;
     const lista = m.carregando ? '<p class="meta">Procurando quem está no Tyba…</p>'
-      : !membros.length ? '<p class="dica">' + ic('priority-high') + '<span>Ninguém mais apareceu ainda. A outra pessoa precisa abrir o Tyba logada com a conta Google pelo menos uma vez.</span></p>'
+      : falha ? '<p class="dica">' + ic('priority-high') + '<span>Não consegui acessar a lista do Correios no Firebase. Quase sempre é porque as regras novas ainda não foram publicadas (veja docs/CORREIOS.md).</span></p>'
+      : !membros.length ? '<p class="dica">' + ic('priority-high') + '<span>Só você aparece por enquanto. A outra pessoa precisa abrir o Tyba (versão nova) logada com a conta Google, esperar "Sincronizado" e recarregar uma vez.</span></p>'
       : `<div class="opcoes-amigos" role="radiogroup" aria-label="Para quem">${membros.map((p, k) => `<label class="opcao-amigo"><input type="radio" name="destino" value="${esc(p.uid)}" ${k === 0 ? 'checked' : ''} required><span>${esc(p.nome || 'Sem nome')}</span></label>`).join('')}</div>`;
     return `<form class="modal" method="dialog" data-form="correios-enviar">
       <header class="modal-cab">${ic('send')}<h2>Enviar ${n} ${n === 1 ? 'item' : 'itens'} pelo Correios</h2>${ctx.btnIco('modal-fechar', 'xmark', 'Fechar')}</header>
