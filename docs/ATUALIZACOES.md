@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.53 — 16/11/2026 · Novo pet: Jack Russell
+
+- O Jack Russell entrou na lista de pets (botão Pets do cenário): parado, sentado, andando e abaixado, como os outros.
+
 ## 5.52 — 16/11/2026 · Reordenar tarefas arrastando
 
 - Arraste uma tarefa para qualquer posição, na mesma coluna ou em outra: os cartões deslizam para abrir o espaço onde ela vai entrar, e a ordem fica salva.

@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.53',
+    data: '2026-11-16',
+    titulo: 'Novo pet: Jack Russell',
+    itens: ['O Jack Russell entrou na lista de pets (botão Pets do cenário): parado, sentado, andando e abaixado, como os outros.']
+  },
+  {
     versao: '5.52',
     data: '2026-11-16',
     titulo: 'Reordenar tarefas arrastando',
