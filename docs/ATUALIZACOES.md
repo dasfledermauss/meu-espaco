@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.71 — 17/11/2026 · Correios mostra que está enviando
+
+- Ao clicar em Enviar, o botão vira "Enviando…"; ao terminar, aviso "enviado para [nome]". Se falhar ou faltar escolher a pessoa, o app avisa.
+
 ## 5.70 — 17/11/2026 · Botão Enviar do Correios fica apagado sem destinatário
 
 - Sem ninguém na lista, o botão Enviar aparece apagado (antes parecia ativo e não fazia nada).

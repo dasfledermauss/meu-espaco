@@ -143,8 +143,11 @@ window.TybaCorreios = function (ctx) {
   }
   async function enviarForm(d) {
     const m = UI.modal || {};
-    if (!d.destino) return;
+    if (!d.destino) return toast('Escolha para quem enviar.');
+    const bt = document.querySelector('#modal button[type=submit]');
+    if (bt) { bt.disabled = true; bt.innerHTML = ic('refresh') + 'Enviando…'; }
     const n = await enviar(m.ids || [], d.destino, d.bilhete);
+    if (!n && bt) { bt.disabled = false; bt.innerHTML = ic('send') + 'Enviar'; }
     if (n) {
       const quem = (membros.find((p) => p.uid === d.destino) || {}).nome || 'a pessoa';
       UI.modal = null; if (Array.isArray(UI.sel)) UI.sel = [];

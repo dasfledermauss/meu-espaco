@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.71',
+    data: '2026-11-17',
+    titulo: 'Correios mostra que está enviando',
+    itens: ['Ao clicar em Enviar, o botão vira "Enviando…" e, quando termina, aparece o aviso "enviado para [nome]". Se falhar ou faltar escolher a pessoa, o app avisa.']
+  },
+  {
     versao: '5.70',
     data: '2026-11-17',
     titulo: 'Botão Enviar do Correios fica apagado sem destinatário',
