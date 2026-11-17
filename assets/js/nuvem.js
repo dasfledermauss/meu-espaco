@@ -118,22 +118,24 @@ window.Nuvem = (function () {
   function pararDeOuvir() { if (ouvindo) { ouvindo(); ouvindo = null; } }
 
   /* ---------- Correios: enviar itens para outra pessoa ---------- */
+  /** Não deixa uma chamada ao Firestore ficar pendurada para sempre (sem rede, ou esperando a resposta do servidor). */
+  const comTempo = (p, ms = 10000) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('tempo-esgotado')), ms))]);
   const correios = {
     disponivel: () => !!(uid && sdk && bd),
     /** Guarda o código de amigo desta conta (só o primeiro nome). Falha se o código já for de outra pessoa ou se as regras não permitirem. */
     async registrar(nome, codigo) {
       if (!correios.disponivel()) return;
-      await sdk.loja.setDoc(sdk.loja.doc(bd, 'codigos', codigo), { uid, nome: String(nome || '').slice(0, 40), atualizadoEm: new Date().toISOString() });
+      await comTempo(sdk.loja.setDoc(sdk.loja.doc(bd, 'codigos', codigo), { uid, nome: String(nome || '').slice(0, 40), atualizadoEm: new Date().toISOString() }));
     },
     /** Procura quem tem esse código. Devolve { uid, nome } ou null. */
     async buscar(codigo) {
       if (!correios.disponivel()) return null;
-      const d = await sdk.loja.getDoc(sdk.loja.doc(bd, 'codigos', codigo));
+      const d = await comTempo(sdk.loja.getDoc(sdk.loja.doc(bd, 'codigos', codigo)));
       return d.exists() ? { uid: d.data().uid, nome: d.data().nome || '' } : null;
     },
     async enviar(destino, carta) {
       if (!correios.disponivel()) throw new Error('sem conexão com a nuvem');
-      await sdk.loja.setDoc(sdk.loja.doc(bd, 'correios', destino, 'cartas', carta.id), Object.assign({}, carta, { de: uid }));
+      await comTempo(sdk.loja.setDoc(sdk.loja.doc(bd, 'correios', destino, 'cartas', carta.id), Object.assign({}, carta, { de: uid })));
     },
     /** Avisa com a lista inteira da caixa de entrada sempre que algo chega ou sai. Devolve a função que para de ouvir. */
     ouvir(aoMudar) {

@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.74',
+    data: '2026-11-17',
+    titulo: 'Correios mostra o motivo quando falha',
+    itens: ['Se o Correios não conseguir registrar o código ou buscar um amigo, o aviso agora mostra o motivo do Firebase. As chamadas também desistem depois de 10 segundos em vez de ficarem esperando para sempre.']
+  },
+  {
     versao: '5.73',
     data: '2026-11-17',
     titulo: 'Correios: amigos por código',

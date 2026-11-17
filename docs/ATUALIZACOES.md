@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.74 — 17/11/2026 · Correios mostra o motivo quando falha
+
+- O aviso de falha do Correios mostra o motivo do Firebase (ex.: `permission-denied`), e as chamadas desistem em 10 s em vez de ficarem penduradas.
+
 ## 5.73 — 17/11/2026 · Correios: amigos por código
 
 - Cada conta tem um **código de amigo** (ex.: `ABC-123`), mostrado na página Correios. Você adiciona o código de um amigo uma vez e ele passa a aparecer na sua lista de envio. A lista automática de "quem abriu o Tyba" saiu.

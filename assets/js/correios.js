@@ -17,6 +17,7 @@ window.TybaCorreios = function (ctx) {
   let parar = null;          // para de ouvir a caixa
   let uidProprio = '';
   let registrado = false;    // o código de amigo desta conta chegou ao Firebase (é o que permite os outros te adicionarem)
+  let motivo = '';           // texto do último erro do Firebase (ex.: permission-denied), para aparecer na tela
   let falha = false;         // não consegui registrar o código (quase sempre regras do Firestore não publicadas)
 
   const pendentes = () => caixa.length;
@@ -42,8 +43,8 @@ window.TybaCorreios = function (ctx) {
       try {
         await a.registrar(nome, codigo);
         if (!meuCodigo()) { S.perfil.codigoAmigo = codigo; salvar(); }
-        registrado = true; falha = false; return true;
-      } catch (e) { /* tenta outro código */ }
+        registrado = true; falha = false; motivo = ''; return true;
+      } catch (e) { motivo = String((e && (e.code || e.message)) || e); }
     }
     registrado = false; falha = true; return false;
   }
@@ -69,7 +70,7 @@ window.TybaCorreios = function (ctx) {
     if (codigo.length !== 6) return toast('O código tem 6 letras e números, como ABC-123.');
     if (codigo === meuCodigo()) return toast('Esse é o seu próprio código.');
     let achou = null;
-    try { achou = await a.buscar(codigo); } catch (e) { return toast('Não consegui buscar agora. Confira as regras do Firebase (docs/CORREIOS.md).'); }
+    try { achou = await a.buscar(codigo); } catch (e) { return toast('Não consegui buscar agora (' + String((e && (e.code || e.message)) || e).slice(0, 60) + ').'); }
     if (!achou) return toast('Não achei ninguém com esse código.');
     if (achou.uid === uidProprio) return toast('Esse é o seu próprio código.');
     if (amigos().some((x) => x.uid === achou.uid)) return toast(achou.nome + ' já está nos seus amigos.');
@@ -172,7 +173,7 @@ window.TybaCorreios = function (ctx) {
     if (on && !registrado && !UI.correiosRegistrando) { UI.correiosRegistrando = true; registrarMe().then(() => { UI.correiosRegistrando = false; if ((location.hash || '').startsWith('#/correios')) { UI.pularColheita = true; render(); } }); }
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('mail')}Correios</h1></header>
       <p class="meta" style="margin:-6px 0 14px">Itens que amigos mandaram para você. Para mandar um, abra o menu ⋯ do item e escolha “Enviar pelo Correios”.</p>
-      ${on && falha ? '<p class="dica" style="margin-bottom:14px">' + ic('priority-high') + '<span>Não consegui registrar seu código no Firebase. Recarregue a página; se continuar, as regras do Firebase não foram publicadas (veja docs/CORREIOS.md).</span></p>' : ''}
+      ${on && falha ? '<p class="dica" style="margin-bottom:14px">' + ic('priority-high') + '<span>Não consegui registrar seu código no Firebase. Recarregue a página; se continuar, as regras do Firebase não foram publicadas (veja docs/CORREIOS.md).' + (motivo ? '<br><span class="suave">Motivo: ' + esc(motivo) + '</span>' : '') + '</span></p>' : ''}
       ${!on ? vazio('mail', 'O Correios funciona com a conta Google ligada à nuvem. Entre com sua conta e espere a sincronização ligar.')
         : `${amigosHTML()}<h2 class="cartas-tit">Caixa de entrada</h2>${caixa.length ? `<div class="cartas">${caixa.map(cartaHTML).join('')}</div>` : vazio('mail', 'Sua caixa de entrada está vazia.')}`}`;
   }
