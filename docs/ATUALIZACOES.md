@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.70 — 17/11/2026 · Botão Enviar do Correios fica apagado sem destinatário
+
+- Sem ninguém na lista, o botão Enviar aparece apagado (antes parecia ativo e não fazia nada).
+
 ## 5.69 — 17/11/2026 · Correios avisa quando não consegue ler a lista
 
 - Na janela de envio, se o Firebase recusar a leitura da lista de pessoas (quase sempre regras não publicadas), o aviso explica isso. Se a lista só está sem outras pessoas, o texto diz que só você aparece.

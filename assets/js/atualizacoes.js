@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.70',
+    data: '2026-11-17',
+    titulo: 'Botão Enviar do Correios fica apagado sem destinatário',
+    itens: ['Quando não há ninguém na lista, o botão Enviar do Correios aparece apagado, para deixar claro que não dá para enviar ainda.']
+  },
+  {
     versao: '5.69',
     data: '2026-11-17',
     titulo: 'Correios avisa quando não consegue ler a lista',

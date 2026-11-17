@@ -1713,3 +1713,4 @@ body.janela-arrastando { user-select: none; }
   .carta { flex-direction: column; }
   .carta-capa { width: 100%; height: 140px; }
 }
+.modal-pe button[disabled] { opacity: .45; cursor: not-allowed; }
