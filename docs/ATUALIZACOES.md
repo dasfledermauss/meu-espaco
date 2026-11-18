@@ -8,6 +8,10 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.80 — 18/11/2026 · Correios: enviar da Wishlist e do Mural
+
+- "Enviar pelo Correios" no menu ⋯ dos produtos da Wishlist (vitrine e comprados) e das notas do Mural.
+
 ## 5.79 — 17/11/2026 · Correios: envio direto pela API do Firebase
 
 - Enviar a carta usa a API REST do Firestore (PATCH com o token do login), não mais a fila de escrita do SDK. Erros aparecem com o código HTTP e a mensagem do Firebase.

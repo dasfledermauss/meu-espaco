@@ -1527,7 +1527,7 @@
         ${btnAlterna('fav', i.id, i.favorito, 'star', 'Favorito', 'Favoritar', 'estrela')}
         ${btnAlterna('fixar', i.id, i.fixado, 'pin', 'Fixada', 'Fixar')}
         ${menuMais([{ act: 'cor', id: i.id, ico: 'palette', txt: 'Trocar a cor' }, { act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' },
-          { act: 'comentar', id: i.id, ico: 'chat-bubble', txt: 'Comentários' }, { act: 'mover', id: i.id, ico: 'arrow-up', txt: 'Mover para o começo', extra: 'data-dir="topo"' },
+          { act: 'comentar', id: i.id, ico: 'chat-bubble', txt: 'Comentários' }, { act: 'correios-enviar', id: i.id, ico: 'send', txt: 'Enviar pelo Correios' }, { act: 'mover', id: i.id, ico: 'arrow-up', txt: 'Mover para o começo', extra: 'data-dir="topo"' },
           '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</footer></article>`;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('journal-page')}Mural</h1>
         <div class="ferramentas">${selectHTML('mural-col', '', [['todas', 'Todas as coleções'], ...S.colecoes.map((c) => [c.id, c.nome]), ['soltos', 'Sem coleção']], UI.muralCol).replace('<select', '<select data-act="mural-col" style="width:auto"')}
@@ -1739,7 +1739,7 @@
           ${btnAlterna('comprei', i.id, i.comprado, 'check-circle', 'Comprado', 'Marcar como comprado')}
           ${btnIco('recapturar', 'refresh', 'Atualizar preço', `data-id="${i.id}"`)}
           ${btnIco('copiar-link', 'copy', 'Copiar endereço', `data-id="${i.id}"`)}<span class="espaco"></span>
-          ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Corrigir dados' }, '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></div></article>`;
+          ${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Corrigir dados' }, { act: 'correios-enviar', id: i.id, ico: 'send', txt: 'Enviar pelo Correios' }, '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</div></div></article>`;
     main.innerHTML = `<header class="pagina-cab"><h1>${ic('shopping-bag')}Wishlist</h1>
         <div class="ferramentas">${btn('criar', ic('plus') + 'Colar link', 'data-t="desejo"', 'btn-1')}</div>
         <p class="meta wl-resumo">${ds.length} ${ds.length === 1 ? 'produto' : 'produtos'}${total ? ` · <strong>${brl(total)}</strong> no total` : ''}</p></header>
@@ -1767,7 +1767,7 @@
         ${lista.length ? `<div class="barras" style="margin-top:18px">${lista.map(([c, v]) => `<div><span>${esc(c)}</span><span class="barra" style="max-width:none"><i style="width:${Math.max(3, v / total * 100)}%"></i></span><strong>${brl(v)}</strong></div>`).join('')}</div>` : ''}</section>
       ${doMes.length ? `<section class="cartao"><table class="tabela"><thead><tr><th>Dia</th><th>Descrição</th><th>Categoria</th><th class="num">Valor</th><th></th></tr></thead><tbody>
         ${doMes.map((i) => `<tr><td>${fmtDiaCurto(i.dataGasto)}</td><td><a href="#/item/${i.id}">${esc(i.descricao || 'Gasto')}</a></td><td class="meta">${esc(i.categoria || '—')}</td><td class="num">${brl(i.valor)}</td>
-          <td style="text-align:right">${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' }, '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</td></tr>`).join('')}</tbody></table></section>`
+          <td style="text-align:right">${menuMais([{ act: 'editar-item', id: i.id, ico: 'edit-pencil', txt: 'Editar' }, { act: 'correios-enviar', id: i.id, ico: 'send', txt: 'Enviar pelo Correios' }, '-', { act: 'excluir-item', id: i.id, ico: 'trash', txt: 'Excluir', perigo: true }])}</td></tr>`).join('')}</tbody></table></section>`
         : vazio('wallet', 'Nenhum gasto neste mês.')}`;
   }
 

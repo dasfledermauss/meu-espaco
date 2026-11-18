@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.80',
+    data: '2026-11-18',
+    titulo: 'Correios: enviar da Wishlist e do Mural',
+    itens: ['Os produtos da Wishlist (cartões e lista de comprados) e as notas do Mural agora têm "Enviar pelo Correios" no menu ⋯. Antes só apareciam nos links, livros, artigos e imagens.']
+  },
+  {
     versao: '5.79',
     data: '2026-11-17',
     titulo: 'Correios: envio direto pela API do Firebase',

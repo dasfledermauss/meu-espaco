@@ -17,6 +17,7 @@ O que cobre hoje:
 - Início: contagem regressiva com ícone e título que quebra linha;
 - Agenda: título longo no painel do dia quebra linha dentro do cartão;
 - Correios: receber carta, salvar na mesma seção e enviar itens (com a nuvem simulada);
+- Correios: "Enviar pelo Correios" no menu da Wishlist e do Mural;
 - excluir cria a lápide e o item não volta ao recarregar;
 - wishlist em lote (um link por linha, repetido pulado);
 - menu em gaveta e dia do calendário em folha de baixo no celular;

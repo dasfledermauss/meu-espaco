@@ -290,6 +290,15 @@ const TESTES = {
       await ctx.close();
     }
   },
+  async 'correios: Enviar pelo Correios no menu da Wishlist e do Mural'(b) {
+    for (const rota of ['wishlist', 'mural']) {
+      const { p, ctx } = await pagina(b, { w: 1280, modo: 'claro' });
+      await p.goto(BASE + '#/' + rota); await p.waitForTimeout(600);
+      const n = await p.evaluate(() => document.querySelectorAll('[data-act=correios-enviar]').length);
+      conferir(n > 0, `${rota}: os cartões têm "Enviar pelo Correios" no menu ⋯ (${n})`);
+      await ctx.close();
+    }
+  },
   async 'cabeçalho do feed com "Selecionar" só em ícone no celular'(b) {
     const { p, ctx } = await pagina(b, { w: 390 });
     await p.goto(BASE + '#/inicio'); await p.waitForTimeout(500);
