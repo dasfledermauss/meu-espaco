@@ -206,6 +206,14 @@ const TESTES = {
     conferir((await p.textContent('body')).includes('versão ' + ver), `popup de novidades mostra a versão ${ver}`);
     conferir(!erros.length, 'sem erros de script' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
   },
+  async 'radar: leitura dos feeds no servidor local e na Vercel'() {
+    const py = require('child_process').spawnSync('python3', [path.join(__dirname, 'radar_teste.py')], { encoding: 'utf8' });
+    (py.stdout || '').split('\n').filter(Boolean).forEach((l) => console.log(l));
+    conferir(py.status === 0, 'servidor.py lê Google, Bing e GitHub' + (py.status ? ': ' + (py.stderr || '').split('\n').filter(Boolean).pop() : ''));
+    const js = require('child_process').spawnSync('node', [path.join(__dirname, 'radar_js_teste.mjs')], { encoding: 'utf8' });
+    (js.stdout || '').split('\n').filter(Boolean).forEach((l) => console.log(l));
+    conferir(js.status === 0, 'api/radar.js lê Google, Bing e GitHub' + (js.status ? ': ' + (js.stderr || '').split('\n').filter(Boolean).slice(-1)[0] : ''));
+  },
   async 'capturador da Vercel (api/capturar.js): preço da Amazon'() {
     const r = require('child_process').spawnSync('node', [path.join(__dirname, 'capturar_js_teste.mjs')], { encoding: 'utf8' });
     (r.stdout || '').split('\n').filter(Boolean).forEach((l) => console.log(l));
@@ -296,6 +304,49 @@ const TESTES = {
       await p.goto(BASE + '#/' + rota); await p.waitForTimeout(600);
       const n = await p.evaluate(() => document.querySelectorAll('[data-act=correios-enviar]').length);
       conferir(n > 0, `${rota}: os cartões têm "Enviar pelo Correios" no menu ⋯ (${n})`);
+      await ctx.close();
+    }
+  },
+  async 'abas: Imagens fica no Mural e o Radar na Biblioteca'(b) {
+    const { p, ctx } = await pagina(b, { w: 1280, modo: 'claro' });
+    await p.goto(BASE + '#/mural'); await p.waitForTimeout(500);
+    const mural = await p.evaluate(() => [...document.querySelectorAll('.abas-pag a')].map((a) => a.getAttribute('href')));
+    conferir(JSON.stringify(mural) === JSON.stringify(['#/mural', '#/imagens']), 'Mural tem as abas Notas e Imagens ' + mural.join());
+    await p.goto(BASE + '#/imagens'); await p.waitForTimeout(500);
+    conferir(await p.evaluate(() => document.querySelector('[data-area=mural]').getAttribute('aria-current') === 'page'), 'em Imagens, o menu marca Mural');
+    await p.goto(BASE + '#/biblioteca'); await p.waitForTimeout(500);
+    const bib = await p.evaluate(() => [...document.querySelectorAll('.abas-pag a')].map((a) => a.getAttribute('href')));
+    conferir(bib.includes('#/radar') && !bib.includes('#/imagens'), 'Biblioteca tem Radar e não tem mais Imagens ' + bib.join());
+    await ctx.close();
+  },
+  async 'radar: cadastrar alerta, achar novidade, marcar visto e guardar em Links'(b) {
+    for (const [w, modo] of [[1280, 'claro'], [390, 'escuro']]) {
+      const { p, ctx } = await pagina(b, { w, modo });
+      let resposta = [{ titulo: 'Notícia antiga um', url: 'https://exemplo.com/a', fonte: 'G1', data: '2026-11-16T10:00:00.000Z' }, { titulo: 'Notícia antiga dois', url: 'https://exemplo.com/b', fonte: 'Folha', data: '2026-11-15T10:00:00.000Z' }];
+      const consultas = [];
+      await p.route('**/api/radar**', (rota) => { consultas.push(new URL(rota.request().url()).searchParams.get('fontes')); rota.fulfill({ contentType: 'application/json', body: JSON.stringify({ achados: resposta, avisos: [] }) }); });
+      await p.goto(BASE + '#/radar'); await p.waitForTimeout(500);
+      await p.evaluate(() => { window.__meuEspaco.ui.servidor = true; });
+      await p.fill('.radar-form input[name=termo]', 'concurso teste'); await p.check('.radar-form input[name=github]'); await p.click('.radar-form button[type=submit]'); await p.waitForTimeout(700);
+      const r1 = await p.evaluate(() => ({ cards: document.querySelectorAll('.radar-alerta').length, achados: document.querySelectorAll('.radar-achado').length, novos: document.querySelectorAll('.radar-achado.novo').length }));
+      conferir(r1.cards === 1 && r1.achados === 2 && r1.novos === 0, `${modo} ${w}px: primeira busca forma a base, sem marcar novo ${JSON.stringify(r1)}`);
+      conferir(consultas[0] === 'noticias,github', `${modo} ${w}px: pediu notícias e GitHub (${consultas[0]})`);
+      resposta = [{ titulo: 'Notícia nova de hoje', url: 'https://exemplo.com/c', fonte: 'Bing', data: '2026-11-18T09:00:00.000Z' }].concat(resposta);
+      await p.click('.radar-barra [data-act=radar-atualizar]'); await p.waitForTimeout(700);
+      const r2 = await p.evaluate(() => ({ novos: document.querySelectorAll('.radar-achado.novo').length, primeiro: (document.querySelector('.radar-achado a') || {}).textContent, pend: window.__meuEspaco.radar.pendentes() }));
+      conferir(r2.novos === 1 && r2.pend === 1 && r2.primeiro === 'Notícia nova de hoje', `${modo} ${w}px: segunda busca traz só a novidade ${JSON.stringify(r2)}`);
+      await p.goto(BASE + '#/biblioteca'); await p.waitForTimeout(400);
+      conferir(/Radar\s*1/.test(await p.evaluate(() => document.querySelector('.abas-pag a[href="#/radar"]').textContent)), `${modo} ${w}px: a aba Radar mostra 1 novidade`);
+      await p.goto(BASE + '#/radar'); await p.waitForTimeout(400);
+      const antes = await p.evaluate(() => window.__meuEspaco.estado.itens.filter((i) => i.tipo === 'link').length);
+      await p.click('.radar-achado.novo [data-act=radar-salvar]'); await p.waitForTimeout(500);
+      const dep = await p.evaluate(() => ({ n: window.__meuEspaco.estado.itens.filter((i) => i.tipo === 'link').length, url: (window.__meuEspaco.estado.itens.find((i) => i.url === 'https://exemplo.com/c') || {}).url }));
+      conferir(dep.n === antes + 1 && dep.url === 'https://exemplo.com/c', `${modo} ${w}px: Guardar em Links cria o link`);
+      conferir(await p.evaluate(() => window.__meuEspaco.radar.pendentes()) === 0, `${modo} ${w}px: guardar marca como visto`);
+      const cab = await p.evaluate(() => { const l = document.querySelector('.radar-achado a').getBoundingClientRect(), c = document.querySelector('.radar-alerta').getBoundingClientRect(); return l.right <= c.right + 1; });
+      conferir(cab, `${modo} ${w}px: título do achado fica dentro do cartão`);
+      await p.click('[data-act=radar-remover]'); await p.waitForTimeout(300);
+      conferir(await p.evaluate(() => document.querySelectorAll('.radar-alerta').length) === 0, `${modo} ${w}px: remover o alerta`);
       await ctx.close();
     }
   },

@@ -8,6 +8,12 @@ Como escrever: uma linha por novidade, do jeito que a pessoa percebe na tela —
 
 ---
 
+## 5.81 — 18/11/2026 · Radar de palavras-chave e Imagens no Mural
+
+- **Radar** (aba da Biblioteca): alertas por palavra-chave, como o Google Alerts. Busca Google Notícias, Bing Notícias e, se marcado, repositórios do GitHub; de hora em hora enquanto o Tyba está aberto, e ao abrir. A primeira busca só forma a base; depois aparece só o que é novo, com contagem na aba. Guardar em Links, dispensar, pausar, remover. Ver `docs/RADAR.md`.
+- **Imagens** passou a ser aba do **Mural** (Notas · Imagens). Saiu das abas da Biblioteca; o endereço `#/imagens` continua igual.
+- Servidor: `GET /api/radar` em `servidor.py` e `api/radar.js` (mesma lógica, com testes nos dois).
+
 ## 5.80 — 18/11/2026 · Correios: enviar da Wishlist e do Mural
 
 - "Enviar pelo Correios" no menu ⋯ dos produtos da Wishlist (vitrine e comprados) e das notas do Mural.

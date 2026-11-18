@@ -34,6 +34,7 @@ meu-espaco/
 │   ├── js/pet.js           módulo do pet (ver docs/ARQUITETURA.md)
 │   ├── js/curriculo.js     módulo do currículo
 │   ├── js/musica.js        módulo das músicas e do mini player
+│   ├── js/radar.js         módulo do Radar (alertas por palavra-chave)
 │   ├── js/correios.js      módulo do Correios (enviar e receber itens entre contas)
 │   ├── js/conta.js         módulo da conta Google e do ciclo de sincronização
 │   ├── js/arrastar.js      módulo de arrastar e reordenar

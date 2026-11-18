@@ -18,6 +18,9 @@ O que cobre hoje:
 - Agenda: título longo no painel do dia quebra linha dentro do cartão;
 - Correios: receber carta, salvar na mesma seção e enviar itens (com a nuvem simulada);
 - Correios: "Enviar pelo Correios" no menu da Wishlist e do Mural;
+- Abas: Imagens no Mural e Radar na Biblioteca;
+- Radar: cadastrar alerta, base na primeira busca, novidade na segunda, marcar visto, guardar em Links (busca simulada);
+- Radar: leitura dos feeds no `servidor.py` e no `api/radar.js` (`tests/radar_teste.py`, `tests/radar_js_teste.mjs`);
 - excluir cria a lápide e o item não volta ao recarregar;
 - wishlist em lote (um link por linha, repetido pulado);
 - menu em gaveta e dia do calendário em folha de baixo no celular;

@@ -4,6 +4,7 @@
 Serve os arquivos desta pasta e oferece a captura de produtos para a Wishlist:
     GET /api/status              -> {"ok": true}
     GET|POST|DELETE /api/sessao  -> login com conta Google (ver docs/LOGIN.md)
+    GET /api/radar?q=...&fontes=...  -> {"achados": [{"titulo", "url", "fonte", "data"}], "avisos": []}
     GET /api/capturar?url=...    -> {"nome", "descricao", "imagem", "favicon", "preco", "moeda", "estrelas", "avaliacoes", "loja"}
     GET /api/pdf?url=...         -> devolve o PDF para o leitor interno (contorna o bloqueio entre sites)
 
@@ -22,6 +23,9 @@ import sys
 import threading
 import webbrowser
 import zlib
+import json as _json
+from datetime import timezone
+from email.utils import parsedate_to_datetime
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -602,6 +606,93 @@ def permitido(email):
     return (not PERMITIDOS) or str(email).lower() in PERMITIDOS
 
 
+# ---------------------------------------------------------------- Radar (mesma lógica de api/radar.js)
+def _limpa(txt):
+    txt = re.sub(r"<!\[CDATA\[(.*?)\]\]>", r"\1", txt or "", flags=re.S)
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", txt))).strip()
+
+
+def _marca(bloco, nome):
+    m = re.search(r"<" + nome + r"(?:\s[^>]*)?>(.*?)</" + nome + ">", bloco, re.S | re.I)
+    return _limpa(m.group(1)) if m else ""
+
+
+def _iso(texto):
+    try:
+        d = parsedate_to_datetime(texto)
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=timezone.utc)
+        return d.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    except Exception:
+        try:
+            from datetime import datetime
+            return datetime.fromisoformat(str(texto).replace("Z", "+00:00")).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        except Exception:
+            return ""
+
+
+def endereco_real(link):
+    """O Bing manda o link por um redirecionador; o endereço real vem no parâmetro `url`."""
+    u = urlparse(link)
+    if u.hostname and u.hostname.lower().endswith("bing.com"):
+        real = (parse_qs(u.query).get("url") or [""])[0]
+        if real:
+            return real
+    return link
+
+
+def ler_rss(xml, fonte_padrao=""):
+    itens = []
+    for m in re.finditer(r"<item\b[^>]*>(.*?)</item>", xml or "", re.S | re.I):
+        b = m.group(1)
+        titulo, url = _marca(b, "title"), endereco_real(_marca(b, "link"))
+        if not titulo or not re.match(r"https?://", url):
+            continue
+        itens.append({"titulo": titulo, "url": url, "fonte": _marca(b, "source") or _marca(b, "News:Source") or fonte_padrao, "data": _iso(_marca(b, "pubDate"))})
+    return itens
+
+
+def ler_github(dados):
+    saida = []
+    for r in (dados or {}).get("items") or []:
+        desc = r.get("description")
+        url = r.get("html_url") or ""
+        if re.match(r"https?://", url):
+            saida.append({"titulo": r.get("full_name", "") + (" — " + str(desc)[:140] if desc else ""), "url": url, "fonte": "GitHub", "data": _iso(r.get("pushed_at") or r.get("updated_at") or "")})
+    return saida
+
+
+def juntar_achados(listas, limite=40):
+    visto, todos = set(), []
+    for lista in listas:
+        for it in lista:
+            chave = re.sub(r"[^a-z0-9à-ú]+", "", it["titulo"].lower())[:80]
+            if not chave or chave in visto:
+                continue
+            visto.add(chave)
+            todos.append(it)
+    todos.sort(key=lambda x: x.get("data") or "", reverse=True)
+    return todos[:limite]
+
+
+def radar_buscar(q, fontes):
+    enc = quote(q)
+    tarefas = []
+    if "noticias" in fontes:
+        tarefas.append(("Google Notícias", lambda: ler_rss(baixar("https://news.google.com/rss/search?q=" + enc + "&hl=pt-BR&gl=BR&ceid=BR:pt-419")[0], "Google Notícias")))
+        tarefas.append(("Bing Notícias", lambda: ler_rss(baixar("https://www.bing.com/news/search?q=" + enc + "&format=rss&setlang=pt-BR&cc=BR")[0], "Bing Notícias")))
+    if "github" in fontes:
+        tarefas.append(("GitHub", lambda: ler_github(_json.loads(baixar("https://api.github.com/search/repositories?q=" + enc + "&sort=updated&order=desc&per_page=15", {**CABECALHOS, "Accept": "application/json"})[0]))))
+    listas, avisos = [], []
+    for nome, f in tarefas:
+        try:
+            listas.append(f())
+        except Exception:
+            avisos.append(nome + " não respondeu")
+    return juntar_achados(listas), avisos, bool(listas)
+
+
+
 class Manipulador(SimpleHTTPRequestHandler):
     extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".webmanifest": "application/manifest+json", ".mjs": "text/javascript"}
 
@@ -686,6 +777,16 @@ class Manipulador(SimpleHTTPRequestHandler):
             except Exception as e:
                 motivo = getattr(e, "code", None) or getattr(e, "reason", None) or e.__class__.__name__
                 return self.responder(502, {"erro": f"o YouTube não respondeu ({motivo})"})
+        if rota.path == "/api/radar":
+            par = parse_qs(rota.query)
+            q = (par.get("q") or [""])[0].strip()[:120]
+            if len(q) < 2:
+                return self.responder(400, {"erro": "escreva a palavra-chave"})
+            fontes = ((par.get("fontes") or ["noticias"])[0]).split(",")
+            achados, avisos, ok = radar_buscar(q, fontes)
+            if not ok:
+                return self.responder(502, {"erro": "nenhuma fonte respondeu agora", "avisos": avisos})
+            return self.responder(200, {"achados": achados, "avisos": avisos})
         if rota.path == "/api/capturar":
             url = (parse_qs(rota.query).get("url") or [""])[0].strip()
             if urlparse(url).scheme not in ("http", "https"):

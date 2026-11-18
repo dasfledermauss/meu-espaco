@@ -10,6 +10,12 @@
    neste navegador, e pode ser reaberto pelo menu da foto de perfil. */
 window.ATUALIZACOES = [
   {
+    versao: '5.81',
+    data: '2026-11-18',
+    titulo: 'Radar de palavras-chave e Imagens no Mural',
+    itens: ['Novo Radar, uma aba da Biblioteca: cadastre palavras-chave (seu nome, um concurso, um assunto) e o Tyba busca notícias (Google e Bing) e, se quiser, projetos do GitHub, de hora em hora enquanto estiver aberto. Só aparece o que é novo, com contagem na aba.', 'Dá para guardar um achado em Links, dispensar, pausar ou remover o alerta.', 'Imagens agora é uma aba do Mural, junto das notas (saiu da Biblioteca).']
+  },
+  {
     versao: '5.80',
     data: '2026-11-18',
     titulo: 'Correios: enviar da Wishlist e do Mural',

@@ -1723,3 +1723,27 @@ body.janela-arrastando { user-select: none; }
 .lista-amigos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .lista-amigos li { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 6px 0 14px; border-radius: var(--r-m); background: var(--cartao-2); font-weight: 500; }
 .lista-amigos li span { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+
+/* ---------------- Radar ---------------- */
+.radar-novo-alerta { margin-bottom: 16px; }
+.radar-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.radar-form input[type=text] { flex: 1 1 280px; min-width: 0; }
+.radar-github { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; color: var(--tinta-2); cursor: pointer; }
+.radar-github input { accent-color: var(--marca); }
+.radar-barra { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.radar-alertas { display: flex; flex-direction: column; gap: 14px; }
+.radar-alerta { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.radar-alerta.pausado { opacity: .7; }
+.radar-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.radar-cab > div:first-child { flex: 1 1 200px; min-width: 0; }
+.radar-cab h2 { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.radar-conta { font-style: normal; font-size: 12px; font-weight: 700; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; display: inline-grid; place-items: center; background: var(--marca); color: var(--marca-texto); }
+.radar-cab-acoes { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.radar-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.radar-achado { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-top: 1px solid var(--linha); min-width: 0; }
+.radar-achado:first-child { border-top: 0; }
+.radar-achado-corpo { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.radar-achado-corpo a { font-weight: 500; overflow-wrap: anywhere; }
+.radar-achado.novo .radar-achado-corpo a { font-weight: 700; }
+.radar-novo { color: var(--marca-escura); font-weight: 700; }
+.radar-achado-acoes { display: flex; flex: none; }

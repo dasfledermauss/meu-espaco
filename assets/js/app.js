@@ -1329,14 +1329,14 @@
   });
   /* A ordem das áreas fica no perfil: arrastar muda, e áreas novas entram no fim. */
   /* A barra tem 9 áreas (com o Correios). Agenda e Biblioteca reúnem várias páginas, que aparecem como abas no alto da tela. */
-  const GRUPO_DE = { agenda: 'agenda', tarefas: 'agenda', lembretes: 'agenda', biblioteca: 'biblioteca', links: 'biblioteca', imagens: 'biblioteca', estudos: 'biblioteca' };
-  const ABAS = { agenda: ['agenda', 'tarefas', 'lembretes'], biblioteca: ['biblioteca', 'links', 'imagens', 'estudos'] };
-  const ABA_NOME = { agenda: 'Calendário', tarefas: 'Tarefas', lembretes: 'Lembretes', biblioteca: 'Livros e filmes', links: 'Links', imagens: 'Imagens', estudos: 'Estudos' };
+  const GRUPO_DE = { agenda: 'agenda', tarefas: 'agenda', lembretes: 'agenda', mural: 'mural', imagens: 'mural', biblioteca: 'biblioteca', links: 'biblioteca', radar: 'biblioteca', estudos: 'biblioteca' };
+  const ABAS = { agenda: ['agenda', 'tarefas', 'lembretes'], mural: ['mural', 'imagens'], biblioteca: ['biblioteca', 'links', 'radar', 'estudos'] };
+  const ABA_NOME = { agenda: 'Calendário', tarefas: 'Tarefas', lembretes: 'Lembretes', mural: 'Notas', imagens: 'Imagens', biblioteca: 'Livros e filmes', links: 'Links', radar: 'Radar', estudos: 'Estudos' };
   const ABA_QTD = () => ({ agenda: '', tarefas: tarefasAbertas().length, lembretes: pendentes().length, biblioteca: doTipo('midia').length,
-    links: doTipo('link').length, imagens: doTipo('imagem').length, estudos: doTipo('artigo').length });
+    mural: doTipo('nota').length, links: doTipo('link').length, radar: TR.pendentes() || '', imagens: doTipo('imagem').length, estudos: doTipo('artigo').length });
   const AREAS = () => [['inicio', 'Início', 'home-simple', ''], ['agenda', 'Agenda', 'calendar', tarefasAbertas().length + pendentes().length],
-    ['mural', 'Mural', 'journal-page', doTipo('nota').length], ['musicas', 'Músicas', 'ytmusic', musicas().length],
-    ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length + doTipo('link').length + doTipo('imagem').length + doTipo('artigo').length],
+    ['mural', 'Mural', 'journal-page', doTipo('nota').length + doTipo('imagem').length], ['musicas', 'Músicas', 'ytmusic', musicas().length],
+    ['biblioteca', 'Biblioteca', 'book-stack', doTipo('midia').length + doTipo('link').length + doTipo('artigo').length],
     ['wishlist', 'Wishlist', 'shopping-bag', doTipo('desejo').filter((i) => !i.comprado).length],
     ['correios', 'Correios', 'mail', TC.pendentes() || ''], ['gastos', 'Gastos', 'wallet', ''], ['curriculo', 'Currículo', 'suitcase', '']];
   /** A ordem das abas de cada área fica no perfil (arrastar muda; abas novas entram no fim). */
@@ -1349,7 +1349,7 @@
     const g = GRUPO_DE[rota]; if (!g) return;
     const q = ABA_QTD();
     const cabPag = main.querySelector('.pagina-cab');
-    const abasHTML = (`<nav class="abas-pag" aria-label="${g === 'agenda' ? 'Agenda' : 'Biblioteca'}" title="Arraste uma aba para reordenar">${abasOrdenadas(g).map((r) =>
+    const abasHTML = (`<nav class="abas-pag" aria-label="${g === 'agenda' ? 'Agenda' : g === 'mural' ? 'Mural' : 'Biblioteca'}" title="Arraste uma aba para reordenar">${abasOrdenadas(g).map((r) =>
       `<a href="#/${r}" draggable="false" data-ordena="abas" data-oid="${r}" ${r === rota ? 'aria-current="page"' : ''}>${ABA_NOME[r]}${q[r] !== '' && q[r] ? `<em>${q[r]}</em>` : ''}</a>`).join('')}</nav>`);
     if (cabPag) cabPag.insertAdjacentHTML('afterend', abasHTML); else main.insertAdjacentHTML('afterbegin', abasHTML);
   }
@@ -2287,7 +2287,7 @@
   }
 
   /* ---------------- roteamento ---------------- */
-  const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, correios: () => TC.renderCorreios(), imagens: renderImagens, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
+  const ROTAS = { inicio: renderInicio, colecao: renderColecao, mural: renderMural, tarefas: renderTarefas, musicas: renderMusicas, correios: () => TC.renderCorreios(), radar: () => TR.renderRadar(), imagens: renderImagens, biblioteca: renderBiblioteca, estudos: renderEstudos, links: renderLinks,
     agenda: renderAgenda, wishlist: renderWishlist, gastos: renderGastos, lembretes: renderLembretes, curriculo: renderCurriculo, perfil: renderPerfil, config: renderConfig };
   function rotaAtual() { return location.hash.replace(/^#\/?/, '').split('/'); }
   function render(focar) {
@@ -2411,6 +2411,13 @@
       case 'sel-todos': { const todos = cartoesSel().map(idCartao); UI.sel = UI.sel.length === todos.length ? [] : todos; return render(); }
       case 'sel-enviar': return UI.sel.length ? TC.abrirEnvio(UI.sel.slice()) : undefined;
       case 'correios-enviar': fecharMenu(); return TC.abrirEnvio([id]);
+      case 'radar-atualizar': return TR.atualizar(b.dataset.a || null);
+      case 'radar-vistos': return TR.marcarVistos(b.dataset.a || null);
+      case 'radar-pausar': return TR.pausar(b.dataset.a);
+      case 'radar-remover': return TR.remover(b.dataset.a);
+      case 'radar-todos': return TR.mostrarTodos(b.dataset.a);
+      case 'radar-salvar': return TR.guardarEmLinks(b.dataset.a, b.dataset.n);
+      case 'radar-descartar': return TR.descartar(b.dataset.a, b.dataset.n);
       case 'correios-copiar': return TC.copiarCodigo();
       case 'amigo-remover': return TC.removerAmigo(b.dataset.uid);
       case 'carta-amigo': return TC.adicionarRemetente(id);
@@ -2910,6 +2917,7 @@
       UI.modal = null; ok('Grupo guardado.', 'folder'); return render();
     }
     if (tipo === 'correios-enviar') return TC.enviarForm(d);
+    if (tipo === 'radar-novo') { TR.adicionar(d); f.reset(); return; }
     if (tipo === 'correios-amigo') { TC.adicionarAmigo(d.codigo); f.reset(); return; }
     if (tipo === 'mover-lote') {
       const ids = UI.moverUm ? [UI.moverUm] : (UI.sel || []);
@@ -3376,6 +3384,8 @@
 
   /* ---------------- conta Google e sincronização com a nuvem ----------------
      Mora em assets/js/conta.js. Aqui só o ligamos ao estado e às utilidades do app. */
+  const TR = window.TybaRadar({ S: () => S, UI, main, esc: (...a) => esc(...a), ic: (...a) => ic(...a), btn: (...a) => btn(...a), btnIco: (...a) => btnIco(...a), toast: (...a) => toast(...a), agora: (...a) => agora(...a), uid: (...a) => uid(...a), salvar: (...a) => salvar(...a), render: (...a) => render(...a), vazio: (...a) => vazio(...a),
+    guardarLink: (url, titulo) => { guardarLinkRapido(url, 'link'); const i = S.itens.find((x) => x.tipo === 'link' && x.url === url); if (i && titulo) { i.titulo = String(titulo).slice(0, 120); salvar(); } } });
   const TC = window.TybaCorreios({ S: () => S, UI, main, esc: (...a) => esc(...a), ic: (...a) => ic(...a), btn: (...a) => btn(...a), btnIco: (...a) => btnIco(...a), toast: (...a) => toast(...a), agora: (...a) => agora(...a), uid: (...a) => uid(...a), salvar: (...a) => salvar(...a), render: (...a) => render(...a), item: (...a) => item(...a), nomeTipo: (...a) => nomeTipo(...a), icoTipo: (...a) => icoTipo(...a), tituloItem: (...a) => tituloItem(...a), fmtDataHora: (...a) => fmtDataHora(...a), vazio: (...a) => vazio(...a), conta: (...a) => conta(...a), migrar: (...a) => migrar(...a), abrirModal: (...a) => abrirModal(...a) });
   const CONTAM = window.TybaConta({ correiosLigar: () => TC.ligar(), correiosDesligar: () => TC.desligar(), S: () => S, UI, main, navLateral, direita, layout, topoPerfil, esc: (...a) => esc(...a), agora: (...a) => agora(...a), fmtHora: (...a) => fmtHora(...a), corta: (...a) => corta(...a), canon: (...a) => canon(...a), ic: (...a) => ic(...a), toast: (...a) => toast(...a), salvar: (...a) => salvar(...a), carregar: (...a) => carregar(...a), migrar: (...a) => migrar(...a), cartao: (...a) => cartao(...a), rotaAtual: (...a) => rotaAtual(...a), render: (...a) => render(...a), confirmar: (...a) => confirmar(...a), excluidoAntes: (...a) => excluidoAntes(...a) });
   const { CLIENTE_GOOGLE, logado, conta, carregarScript, lerSessao, renderEntrada, aoEntrar, sair, limpo, quando, nuvemLigada, agendarSync, pintarNuvem, textoNuvem, ligarNuvem } = CONTAM;
@@ -3418,6 +3428,7 @@
       else pintarNuvem();
     }
     pintarAvisoPwa();
-    window.__meuEspaco = { get estado() { return S; }, get ui() { return UI; }, pet: PETS[0], pets: PETS, correios: TC };
+    TR.ligar();
+    window.__meuEspaco = { get estado() { return S; }, get ui() { return UI; }, pet: PETS[0], pets: PETS, correios: TC, radar: TR };
   })();
 })();

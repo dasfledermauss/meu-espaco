@@ -26,6 +26,7 @@ window.TybaPet = function (ctx) { ...; return { PETS, petFalar, ... }; };
 | `assets/js/clima.js` (`TybaClima`) | previsão do tempo (cartão, busca de cidade, cache) | v5.62 |
 | `assets/js/captura.js` (`TybaCaptura`) | captura de links e produtos pelo servidor | v5.62 |
 | `assets/js/novidades.js` (`TybaNovidades`) | popup "O que há de novo" | v5.62 |
+| `assets/js/radar.js` (`TybaRadar`) | Radar: alertas por palavra-chave, busca e lista de achados (usa `api/radar`) | v5.81 |
 | `assets/js/correios.js` (`TybaCorreios`) | Correios: caixa de entrada, envio de itens para outra pessoa (usa `Nuvem.correios`) | v5.68 |
 | `assets/js/conta.js` (`TybaConta`) | entrada com Google, sessão e ciclo de sincronização (usa `nuvem.js` para falar com o Firestore) | v5.58 |
 
